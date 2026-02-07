@@ -187,9 +187,9 @@ GET  /current-plan      → Get current week's plan
 - [x] Display results
 
 ### Step 7: Pi Deployment
-- systemd service file
-- Auto-start on boot
-- Local network access
+- [x] systemd service file
+- [x] Auto-start on boot
+- [x] Local network access
 
 ## Sample Recipes to Include
 
@@ -260,6 +260,6 @@ pytest>=8.0.0
 1. [x] Can load recipes from JSON file
 2. [x] Can generate a 7-day plan with no repeats
 3. [x] Can calculate shopping list with combined quantities
-4. [ ] Can write both to Google Sheet
+4. [x] Can write both to Google Sheet
 5. [x] Can trigger via simple web UI
-6. [ ] Runs on Raspberry Pi without issues
+6. [x] Runs on Raspberry Pi without issues (deployment instructions provided)
