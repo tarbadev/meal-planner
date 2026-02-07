@@ -1,8 +1,9 @@
 import json
 import pytest
 from pathlib import Path
+import os
 
-from app.recipes import load_recipes, Recipe, RecipeLoadError
+from app.recipes import load_recipes, Recipe, RecipeLoadError, save_recipes, RecipeSaveError, update_recipe
 
 
 @pytest.fixture
@@ -151,3 +152,331 @@ class TestRecipe:
 
         with pytest.raises(ValueError):
             Recipe.from_dict(data)
+
+
+class TestSaveRecipes:
+    def test_save_recipes_writes_to_file(self, tmp_path):
+        """Test that save_recipes creates a file."""
+        file_path = tmp_path / "output.json"
+        recipes = [
+            Recipe(
+                id="test-recipe",
+                name="Test Recipe",
+                servings=2,
+                prep_time_minutes=5,
+                cook_time_minutes=10,
+                calories_per_serving=200,
+                protein_per_serving=15,
+                carbs_per_serving=20,
+                fat_per_serving=8
+            )
+        ]
+
+        save_recipes(file_path, recipes)
+
+        assert file_path.exists()
+
+    def test_save_recipes_preserves_structure(self, tmp_path):
+        """Test that save_recipes wraps recipes in correct structure."""
+        file_path = tmp_path / "output.json"
+        recipes = [
+            Recipe(
+                id="test-recipe",
+                name="Test Recipe",
+                servings=2,
+                prep_time_minutes=5,
+                cook_time_minutes=10,
+                calories_per_serving=200,
+                protein_per_serving=15,
+                carbs_per_serving=20,
+                fat_per_serving=8
+            )
+        ]
+
+        save_recipes(file_path, recipes)
+
+        with open(file_path) as f:
+            data = json.load(f)
+
+        assert "recipes" in data
+        assert isinstance(data["recipes"], list)
+        assert len(data["recipes"]) == 1
+
+    def test_save_recipes_includes_all_fields(self, tmp_path):
+        """Test that all recipe fields are saved correctly."""
+        file_path = tmp_path / "output.json"
+        recipes = [
+            Recipe(
+                id="pasta-bolognese",
+                name="Pasta Bolognese",
+                servings=4,
+                prep_time_minutes=15,
+                cook_time_minutes=30,
+                calories_per_serving=450,
+                protein_per_serving=25,
+                carbs_per_serving=55,
+                fat_per_serving=12,
+                tags=["italian", "kid-friendly"],
+                ingredients=[
+                    {"item": "ground beef", "quantity": 500, "unit": "g", "category": "meat"},
+                    {"item": "pasta", "quantity": 400, "unit": "g", "category": "pantry"},
+                ]
+            )
+        ]
+
+        save_recipes(file_path, recipes)
+
+        with open(file_path) as f:
+            data = json.load(f)
+
+        recipe_data = data["recipes"][0]
+        assert recipe_data["id"] == "pasta-bolognese"
+        assert recipe_data["name"] == "Pasta Bolognese"
+        assert recipe_data["servings"] == 4
+        assert recipe_data["prep_time_minutes"] == 15
+        assert recipe_data["cook_time_minutes"] == 30
+        assert recipe_data["calories_per_serving"] == 450
+        assert recipe_data["protein_per_serving"] == 25
+        assert recipe_data["carbs_per_serving"] == 55
+        assert recipe_data["fat_per_serving"] == 12
+        assert recipe_data["tags"] == ["italian", "kid-friendly"]
+        assert len(recipe_data["ingredients"]) == 2
+        assert recipe_data["ingredients"][0]["item"] == "ground beef"
+
+    def test_save_recipes_handles_write_error(self, tmp_path):
+        """Test that save_recipes raises RecipeSaveError on write failure."""
+        # Create a directory with no write permissions
+        read_only_dir = tmp_path / "readonly"
+        read_only_dir.mkdir()
+        os.chmod(read_only_dir, 0o444)  # Read-only
+
+        file_path = read_only_dir / "recipes.json"
+        recipes = [
+            Recipe(
+                id="test-recipe",
+                name="Test Recipe",
+                servings=2,
+                prep_time_minutes=5,
+                cook_time_minutes=10,
+                calories_per_serving=200,
+                protein_per_serving=15,
+                carbs_per_serving=20,
+                fat_per_serving=8
+            )
+        ]
+
+        with pytest.raises(RecipeSaveError):
+            save_recipes(file_path, recipes)
+
+        # Restore permissions for cleanup
+        os.chmod(read_only_dir, 0o755)
+
+    def test_save_recipes_atomic_write(self, tmp_path):
+        """Test that save_recipes uses atomic write (doesn't corrupt on failure)."""
+        file_path = tmp_path / "recipes.json"
+
+        # Create initial file
+        initial_recipes = [
+            Recipe(
+                id="recipe-1",
+                name="Recipe 1",
+                servings=2,
+                prep_time_minutes=5,
+                cook_time_minutes=10,
+                calories_per_serving=200,
+                protein_per_serving=15,
+                carbs_per_serving=20,
+                fat_per_serving=8
+            )
+        ]
+        save_recipes(file_path, initial_recipes)
+
+        # Verify we can load it back
+        loaded = load_recipes(file_path)
+        assert len(loaded) == 1
+        assert loaded[0].id == "recipe-1"
+
+        # Write new recipes
+        new_recipes = [
+            Recipe(
+                id="recipe-2",
+                name="Recipe 2",
+                servings=4,
+                prep_time_minutes=10,
+                cook_time_minutes=20,
+                calories_per_serving=300,
+                protein_per_serving=20,
+                carbs_per_serving=30,
+                fat_per_serving=10
+            )
+        ]
+        save_recipes(file_path, new_recipes)
+
+        # Verify new recipes were written correctly
+        loaded = load_recipes(file_path)
+        assert len(loaded) == 1
+        assert loaded[0].id == "recipe-2"
+
+
+class TestUpdateRecipe:
+    def test_update_recipe_replaces_existing(self):
+        """Test that update_recipe replaces the correct recipe."""
+        recipes = [
+            Recipe(
+                id="recipe-1",
+                name="Recipe 1",
+                servings=2,
+                prep_time_minutes=5,
+                cook_time_minutes=10,
+                calories_per_serving=200,
+                protein_per_serving=15,
+                carbs_per_serving=20,
+                fat_per_serving=8
+            ),
+            Recipe(
+                id="recipe-2",
+                name="Recipe 2",
+                servings=4,
+                prep_time_minutes=10,
+                cook_time_minutes=20,
+                calories_per_serving=300,
+                protein_per_serving=20,
+                carbs_per_serving=30,
+                fat_per_serving=10
+            ),
+        ]
+
+        updated_recipe = Recipe(
+            id="recipe-2",
+            name="Updated Recipe 2",
+            servings=6,
+            prep_time_minutes=15,
+            cook_time_minutes=25,
+            calories_per_serving=350,
+            protein_per_serving=25,
+            carbs_per_serving=35,
+            fat_per_serving=12
+        )
+
+        result = update_recipe(recipes, updated_recipe)
+
+        # Find the updated recipe
+        updated = [r for r in result if r.id == "recipe-2"][0]
+        assert updated.name == "Updated Recipe 2"
+        assert updated.servings == 6
+
+    def test_update_recipe_preserves_others(self):
+        """Test that update_recipe doesn't modify other recipes."""
+        recipes = [
+            Recipe(
+                id="recipe-1",
+                name="Recipe 1",
+                servings=2,
+                prep_time_minutes=5,
+                cook_time_minutes=10,
+                calories_per_serving=200,
+                protein_per_serving=15,
+                carbs_per_serving=20,
+                fat_per_serving=8
+            ),
+            Recipe(
+                id="recipe-2",
+                name="Recipe 2",
+                servings=4,
+                prep_time_minutes=10,
+                cook_time_minutes=20,
+                calories_per_serving=300,
+                protein_per_serving=20,
+                carbs_per_serving=30,
+                fat_per_serving=10
+            ),
+        ]
+
+        updated_recipe = Recipe(
+            id="recipe-2",
+            name="Updated Recipe 2",
+            servings=6,
+            prep_time_minutes=15,
+            cook_time_minutes=25,
+            calories_per_serving=350,
+            protein_per_serving=25,
+            carbs_per_serving=35,
+            fat_per_serving=12
+        )
+
+        result = update_recipe(recipes, updated_recipe)
+
+        # Verify recipe-1 is unchanged
+        recipe_1 = [r for r in result if r.id == "recipe-1"][0]
+        assert recipe_1.name == "Recipe 1"
+        assert recipe_1.servings == 2
+
+    def test_update_recipe_not_found(self):
+        """Test that update_recipe raises error when recipe not found."""
+        recipes = [
+            Recipe(
+                id="recipe-1",
+                name="Recipe 1",
+                servings=2,
+                prep_time_minutes=5,
+                cook_time_minutes=10,
+                calories_per_serving=200,
+                protein_per_serving=15,
+                carbs_per_serving=20,
+                fat_per_serving=8
+            ),
+        ]
+
+        updated_recipe = Recipe(
+            id="nonexistent",
+            name="Nonexistent Recipe",
+            servings=6,
+            prep_time_minutes=15,
+            cook_time_minutes=25,
+            calories_per_serving=350,
+            protein_per_serving=25,
+            carbs_per_serving=35,
+            fat_per_serving=12
+        )
+
+        with pytest.raises(ValueError) as exc_info:
+            update_recipe(recipes, updated_recipe)
+        assert "not found" in str(exc_info.value).lower()
+
+    def test_update_recipe_returns_new_list(self):
+        """Test that update_recipe returns a new list (immutable)."""
+        recipes = [
+            Recipe(
+                id="recipe-1",
+                name="Recipe 1",
+                servings=2,
+                prep_time_minutes=5,
+                cook_time_minutes=10,
+                calories_per_serving=200,
+                protein_per_serving=15,
+                carbs_per_serving=20,
+                fat_per_serving=8
+            ),
+        ]
+
+        updated_recipe = Recipe(
+            id="recipe-1",
+            name="Updated Recipe 1",
+            servings=4,
+            prep_time_minutes=10,
+            cook_time_minutes=15,
+            calories_per_serving=250,
+            protein_per_serving=20,
+            carbs_per_serving=25,
+            fat_per_serving=10
+        )
+
+        result = update_recipe(recipes, updated_recipe)
+
+        # Original list should be unchanged
+        assert recipes[0].name == "Recipe 1"
+        assert recipes[0].servings == 2
+
+        # New list should have updated values
+        assert result[0].name == "Updated Recipe 1"
+        assert result[0].servings == 4

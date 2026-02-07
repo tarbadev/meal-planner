@@ -2,7 +2,7 @@ from pathlib import Path
 from flask import Flask, render_template, jsonify, request
 
 import config
-from app.recipes import load_recipes
+from app.recipes import load_recipes, save_recipes, update_recipe, Recipe, RecipeSaveError
 from app.planner import MealPlanner
 from app.shopping_list import generate_shopping_list
 from app.sheets import SheetsWriter, SheetsError
@@ -68,6 +68,160 @@ def recipes():
             }
             for r in all_recipes
         ]
+    })
+
+
+@app.route("/recipes/<recipe_id>", methods=["GET"])
+def get_recipe(recipe_id: str):
+    """Fetch single recipe for editing."""
+    recipes_file = Path(config.RECIPES_FILE)
+    all_recipes = load_recipes(recipes_file)
+
+    # Find recipe by ID
+    recipe = None
+    for r in all_recipes:
+        if r.id == recipe_id:
+            recipe = r
+            break
+
+    if recipe is None:
+        return jsonify({
+            "error": "Recipe not found",
+            "message": f"No recipe found with ID '{recipe_id}'"
+        }), 404
+
+    # Return full recipe data including ingredients
+    return jsonify({
+        "id": recipe.id,
+        "name": recipe.name,
+        "servings": recipe.servings,
+        "prep_time_minutes": recipe.prep_time_minutes,
+        "cook_time_minutes": recipe.cook_time_minutes,
+        "calories_per_serving": recipe.calories_per_serving,
+        "protein_per_serving": recipe.protein_per_serving,
+        "carbs_per_serving": recipe.carbs_per_serving,
+        "fat_per_serving": recipe.fat_per_serving,
+        "tags": recipe.tags,
+        "ingredients": recipe.ingredients
+    })
+
+
+@app.route("/recipes/<recipe_id>", methods=["PUT"])
+def update_recipe_endpoint(recipe_id: str):
+    """Update existing recipe."""
+    global current_plan, current_shopping_list
+
+    # Parse request JSON
+    try:
+        data = request.get_json()
+    except Exception:
+        return jsonify({
+            "error": "Invalid JSON",
+            "message": "Request body must be valid JSON"
+        }), 400
+
+    if not data:
+        return jsonify({
+            "error": "Invalid request",
+            "message": "Request body is required"
+        }), 400
+
+    # Validate recipe_id matches body
+    if data.get("id") != recipe_id:
+        return jsonify({
+            "error": "ID mismatch",
+            "message": f"Recipe ID in URL ('{recipe_id}') must match ID in body ('{data.get('id')}')"
+        }), 400
+
+    # Load recipes
+    recipes_file = Path(config.RECIPES_FILE)
+    all_recipes = load_recipes(recipes_file)
+
+    # Check if recipe exists
+    recipe_exists = any(r.id == recipe_id for r in all_recipes)
+    if not recipe_exists:
+        return jsonify({
+            "error": "Recipe not found",
+            "message": f"No recipe found with ID '{recipe_id}'"
+        }), 404
+
+    # Create Recipe object with validation
+    try:
+        updated_recipe = Recipe.from_dict(data)
+    except ValueError as e:
+        return jsonify({
+            "error": "Validation error",
+            "message": str(e)
+        }), 400
+
+    # Additional validation: positive numbers
+    if updated_recipe.servings <= 0:
+        return jsonify({
+            "error": "Validation error",
+            "message": "Servings must be positive"
+        }), 400
+
+    if updated_recipe.prep_time_minutes < 0:
+        return jsonify({
+            "error": "Validation error",
+            "message": "Prep time cannot be negative"
+        }), 400
+
+    if updated_recipe.cook_time_minutes < 0:
+        return jsonify({
+            "error": "Validation error",
+            "message": "Cook time cannot be negative"
+        }), 400
+
+    if updated_recipe.calories_per_serving < 0:
+        return jsonify({
+            "error": "Validation error",
+            "message": "Calories cannot be negative"
+        }), 400
+
+    if updated_recipe.protein_per_serving < 0:
+        return jsonify({
+            "error": "Validation error",
+            "message": "Protein cannot be negative"
+        }), 400
+
+    if updated_recipe.carbs_per_serving < 0:
+        return jsonify({
+            "error": "Validation error",
+            "message": "Carbs cannot be negative"
+        }), 400
+
+    if updated_recipe.fat_per_serving < 0:
+        return jsonify({
+            "error": "Validation error",
+            "message": "Fat cannot be negative"
+        }), 400
+
+    # Update recipe in list
+    try:
+        updated_recipes = update_recipe(all_recipes, updated_recipe)
+    except ValueError as e:
+        return jsonify({
+            "error": "Update error",
+            "message": str(e)
+        }), 404
+
+    # Save to file
+    try:
+        save_recipes(recipes_file, updated_recipes)
+    except RecipeSaveError as e:
+        return jsonify({
+            "error": "Save error",
+            "message": f"Failed to save recipe: {str(e)}"
+        }), 500
+
+    # Clear current_plan (force regeneration)
+    current_plan = None
+    current_shopping_list = None
+
+    return jsonify({
+        "success": True,
+        "message": f"Recipe '{updated_recipe.name}' updated successfully. Please regenerate your meal plan."
     })
 
 
