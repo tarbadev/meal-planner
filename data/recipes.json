@@ -101,6 +101,46 @@
         {"item": "bell pepper", "quantity": 1, "unit": "whole", "category": "produce"},
         {"item": "mushrooms", "quantity": 100, "unit": "g", "category": "produce"}
       ]
+    },
+    {
+      "id": "tacos",
+      "name": "Tacos",
+      "servings": 4,
+      "prep_time_minutes": 15,
+      "cook_time_minutes": 15,
+      "calories_per_serving": 380,
+      "protein_per_serving": 22,
+      "carbs_per_serving": 35,
+      "fat_per_serving": 16,
+      "tags": ["mexican", "kid-friendly", "customizable"],
+      "ingredients": [
+        {"item": "ground beef", "quantity": 500, "unit": "g", "category": "meat"},
+        {"item": "taco shells", "quantity": 12, "unit": "pieces", "category": "pantry"},
+        {"item": "taco seasoning", "quantity": 2, "unit": "tbsp", "category": "pantry"},
+        {"item": "lettuce", "quantity": 1, "unit": "head", "category": "produce"},
+        {"item": "tomatoes", "quantity": 2, "unit": "whole", "category": "produce"},
+        {"item": "cheddar cheese", "quantity": 200, "unit": "g", "category": "dairy"},
+        {"item": "sour cream", "quantity": 150, "unit": "ml", "category": "dairy"}
+      ]
+    },
+    {
+      "id": "mac-and-cheese",
+      "name": "Mac and Cheese",
+      "servings": 4,
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 20,
+      "calories_per_serving": 450,
+      "protein_per_serving": 18,
+      "carbs_per_serving": 48,
+      "fat_per_serving": 20,
+      "tags": ["kid-friendly", "comfort-food", "easy"],
+      "ingredients": [
+        {"item": "macaroni pasta", "quantity": 400, "unit": "g", "category": "pantry"},
+        {"item": "cheddar cheese", "quantity": 300, "unit": "g", "category": "dairy"},
+        {"item": "butter", "quantity": 50, "unit": "g", "category": "dairy"},
+        {"item": "milk", "quantity": 300, "unit": "ml", "category": "dairy"},
+        {"item": "flour", "quantity": 2, "unit": "tbsp", "category": "pantry"}
+      ]
     }
   ]
 }
