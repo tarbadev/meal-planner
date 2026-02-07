@@ -1,0 +1,20 @@
+.idea
+.claude
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+
+# Testing
+.pytest_cache/
+.coverage
+
+# Secrets
+credentials.json
+
+# OS
+.DS_Store
