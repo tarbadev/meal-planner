@@ -5,6 +5,7 @@ import config
 from app.recipes import load_recipes
 from app.planner import MealPlanner
 from app.shopping_list import generate_shopping_list
+from app.sheets import SheetsWriter, SheetsError
 
 app = Flask(__name__)
 
@@ -132,6 +133,45 @@ def get_current_plan():
             }
         }
     })
+
+
+@app.route("/write-to-sheets", methods=["POST"])
+def write_to_sheets():
+    """Write the current plan to Google Sheets."""
+    if current_plan is None or current_shopping_list is None:
+        return jsonify({
+            "success": False,
+            "message": "No plan generated yet. Generate a plan first."
+        }), 400
+
+    try:
+        # Check if credentials exist
+        creds_path = Path(config.CREDENTIALS_FILE)
+        if not creds_path.exists():
+            return jsonify({
+                "success": False,
+                "message": "Google Sheets credentials not configured. See README for setup instructions."
+            }), 400
+
+        writer = SheetsWriter(
+            credentials_file=config.CREDENTIALS_FILE,
+            spreadsheet_id=config.GOOGLE_SHEETS_ID
+        )
+
+        result = writer.write_all(current_plan, current_shopping_list)
+
+        return jsonify(result)
+
+    except SheetsError as e:
+        return jsonify({
+            "success": False,
+            "message": f"Error writing to Google Sheets: {str(e)}"
+        }), 500
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Unexpected error: {str(e)}"
+        }), 500
 
 
 if __name__ == "__main__":

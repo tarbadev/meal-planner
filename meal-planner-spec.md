@@ -177,9 +177,9 @@ GET  /current-plan      → Get current week's plan
 - [x] Sort by category
 
 ### Step 5: Google Sheets Integration
-- Set up gspread authentication
-- Create/update weekly plan tab
-- Create/update shopping list tab
+- [x] Set up gspread authentication
+- [x] Create/update weekly plan tab
+- [x] Create/update shopping list tab
 
 ### Step 6: Web UI
 - [x] Simple HTML template with Jinja2
