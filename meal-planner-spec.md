@@ -159,7 +159,7 @@ GET  /current-plan      → Get current week's plan
 ### Step 1: Project Setup
 - [x] Initialize project structure
 - [x] Create requirements.txt (flask, gspread, google-auth, pytest)
-- [ ] Set up basic Flask app
+- [x] Set up basic Flask app
 
 ### Step 2: Recipe Data
 - [x] Create recipes.json with 5 sample recipes
@@ -167,14 +167,14 @@ GET  /current-plan      → Get current week's plan
 - [x] Add recipe validation (with tests in `tests/test_recipes.py`)
 
 ### Step 3: Planner Logic
-- Implement random meal selection (no repeats)
-- Calculate portions based on household size
-- Aggregate nutrition info
+- [x] Implement random meal selection (no repeats)
+- [x] Calculate portions based on household size
+- [x] Aggregate nutrition info
 
 ### Step 4: Shopping List
-- Aggregate ingredients across meals
-- Combine duplicate items
-- Sort by category
+- [x] Aggregate ingredients across meals
+- [x] Combine duplicate items
+- [x] Sort by category
 
 ### Step 5: Google Sheets Integration
 - Set up gspread authentication
@@ -182,9 +182,9 @@ GET  /current-plan      → Get current week's plan
 - Create/update shopping list tab
 
 ### Step 6: Web UI
-- Simple HTML template with Jinja2
-- Generate button
-- Display results
+- [x] Simple HTML template with Jinja2
+- [x] Generate button
+- [x] Display results
 
 ### Step 7: Pi Deployment
 - systemd service file
@@ -199,9 +199,9 @@ GET  /current-plan      → Get current week's plan
 4. [x] Vegetable Curry with Rice (vegetarian option)
 5. [x] Homemade Pizza (weekend, fun with kids)
 6. [ ] Salmon with Roasted Vegetables (healthy)
-7. [ ] Tacos (Mexican, customizable)
+7. [x] Tacos (Mexican, customizable)
 8. [ ] Chicken Soup (comfort food, batch)
-9. [ ] Mac and Cheese (kid favorite)
+9. [x] Mac and Cheese (kid favorite)
 10. [ ] Grilled Chicken with Quinoa (healthy, simple)
 
 ## Future Enhancements (v2+)
@@ -258,8 +258,8 @@ pytest>=8.0.0
 ## Success Criteria (MVP)
 
 1. [x] Can load recipes from JSON file
-2. [ ] Can generate a 7-day plan with no repeats
-3. [ ] Can calculate shopping list with combined quantities
+2. [x] Can generate a 7-day plan with no repeats
+3. [x] Can calculate shopping list with combined quantities
 4. [ ] Can write both to Google Sheet
-5. [ ] Can trigger via simple web UI
+5. [x] Can trigger via simple web UI
 6. [ ] Runs on Raspberry Pi without issues

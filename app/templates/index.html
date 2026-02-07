@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .section {
+            margin-top: 40px;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .meal-plan {
+            display: grid;
+            gap: 15px;
+        }
+
+        .meal-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+
+        .meal-card .day {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .meal-card .recipe-name {
+            font-size: 18px;
+            color: #34495e;
+            margin-bottom: 8px;
+        }
+
+        .meal-card .nutrition {
+            font-size: 14px;
+            color: #7f8c8d;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nutrition-totals {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+
+        .nutrition-totals h3 {
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .nutrition-item {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .nutrition-item .label {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .nutrition-item .value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .shopping-list {
+            margin-top: 20px;
+        }
+
+        .category-section {
+            margin-bottom: 25px;
+        }
+
+        .category-section h3 {
+            color: #34495e;
+            margin-bottom: 10px;
+            text-transform: capitalize;
+        }
+
+        .shopping-items {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .shopping-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .shopping-item:last-child {
+            border-bottom: none;
+        }
+
+        .shopping-item .name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .shopping-item .quantity {
+            color: #7f8c8d;
+        }
+
+        .recipe-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .recipe-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #ecf0f1;
+        }
+
+        .recipe-card .name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .recipe-card .tags {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .tag {
+            background: #3498db;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Meal Planner</h1>
+        <p class="subtitle">Weekly meal planning for a household of {{ household_portions }} portions</p>
+
+        <button id="generateBtn" onclick="generatePlan()">Generate New Weekly Plan</button>
+
+        <div id="message" class="message hidden"></div>
+
+        <div id="planSection" class="section {% if not current_plan %}hidden{% endif %}">
+            <h2>This Week's Meal Plan</h2>
+            <div id="mealPlan" class="meal-plan"></div>
+            <div id="nutritionTotals" class="nutrition-totals"></div>
+        </div>
+
+        <div id="shoppingSection" class="section {% if not current_shopping_list %}hidden{% endif %}">
+            <h2>Shopping List</h2>
+            <div id="shoppingList" class="shopping-list"></div>
+        </div>
+
+        <div class="section">
+            <h2>Available Recipes ({{ recipes|length }})</h2>
+            <div class="recipe-list">
+                {% for recipe in recipes %}
+                <div class="recipe-card">
+                    <div class="name">{{ recipe.name }}</div>
+                    <div style="font-size: 14px; color: #7f8c8d; margin-top: 5px;">
+                        {{ recipe.total_time_minutes }} min | {{ recipe.calories_per_serving }} cal
+                    </div>
+                    <div class="tags">
+                        {% for tag in recipe.tags %}
+                        <span class="tag">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showMessage(text, type = 'success') {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+            messageEl.classList.remove('hidden');
+
+            setTimeout(() => {
+                messageEl.classList.add('hidden');
+            }, 3000);
+        }
+
+        async function generatePlan() {
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('Weekly plan generated successfully!');
+                    await loadCurrentPlan();
+                }
+            } catch (error) {
+                showMessage('Error generating plan: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Generate New Weekly Plan';
+            }
+        }
+
+        async function loadCurrentPlan() {
+            try {
+                const response = await fetch('/current-plan');
+                const data = await response.json();
+
+                if (data.plan) {
+                    displayPlan(data.plan);
+                    displayShoppingList(data.shopping_list);
+                }
+            } catch (error) {
+                console.error('Error loading plan:', error);
+            }
+        }
+
+        function displayPlan(plan) {
+            const planSection = document.getElementById('planSection');
+            const mealPlanEl = document.getElementById('mealPlan');
+            const nutritionTotalsEl = document.getElementById('nutritionTotals');
+
+            planSection.classList.remove('hidden');
+
+            // Display meals
+            mealPlanEl.innerHTML = plan.meals.map(meal => `
+                <div class="meal-card">
+                    <div class="day">${meal.day}</div>
+                    <div class="recipe-name">${meal.recipe_name}</div>
+                    <div class="nutrition">
+                        <span>${Math.round(meal.calories)} cal</span>
+                        <span>${Math.round(meal.protein)}g protein</span>
+                        <span>${Math.round(meal.carbs)}g carbs</span>
+                        <span>${Math.round(meal.fat)}g fat</span>
+                        <span>${meal.total_time} min</span>
+                    </div>
+                </div>
+            `).join('');
+
+            // Display totals
+            nutritionTotalsEl.innerHTML = `
+                <h3>Weekly Nutrition Summary</h3>
+                <div class="nutrition-grid">
+                    <div class="nutrition-item">
+                        <div class="label">Total Calories</div>
+                        <div class="value">${Math.round(plan.totals.calories)}</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div class="label">Avg Daily Calories</div>
+                        <div class="value">${Math.round(plan.daily_averages.calories)}</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div class="label">Total Protein</div>
+                        <div class="value">${Math.round(plan.totals.protein)}g</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div class="label">Avg Daily Protein</div>
+                        <div class="value">${Math.round(plan.daily_averages.protein)}g</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayShoppingList(shoppingList) {
+            const shoppingSection = document.getElementById('shoppingSection');
+            const shoppingListEl = document.getElementById('shoppingList');
+
+            shoppingSection.classList.remove('hidden');
+
+            // Group items by category
+            const byCategory = shoppingList.items_by_category;
+
+            shoppingListEl.innerHTML = Object.entries(byCategory).map(([category, items]) => `
+                <div class="category-section">
+                    <h3>${category}</h3>
+                    <div class="shopping-items">
+                        ${items.map(item => `
+                            <div class="shopping-item">
+                                <span class="name">${item.item}</span>
+                                <span class="quantity">${item.quantity} ${item.unit}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load current plan on page load if it exists
+        {% if current_plan %}
+        window.addEventListener('DOMContentLoaded', () => {
+            loadCurrentPlan();
+        });
+        {% endif %}
+    </script>
+</body>
+</html>
