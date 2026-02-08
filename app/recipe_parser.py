@@ -13,10 +13,24 @@ class ParsedRecipe:
     servings: Optional[int] = None
     prep_time_minutes: Optional[int] = None
     cook_time_minutes: Optional[int] = None
+    # Core nutrition fields
     calories_per_serving: Optional[int] = None
     protein_per_serving: Optional[float] = None
     carbs_per_serving: Optional[float] = None
     fat_per_serving: Optional[float] = None
+    # Extended nutrition fields
+    saturated_fat_per_serving: Optional[float] = None
+    polyunsaturated_fat_per_serving: Optional[float] = None
+    monounsaturated_fat_per_serving: Optional[float] = None
+    sodium_per_serving: Optional[float] = None
+    potassium_per_serving: Optional[float] = None
+    fiber_per_serving: Optional[float] = None
+    sugar_per_serving: Optional[float] = None
+    vitamin_a_per_serving: Optional[float] = None
+    vitamin_c_per_serving: Optional[float] = None
+    calcium_per_serving: Optional[float] = None
+    iron_per_serving: Optional[float] = None
+    # Other fields
     tags: list[str] = None
     ingredients: list[dict] = None
     instructions: list[str] = None
@@ -43,16 +57,32 @@ class ParsedRecipe:
                 "Please try a different URL or add the recipe manually."
             )
 
+        # Build nested nutrition structure
+        nutrition_per_serving = {
+            "calories": self.calories_per_serving or 0,
+            "protein": self.protein_per_serving or 0.0,
+            "carbs": self.carbs_per_serving or 0.0,
+            "fat": self.fat_per_serving or 0.0,
+            "saturated_fat": self.saturated_fat_per_serving,
+            "polyunsaturated_fat": self.polyunsaturated_fat_per_serving,
+            "monounsaturated_fat": self.monounsaturated_fat_per_serving,
+            "sodium": self.sodium_per_serving,
+            "potassium": self.potassium_per_serving,
+            "fiber": self.fiber_per_serving,
+            "sugar": self.sugar_per_serving,
+            "vitamin_a": self.vitamin_a_per_serving,
+            "vitamin_c": self.vitamin_c_per_serving,
+            "calcium": self.calcium_per_serving,
+            "iron": self.iron_per_serving
+        }
+
         return {
             "id": generated_id,
             "name": self.name,
             "servings": self.servings or 4,  # Default to 4 servings
             "prep_time_minutes": self.prep_time_minutes or 0,
             "cook_time_minutes": self.cook_time_minutes or 0,
-            "calories_per_serving": self.calories_per_serving or 0,
-            "protein_per_serving": self.protein_per_serving or 0.0,
-            "carbs_per_serving": self.carbs_per_serving or 0.0,
-            "fat_per_serving": self.fat_per_serving or 0.0,
+            "nutrition_per_serving": nutrition_per_serving,
             "tags": self.tags or ["imported"],
             "ingredients": self.ingredients,
             "instructions": self.instructions
@@ -168,10 +198,24 @@ class RecipeParser:
             servings=self._extract_servings(data.get('recipeYield')),
             prep_time_minutes=parse_duration(data.get('prepTime', '')),
             cook_time_minutes=parse_duration(data.get('cookTime', '')),
+            # Core nutrition fields
             calories_per_serving=self._extract_calories(nutrition),
             protein_per_serving=self._extract_nutrient(nutrition, 'proteinContent'),
             carbs_per_serving=self._extract_nutrient(nutrition, 'carbohydrateContent'),
             fat_per_serving=self._extract_nutrient(nutrition, 'fatContent'),
+            # Extended nutrition fields from schema.org
+            saturated_fat_per_serving=self._extract_nutrient(nutrition, 'saturatedFatContent'),
+            # Note: schema.org uses 'unsaturatedFatContent' but we map to polyunsaturated
+            polyunsaturated_fat_per_serving=self._extract_nutrient(nutrition, 'unsaturatedFatContent'),
+            monounsaturated_fat_per_serving=self._extract_nutrient(nutrition, 'monounsaturatedFatContent'),
+            sodium_per_serving=self._extract_nutrient(nutrition, 'sodiumContent'),
+            potassium_per_serving=self._extract_nutrient(nutrition, 'potassiumContent'),
+            fiber_per_serving=self._extract_nutrient(nutrition, 'fiberContent'),
+            sugar_per_serving=self._extract_nutrient(nutrition, 'sugarContent'),
+            vitamin_a_per_serving=self._extract_nutrient(nutrition, 'vitaminAContent'),
+            vitamin_c_per_serving=self._extract_nutrient(nutrition, 'vitaminCContent'),
+            calcium_per_serving=self._extract_nutrient(nutrition, 'calciumContent'),
+            iron_per_serving=self._extract_nutrient(nutrition, 'ironContent'),
             tags=[],  # Could extract from recipeCategory or recipeCuisine
             ingredients=ingredients,
             instructions=instructions
@@ -280,10 +324,23 @@ class RecipeParser:
                 servings=recipe_data.get('servings', 4),
                 prep_time_minutes=recipe_data.get('prep_time', 0),
                 cook_time_minutes=recipe_data.get('cook_time', 0),
+                # Core nutrition fields
                 calories_per_serving=nutrition.get('calories', 0),
                 protein_per_serving=self._extract_grams(nutrition.get('protein')),
                 carbs_per_serving=self._extract_grams(nutrition.get('carbohydrates')),
                 fat_per_serving=self._extract_grams(nutrition.get('fat')),
+                # Extended nutrition fields from WPRM
+                saturated_fat_per_serving=self._extract_grams(nutrition.get('saturated_fat')),
+                polyunsaturated_fat_per_serving=self._extract_grams(nutrition.get('polyunsaturated_fat')),
+                monounsaturated_fat_per_serving=self._extract_grams(nutrition.get('monounsaturated_fat')),
+                sodium_per_serving=self._extract_grams(nutrition.get('sodium')),
+                potassium_per_serving=self._extract_grams(nutrition.get('potassium')),
+                fiber_per_serving=self._extract_grams(nutrition.get('fiber')),
+                sugar_per_serving=self._extract_grams(nutrition.get('sugar')),
+                vitamin_a_per_serving=self._extract_grams(nutrition.get('vitamin_a')),
+                vitamin_c_per_serving=self._extract_grams(nutrition.get('vitamin_c')),
+                calcium_per_serving=self._extract_grams(nutrition.get('calcium')),
+                iron_per_serving=self._extract_grams(nutrition.get('iron')),
                 tags=[],
                 ingredients=ingredients,
                 instructions=instructions

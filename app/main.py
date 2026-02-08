@@ -29,6 +29,29 @@ def index():
     )
 
 
+@app.route("/recipe/<recipe_id>")
+def recipe_detail(recipe_id: str):
+    """Display detailed recipe page."""
+    recipes_file = Path(config.RECIPES_FILE)
+    all_recipes = load_recipes(recipes_file)
+
+    # Find recipe by ID
+    recipe = None
+    for r in all_recipes:
+        if r.id == recipe_id:
+            recipe = r
+            break
+
+    if recipe is None:
+        return render_template(
+            "error.html",
+            error_title="Recipe Not Found",
+            error_message=f"No recipe found with ID '{recipe_id}'"
+        ), 404
+
+    return render_template("recipe_detail.html", recipe=recipe)
+
+
 @app.route("/generate", methods=["POST"])
 def generate():
     """Generate a new weekly meal plan."""
@@ -95,11 +118,22 @@ def import_recipe():
             )
 
             if generated_nutrition:
-                # Update parsed recipe with generated nutrition
+                # Update parsed recipe with generated nutrition (all 15 fields)
                 parsed_recipe.calories_per_serving = int(generated_nutrition.calories)
                 parsed_recipe.protein_per_serving = generated_nutrition.protein
                 parsed_recipe.carbs_per_serving = generated_nutrition.carbs
                 parsed_recipe.fat_per_serving = generated_nutrition.fat
+                parsed_recipe.saturated_fat_per_serving = generated_nutrition.saturated_fat
+                parsed_recipe.polyunsaturated_fat_per_serving = generated_nutrition.polyunsaturated_fat
+                parsed_recipe.monounsaturated_fat_per_serving = generated_nutrition.monounsaturated_fat
+                parsed_recipe.sodium_per_serving = generated_nutrition.sodium
+                parsed_recipe.potassium_per_serving = generated_nutrition.potassium
+                parsed_recipe.fiber_per_serving = generated_nutrition.fiber
+                parsed_recipe.sugar_per_serving = generated_nutrition.sugar
+                parsed_recipe.vitamin_a_per_serving = generated_nutrition.vitamin_a
+                parsed_recipe.vitamin_c_per_serving = generated_nutrition.vitamin_c
+                parsed_recipe.calcium_per_serving = generated_nutrition.calcium
+                parsed_recipe.iron_per_serving = generated_nutrition.iron
 
                 # Add tag to indicate generated nutrition
                 if not parsed_recipe.tags:
@@ -208,16 +242,20 @@ def get_recipe(recipe_id: str):
         }), 404
 
     # Return full recipe data including ingredients
+    # For backward compatibility, return both nested and flat nutrition structure
     return jsonify({
         "id": recipe.id,
         "name": recipe.name,
         "servings": recipe.servings,
         "prep_time_minutes": recipe.prep_time_minutes,
         "cook_time_minutes": recipe.cook_time_minutes,
+        # Flat fields for backward compatibility with edit form
         "calories_per_serving": recipe.calories_per_serving,
         "protein_per_serving": recipe.protein_per_serving,
         "carbs_per_serving": recipe.carbs_per_serving,
         "fat_per_serving": recipe.fat_per_serving,
+        # Nested structure (new format)
+        "nutrition_per_serving": recipe.nutrition_per_serving,
         "tags": recipe.tags,
         "ingredients": recipe.ingredients
     })
@@ -357,12 +395,25 @@ def get_current_plan():
                 {
                     "day": meal.day,
                     "meal_type": meal.meal_type,
+                    "recipe_id": meal.recipe.id,
                     "recipe_name": meal.recipe.name,
                     "portions": meal.portions,
                     "calories": meal.calories,
                     "protein": meal.protein,
                     "carbs": meal.carbs,
                     "fat": meal.fat,
+                    # Extended nutrition fields
+                    "saturated_fat": meal.saturated_fat,
+                    "polyunsaturated_fat": meal.polyunsaturated_fat,
+                    "monounsaturated_fat": meal.monounsaturated_fat,
+                    "sodium": meal.sodium,
+                    "potassium": meal.potassium,
+                    "fiber": meal.fiber,
+                    "sugar": meal.sugar,
+                    "vitamin_a": meal.vitamin_a,
+                    "vitamin_c": meal.vitamin_c,
+                    "calcium": meal.calcium,
+                    "iron": meal.iron,
                     "prep_time": meal.recipe.prep_time_minutes,
                     "cook_time": meal.recipe.cook_time_minutes,
                     "total_time": meal.recipe.total_time_minutes
@@ -373,13 +424,37 @@ def get_current_plan():
                 "calories": current_plan.total_calories,
                 "protein": current_plan.total_protein,
                 "carbs": current_plan.total_carbs,
-                "fat": current_plan.total_fat
+                "fat": current_plan.total_fat,
+                # Extended nutrition totals
+                "saturated_fat": current_plan.total_saturated_fat,
+                "polyunsaturated_fat": current_plan.total_polyunsaturated_fat,
+                "monounsaturated_fat": current_plan.total_monounsaturated_fat,
+                "sodium": current_plan.total_sodium,
+                "potassium": current_plan.total_potassium,
+                "fiber": current_plan.total_fiber,
+                "sugar": current_plan.total_sugar,
+                "vitamin_a": current_plan.total_vitamin_a,
+                "vitamin_c": current_plan.total_vitamin_c,
+                "calcium": current_plan.total_calcium,
+                "iron": current_plan.total_iron
             },
             "daily_averages": {
                 "calories": current_plan.avg_daily_calories,
                 "protein": current_plan.avg_daily_protein,
                 "carbs": current_plan.avg_daily_carbs,
-                "fat": current_plan.avg_daily_fat
+                "fat": current_plan.avg_daily_fat,
+                # Extended nutrition averages
+                "saturated_fat": current_plan.avg_daily_saturated_fat,
+                "polyunsaturated_fat": current_plan.avg_daily_polyunsaturated_fat,
+                "monounsaturated_fat": current_plan.avg_daily_monounsaturated_fat,
+                "sodium": current_plan.avg_daily_sodium,
+                "potassium": current_plan.avg_daily_potassium,
+                "fiber": current_plan.avg_daily_fiber,
+                "sugar": current_plan.avg_daily_sugar,
+                "vitamin_a": current_plan.avg_daily_vitamin_a,
+                "vitamin_c": current_plan.avg_daily_vitamin_c,
+                "calcium": current_plan.avg_daily_calcium,
+                "iron": current_plan.avg_daily_iron
             }
         },
         "shopping_list": {

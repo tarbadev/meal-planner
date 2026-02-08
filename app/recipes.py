@@ -23,10 +23,7 @@ class Recipe:
     servings: int
     prep_time_minutes: int
     cook_time_minutes: int
-    calories_per_serving: int
-    protein_per_serving: float
-    carbs_per_serving: float
-    fat_per_serving: float
+    nutrition_per_serving: dict[str, Any] = field(default_factory=dict)
     tags: list[str] = field(default_factory=list)
     ingredients: list[dict[str, Any]] = field(default_factory=list)
     instructions: list[str] = field(default_factory=list)
@@ -35,17 +32,67 @@ class Recipe:
     def total_time_minutes(self) -> int:
         return self.prep_time_minutes + self.cook_time_minutes
 
+    # Backward compatibility properties for accessing flat nutrition fields
+    @property
+    def calories_per_serving(self) -> int:
+        return self.nutrition_per_serving.get("calories", 0)
+
+    @property
+    def protein_per_serving(self) -> float:
+        return self.nutrition_per_serving.get("protein", 0.0)
+
+    @property
+    def carbs_per_serving(self) -> float:
+        return self.nutrition_per_serving.get("carbs", 0.0)
+
+    @property
+    def fat_per_serving(self) -> float:
+        return self.nutrition_per_serving.get("fat", 0.0)
+
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Recipe":
-        required_fields = [
-            "id", "name", "servings", "prep_time_minutes", "cook_time_minutes",
-            "calories_per_serving", "protein_per_serving", "carbs_per_serving",
-            "fat_per_serving"
-        ]
+        """Create Recipe from dictionary, supporting both old and new formats.
 
-        missing = [f for f in required_fields if f not in data]
+        Old format: flat nutrition fields (calories_per_serving, protein_per_serving, etc.)
+        New format: nested nutrition_per_serving dict
+        """
+        # Check for basic required fields
+        basic_required = ["id", "name", "servings", "prep_time_minutes", "cook_time_minutes"]
+        missing = [f for f in basic_required if f not in data]
         if missing:
             raise ValueError(f"Missing required fields: {', '.join(missing)}")
+
+        # Handle nutrition: check if using new nested format or old flat format
+        if "nutrition_per_serving" in data:
+            # New format: use nested structure directly
+            nutrition_per_serving = data["nutrition_per_serving"]
+        else:
+            # Old format: migrate flat fields to nested structure
+            # Required nutrition fields in old format
+            old_required = ["calories_per_serving", "protein_per_serving", "carbs_per_serving", "fat_per_serving"]
+            missing_old = [f for f in old_required if f not in data]
+            if missing_old:
+                raise ValueError(f"Missing required nutrition fields: {', '.join(missing_old)}")
+
+            # Migrate to new structure
+            nutrition_per_serving = {
+                "calories": data["calories_per_serving"],
+                "protein": data["protein_per_serving"],
+                "carbs": data["carbs_per_serving"],
+                "fat": data["fat_per_serving"],
+                # New fields default to None
+                "saturated_fat": None,
+                "polyunsaturated_fat": None,
+                "monounsaturated_fat": None,
+                "sodium": None,
+                "potassium": None,
+                "fiber": None,
+                "sugar": None,
+                "vitamin_a": None,
+                "vitamin_c": None,
+                "calcium": None,
+                "iron": None
+            }
 
         return cls(
             id=data["id"],
@@ -53,10 +100,7 @@ class Recipe:
             servings=data["servings"],
             prep_time_minutes=data["prep_time_minutes"],
             cook_time_minutes=data["cook_time_minutes"],
-            calories_per_serving=data["calories_per_serving"],
-            protein_per_serving=data["protein_per_serving"],
-            carbs_per_serving=data["carbs_per_serving"],
-            fat_per_serving=data["fat_per_serving"],
+            nutrition_per_serving=nutrition_per_serving,
             tags=data.get("tags", []),
             ingredients=data.get("ingredients", []),
             instructions=data.get("instructions", []),

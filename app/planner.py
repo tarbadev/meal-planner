@@ -68,11 +68,64 @@ class PlannedMeal:
     def fat(self) -> float:
         return self.recipe.fat_per_serving * self.household_portions
 
+    # Extended nutrition properties
+    def get_nutrition_value(self, field: str) -> float:
+        """Get a nutrition value scaled by portions, handling None values."""
+        value = self.recipe.nutrition_per_serving.get(field)
+        if value is None:
+            return 0.0
+        return value * self.household_portions
+
+    @property
+    def saturated_fat(self) -> float:
+        return self.get_nutrition_value('saturated_fat')
+
+    @property
+    def polyunsaturated_fat(self) -> float:
+        return self.get_nutrition_value('polyunsaturated_fat')
+
+    @property
+    def monounsaturated_fat(self) -> float:
+        return self.get_nutrition_value('monounsaturated_fat')
+
+    @property
+    def sodium(self) -> float:
+        return self.get_nutrition_value('sodium')
+
+    @property
+    def potassium(self) -> float:
+        return self.get_nutrition_value('potassium')
+
+    @property
+    def fiber(self) -> float:
+        return self.get_nutrition_value('fiber')
+
+    @property
+    def sugar(self) -> float:
+        return self.get_nutrition_value('sugar')
+
+    @property
+    def vitamin_a(self) -> float:
+        return self.get_nutrition_value('vitamin_a')
+
+    @property
+    def vitamin_c(self) -> float:
+        return self.get_nutrition_value('vitamin_c')
+
+    @property
+    def calcium(self) -> float:
+        return self.get_nutrition_value('calcium')
+
+    @property
+    def iron(self) -> float:
+        return self.get_nutrition_value('iron')
+
 
 @dataclass
 class WeeklyPlan:
     meals: list[PlannedMeal]
 
+    # Core nutrition totals
     @property
     def total_calories(self) -> float:
         return sum(meal.calories for meal in self.meals)
@@ -89,21 +142,112 @@ class WeeklyPlan:
     def total_fat(self) -> float:
         return sum(meal.fat for meal in self.meals)
 
+    # Extended nutrition totals
+    @property
+    def total_saturated_fat(self) -> float:
+        return sum(meal.saturated_fat for meal in self.meals)
+
+    @property
+    def total_polyunsaturated_fat(self) -> float:
+        return sum(meal.polyunsaturated_fat for meal in self.meals)
+
+    @property
+    def total_monounsaturated_fat(self) -> float:
+        return sum(meal.monounsaturated_fat for meal in self.meals)
+
+    @property
+    def total_sodium(self) -> float:
+        return sum(meal.sodium for meal in self.meals)
+
+    @property
+    def total_potassium(self) -> float:
+        return sum(meal.potassium for meal in self.meals)
+
+    @property
+    def total_fiber(self) -> float:
+        return sum(meal.fiber for meal in self.meals)
+
+    @property
+    def total_sugar(self) -> float:
+        return sum(meal.sugar for meal in self.meals)
+
+    @property
+    def total_vitamin_a(self) -> float:
+        return sum(meal.vitamin_a for meal in self.meals)
+
+    @property
+    def total_vitamin_c(self) -> float:
+        return sum(meal.vitamin_c for meal in self.meals)
+
+    @property
+    def total_calcium(self) -> float:
+        return sum(meal.calcium for meal in self.meals)
+
+    @property
+    def total_iron(self) -> float:
+        return sum(meal.iron for meal in self.meals)
+
+    # Core nutrition averages
     @property
     def avg_daily_calories(self) -> float:
-        return self.total_calories / len(self.meals)
+        return self.total_calories / len(self.meals) if self.meals else 0
 
     @property
     def avg_daily_protein(self) -> float:
-        return self.total_protein / len(self.meals)
+        return self.total_protein / len(self.meals) if self.meals else 0
 
     @property
     def avg_daily_carbs(self) -> float:
-        return self.total_carbs / len(self.meals)
+        return self.total_carbs / len(self.meals) if self.meals else 0
 
     @property
     def avg_daily_fat(self) -> float:
-        return self.total_fat / len(self.meals)
+        return self.total_fat / len(self.meals) if self.meals else 0
+
+    # Extended nutrition averages
+    @property
+    def avg_daily_saturated_fat(self) -> float:
+        return self.total_saturated_fat / len(self.meals) if self.meals else 0
+
+    @property
+    def avg_daily_polyunsaturated_fat(self) -> float:
+        return self.total_polyunsaturated_fat / len(self.meals) if self.meals else 0
+
+    @property
+    def avg_daily_monounsaturated_fat(self) -> float:
+        return self.total_monounsaturated_fat / len(self.meals) if self.meals else 0
+
+    @property
+    def avg_daily_sodium(self) -> float:
+        return self.total_sodium / len(self.meals) if self.meals else 0
+
+    @property
+    def avg_daily_potassium(self) -> float:
+        return self.total_potassium / len(self.meals) if self.meals else 0
+
+    @property
+    def avg_daily_fiber(self) -> float:
+        return self.total_fiber / len(self.meals) if self.meals else 0
+
+    @property
+    def avg_daily_sugar(self) -> float:
+        return self.total_sugar / len(self.meals) if self.meals else 0
+
+    @property
+    def avg_daily_vitamin_a(self) -> float:
+        return self.total_vitamin_a / len(self.meals) if self.meals else 0
+
+    @property
+    def avg_daily_vitamin_c(self) -> float:
+        return self.total_vitamin_c / len(self.meals) if self.meals else 0
+
+    @property
+    def avg_daily_calcium(self) -> float:
+        return self.total_calcium / len(self.meals) if self.meals else 0
+
+    @property
+    def avg_daily_iron(self) -> float:
+        return self.total_iron / len(self.meals) if self.meals else 0
 
 
 class MealPlanner:

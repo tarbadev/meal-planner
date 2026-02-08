@@ -8,12 +8,26 @@ import re
 
 @dataclass
 class NutritionData:
-    """Represents nutrition information."""
+    """Represents nutrition information with all 15 fields."""
+    # Core macronutrients
     calories: float
     protein: float
     carbs: float
     fat: float
-    confidence: float  # 0.0 to 1.0
+    # Extended nutrients
+    saturated_fat: Optional[float] = None
+    polyunsaturated_fat: Optional[float] = None
+    monounsaturated_fat: Optional[float] = None
+    sodium: Optional[float] = None
+    potassium: Optional[float] = None
+    fiber: Optional[float] = None
+    sugar: Optional[float] = None
+    vitamin_a: Optional[float] = None
+    vitamin_c: Optional[float] = None
+    calcium: Optional[float] = None
+    iron: Optional[float] = None
+    # Metadata
+    confidence: float = 1.0  # 0.0 to 1.0
 
 
 @dataclass
@@ -213,7 +227,7 @@ class USDAFoodDataClient:
             food_data: Food details from get_food_details()
 
         Returns:
-            NutritionData with values per 100g
+            NutritionData with values per 100g (all 15 fields)
         """
         nutrients = food_data.get('foodNutrients', [])
 
@@ -225,16 +239,40 @@ class USDAFoodDataClient:
             amount = nutrient_obj.get('amount', 0)
             nutrient_map[nutrient_id] = amount
 
-        # Extract macros (nutrient IDs from USDA)
+        # Extract all nutrients (nutrient IDs from USDA FoodData Central)
+        # Core macronutrients
         # 1008 = Energy (kcal)
         # 1003 = Protein (g)
         # 1005 = Carbohydrate (g)
         # 1004 = Total lipid/fat (g)
-
         calories = nutrient_map.get(1008, 0)
         protein = nutrient_map.get(1003, 0)
         carbs = nutrient_map.get(1005, 0)
         fat = nutrient_map.get(1004, 0)
+
+        # Extended nutrients
+        # 1258 = Saturated fatty acids (g)
+        # 1257 = Polyunsaturated fatty acids (g)
+        # 1292 = Monounsaturated fatty acids (g)
+        # 1093 = Sodium (mg)
+        # 1092 = Potassium (mg)
+        # 1079 = Fiber (g)
+        # 2000 = Total sugars (g)
+        # 1106 = Vitamin A (IU)
+        # 1162 = Vitamin C (mg)
+        # 1087 = Calcium (mg)
+        # 1089 = Iron (mg)
+        saturated_fat = nutrient_map.get(1258)
+        polyunsaturated_fat = nutrient_map.get(1257)
+        monounsaturated_fat = nutrient_map.get(1292)
+        sodium = nutrient_map.get(1093)
+        potassium = nutrient_map.get(1092)
+        fiber = nutrient_map.get(1079)
+        sugar = nutrient_map.get(2000)
+        vitamin_a = nutrient_map.get(1106)
+        vitamin_c = nutrient_map.get(1162)
+        calcium = nutrient_map.get(1087)
+        iron = nutrient_map.get(1089)
 
         # If no nutrition data found, return None
         if all(v == 0 for v in [calories, protein, carbs, fat]):
@@ -245,6 +283,17 @@ class USDAFoodDataClient:
             protein=float(protein),
             carbs=float(carbs),
             fat=float(fat),
+            saturated_fat=float(saturated_fat) if saturated_fat else None,
+            polyunsaturated_fat=float(polyunsaturated_fat) if polyunsaturated_fat else None,
+            monounsaturated_fat=float(monounsaturated_fat) if monounsaturated_fat else None,
+            sodium=float(sodium) if sodium else None,
+            potassium=float(potassium) if potassium else None,
+            fiber=float(fiber) if fiber else None,
+            sugar=float(sugar) if sugar else None,
+            vitamin_a=float(vitamin_a) if vitamin_a else None,
+            vitamin_c=float(vitamin_c) if vitamin_c else None,
+            calcium=float(calcium) if calcium else None,
+            iron=float(iron) if iron else None,
             confidence=1.0  # High confidence from USDA
         )
 
@@ -303,11 +352,30 @@ class NutritionGenerator:
         if not ingredient_nutritions:
             return None
 
-        # Sum all nutrition
+        # Sum all nutrition fields across ingredients
         total_calories = sum(ing.nutrition.calories for ing in ingredient_nutritions if ing.nutrition)
         total_protein = sum(ing.nutrition.protein for ing in ingredient_nutritions if ing.nutrition)
         total_carbs = sum(ing.nutrition.carbs for ing in ingredient_nutritions if ing.nutrition)
         total_fat = sum(ing.nutrition.fat for ing in ingredient_nutritions if ing.nutrition)
+
+        # Sum extended nutrients (handle None values)
+        def safe_sum(field_name):
+            """Sum a field across all ingredient nutritions, skipping None values."""
+            values = [getattr(ing.nutrition, field_name) for ing in ingredient_nutritions
+                     if ing.nutrition and getattr(ing.nutrition, field_name) is not None]
+            return sum(values) if values else None
+
+        total_saturated_fat = safe_sum('saturated_fat')
+        total_polyunsaturated_fat = safe_sum('polyunsaturated_fat')
+        total_monounsaturated_fat = safe_sum('monounsaturated_fat')
+        total_sodium = safe_sum('sodium')
+        total_potassium = safe_sum('potassium')
+        total_fiber = safe_sum('fiber')
+        total_sugar = safe_sum('sugar')
+        total_vitamin_a = safe_sum('vitamin_a')
+        total_vitamin_c = safe_sum('vitamin_c')
+        total_calcium = safe_sum('calcium')
+        total_iron = safe_sum('iron')
 
         # Calculate average confidence
         confidences = [ing.confidence for ing in ingredient_nutritions]
@@ -319,6 +387,17 @@ class NutritionGenerator:
             protein=round(total_protein / servings, 1),
             carbs=round(total_carbs / servings, 1),
             fat=round(total_fat / servings, 1),
+            saturated_fat=round(total_saturated_fat / servings, 1) if total_saturated_fat else None,
+            polyunsaturated_fat=round(total_polyunsaturated_fat / servings, 1) if total_polyunsaturated_fat else None,
+            monounsaturated_fat=round(total_monounsaturated_fat / servings, 1) if total_monounsaturated_fat else None,
+            sodium=round(total_sodium / servings, 1) if total_sodium else None,
+            potassium=round(total_potassium / servings, 1) if total_potassium else None,
+            fiber=round(total_fiber / servings, 1) if total_fiber else None,
+            sugar=round(total_sugar / servings, 1) if total_sugar else None,
+            vitamin_a=round(total_vitamin_a / servings, 1) if total_vitamin_a else None,
+            vitamin_c=round(total_vitamin_c / servings, 1) if total_vitamin_c else None,
+            calcium=round(total_calcium / servings, 1) if total_calcium else None,
+            iron=round(total_iron / servings, 1) if total_iron else None,
             confidence=avg_confidence
         )
 
@@ -394,11 +473,27 @@ class NutritionGenerator:
 
         # Scale nutrition to ingredient quantity
         scale_factor = grams / 100.0
+
+        def scale_value(val):
+            """Scale a value if it's not None."""
+            return val * scale_factor if val is not None else None
+
         scaled_nutrition = NutritionData(
             calories=nutrition_per_100g.calories * scale_factor,
             protein=nutrition_per_100g.protein * scale_factor,
             carbs=nutrition_per_100g.carbs * scale_factor,
             fat=nutrition_per_100g.fat * scale_factor,
+            saturated_fat=scale_value(nutrition_per_100g.saturated_fat),
+            polyunsaturated_fat=scale_value(nutrition_per_100g.polyunsaturated_fat),
+            monounsaturated_fat=scale_value(nutrition_per_100g.monounsaturated_fat),
+            sodium=scale_value(nutrition_per_100g.sodium),
+            potassium=scale_value(nutrition_per_100g.potassium),
+            fiber=scale_value(nutrition_per_100g.fiber),
+            sugar=scale_value(nutrition_per_100g.sugar),
+            vitamin_a=scale_value(nutrition_per_100g.vitamin_a),
+            vitamin_c=scale_value(nutrition_per_100g.vitamin_c),
+            calcium=scale_value(nutrition_per_100g.calcium),
+            iron=scale_value(nutrition_per_100g.iron),
             confidence=match_score
         )
 

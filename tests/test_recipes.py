@@ -6,8 +6,39 @@ import os
 from app.recipes import load_recipes, Recipe, RecipeLoadError, save_recipes, RecipeSaveError, update_recipe
 
 
+def create_test_recipe(**kwargs):
+    """Helper to create Recipe with nested nutrition structure for tests."""
+    # Extract flat nutrition fields if provided
+    calories = kwargs.pop("calories_per_serving", 0)
+    protein = kwargs.pop("protein_per_serving", 0.0)
+    carbs = kwargs.pop("carbs_per_serving", 0.0)
+    fat = kwargs.pop("fat_per_serving", 0.0)
+
+    # Create nested nutrition structure
+    nutrition_per_serving = kwargs.pop("nutrition_per_serving", {
+        "calories": calories,
+        "protein": protein,
+        "carbs": carbs,
+        "fat": fat,
+        "saturated_fat": None,
+        "polyunsaturated_fat": None,
+        "monounsaturated_fat": None,
+        "sodium": None,
+        "potassium": None,
+        "fiber": None,
+        "sugar": None,
+        "vitamin_a": None,
+        "vitamin_c": None,
+        "calcium": None,
+        "iron": None
+    })
+
+    return Recipe(nutrition_per_serving=nutrition_per_serving, **kwargs)
+
+
 @pytest.fixture
 def sample_recipes_data():
+    """Fixture with sample recipes in NEW nested format (for testing migration compatibility)."""
     return {
         "recipes": [
             {
@@ -16,10 +47,23 @@ def sample_recipes_data():
                 "servings": 4,
                 "prep_time_minutes": 15,
                 "cook_time_minutes": 30,
-                "calories_per_serving": 450,
-                "protein_per_serving": 25,
-                "carbs_per_serving": 55,
-                "fat_per_serving": 12,
+                "nutrition_per_serving": {
+                    "calories": 450,
+                    "protein": 25,
+                    "carbs": 55,
+                    "fat": 12,
+                    "saturated_fat": None,
+                    "polyunsaturated_fat": None,
+                    "monounsaturated_fat": None,
+                    "sodium": None,
+                    "potassium": None,
+                    "fiber": None,
+                    "sugar": None,
+                    "vitamin_a": None,
+                    "vitamin_c": None,
+                    "calcium": None,
+                    "iron": None
+                },
                 "tags": ["italian", "kid-friendly"],
                 "ingredients": [
                     {"item": "ground beef", "quantity": 500, "unit": "g"},
@@ -33,10 +77,23 @@ def sample_recipes_data():
                 "servings": 4,
                 "prep_time_minutes": 10,
                 "cook_time_minutes": 15,
-                "calories_per_serving": 350,
-                "protein_per_serving": 30,
-                "carbs_per_serving": 25,
-                "fat_per_serving": 10,
+                "nutrition_per_serving": {
+                    "calories": 350,
+                    "protein": 30,
+                    "carbs": 25,
+                    "fat": 10,
+                    "saturated_fat": None,
+                    "polyunsaturated_fat": None,
+                    "monounsaturated_fat": None,
+                    "sodium": None,
+                    "potassium": None,
+                    "fiber": None,
+                    "sugar": None,
+                    "vitamin_a": None,
+                    "vitamin_c": None,
+                    "calcium": None,
+                    "iron": None
+                },
                 "tags": ["asian", "quick"],
                 "ingredients": [
                     {"item": "chicken breast", "quantity": 500, "unit": "g"},
@@ -124,7 +181,51 @@ class TestLoadRecipes:
 
 
 class TestRecipe:
-    def test_recipe_from_dict(self):
+    def test_recipe_from_dict_new_format(self):
+        """Test loading recipe with new nested nutrition format."""
+        data = {
+            "id": "test-recipe",
+            "name": "Test Recipe",
+            "servings": 2,
+            "prep_time_minutes": 5,
+            "cook_time_minutes": 10,
+            "nutrition_per_serving": {
+                "calories": 200,
+                "protein": 15,
+                "carbs": 20,
+                "fat": 8,
+                "saturated_fat": 3.0,
+                "fiber": 5.0,
+                "sodium": 400.0,
+                "polyunsaturated_fat": None,
+                "monounsaturated_fat": None,
+                "potassium": None,
+                "sugar": None,
+                "vitamin_a": None,
+                "vitamin_c": None,
+                "calcium": None,
+                "iron": None
+            },
+            "tags": ["test"],
+            "ingredients": [{"item": "test item", "quantity": 1, "unit": "piece"}]
+        }
+
+        recipe = Recipe.from_dict(data)
+
+        assert recipe.id == "test-recipe"
+        assert recipe.name == "Test Recipe"
+        assert recipe.servings == 2
+        assert recipe.calories_per_serving == 200
+        assert recipe.protein_per_serving == 15
+        assert recipe.carbs_per_serving == 20
+        assert recipe.fat_per_serving == 8
+        # Test extended nutrition fields
+        assert recipe.nutrition_per_serving["saturated_fat"] == 3.0
+        assert recipe.nutrition_per_serving["fiber"] == 5.0
+        assert recipe.nutrition_per_serving["sodium"] == 400.0
+
+    def test_recipe_from_dict_old_format_backward_compatibility(self):
+        """Test that old flat nutrition format is still supported (backward compatibility)."""
         data = {
             "id": "test-recipe",
             "name": "Test Recipe",
@@ -144,6 +245,16 @@ class TestRecipe:
         assert recipe.id == "test-recipe"
         assert recipe.name == "Test Recipe"
         assert recipe.servings == 2
+        # Properties should still work
+        assert recipe.calories_per_serving == 200
+        assert recipe.protein_per_serving == 15
+        assert recipe.carbs_per_serving == 20
+        assert recipe.fat_per_serving == 8
+        # Should have nested structure
+        assert "nutrition_per_serving" in recipe.__dict__
+        assert recipe.nutrition_per_serving["calories"] == 200
+        # Extended fields should be None
+        assert recipe.nutrition_per_serving["saturated_fat"] is None
 
     def test_recipe_missing_required_field(self):
         data = {
@@ -161,7 +272,7 @@ class TestSaveRecipes:
         """Test that save_recipes creates a file."""
         file_path = tmp_path / "output.json"
         recipes = [
-            Recipe(
+            create_test_recipe(
                 id="test-recipe",
                 name="Test Recipe",
                 servings=2,
@@ -182,7 +293,7 @@ class TestSaveRecipes:
         """Test that save_recipes wraps recipes in correct structure."""
         file_path = tmp_path / "output.json"
         recipes = [
-            Recipe(
+            create_test_recipe(
                 id="test-recipe",
                 name="Test Recipe",
                 servings=2,
@@ -205,10 +316,10 @@ class TestSaveRecipes:
         assert len(data["recipes"]) == 1
 
     def test_save_recipes_includes_all_fields(self, tmp_path):
-        """Test that all recipe fields are saved correctly."""
+        """Test that all recipe fields are saved correctly (saves in new format with nested nutrition)."""
         file_path = tmp_path / "output.json"
         recipes = [
-            Recipe(
+            create_test_recipe(
                 id="pasta-bolognese",
                 name="Pasta Bolognese",
                 servings=4,
@@ -237,10 +348,12 @@ class TestSaveRecipes:
         assert recipe_data["servings"] == 4
         assert recipe_data["prep_time_minutes"] == 15
         assert recipe_data["cook_time_minutes"] == 30
-        assert recipe_data["calories_per_serving"] == 450
-        assert recipe_data["protein_per_serving"] == 25
-        assert recipe_data["carbs_per_serving"] == 55
-        assert recipe_data["fat_per_serving"] == 12
+        # Check nested nutrition structure
+        assert "nutrition_per_serving" in recipe_data
+        assert recipe_data["nutrition_per_serving"]["calories"] == 450
+        assert recipe_data["nutrition_per_serving"]["protein"] == 25
+        assert recipe_data["nutrition_per_serving"]["carbs"] == 55
+        assert recipe_data["nutrition_per_serving"]["fat"] == 12
         assert recipe_data["tags"] == ["italian", "kid-friendly"]
         assert len(recipe_data["ingredients"]) == 2
         assert recipe_data["ingredients"][0]["item"] == "ground beef"
@@ -254,7 +367,7 @@ class TestSaveRecipes:
 
         file_path = read_only_dir / "recipes.json"
         recipes = [
-            Recipe(
+            create_test_recipe(
                 id="test-recipe",
                 name="Test Recipe",
                 servings=2,
@@ -279,7 +392,7 @@ class TestSaveRecipes:
 
         # Create initial file
         initial_recipes = [
-            Recipe(
+            create_test_recipe(
                 id="recipe-1",
                 name="Recipe 1",
                 servings=2,
@@ -300,7 +413,7 @@ class TestSaveRecipes:
 
         # Write new recipes
         new_recipes = [
-            Recipe(
+            create_test_recipe(
                 id="recipe-2",
                 name="Recipe 2",
                 servings=4,
@@ -324,7 +437,7 @@ class TestUpdateRecipe:
     def test_update_recipe_replaces_existing(self):
         """Test that update_recipe replaces the correct recipe."""
         recipes = [
-            Recipe(
+            create_test_recipe(
                 id="recipe-1",
                 name="Recipe 1",
                 servings=2,
@@ -335,7 +448,7 @@ class TestUpdateRecipe:
                 carbs_per_serving=20,
                 fat_per_serving=8
             ),
-            Recipe(
+            create_test_recipe(
                 id="recipe-2",
                 name="Recipe 2",
                 servings=4,
@@ -348,7 +461,7 @@ class TestUpdateRecipe:
             ),
         ]
 
-        updated_recipe = Recipe(
+        updated_recipe = create_test_recipe(
             id="recipe-2",
             name="Updated Recipe 2",
             servings=6,
@@ -370,7 +483,7 @@ class TestUpdateRecipe:
     def test_update_recipe_preserves_others(self):
         """Test that update_recipe doesn't modify other recipes."""
         recipes = [
-            Recipe(
+            create_test_recipe(
                 id="recipe-1",
                 name="Recipe 1",
                 servings=2,
@@ -381,7 +494,7 @@ class TestUpdateRecipe:
                 carbs_per_serving=20,
                 fat_per_serving=8
             ),
-            Recipe(
+            create_test_recipe(
                 id="recipe-2",
                 name="Recipe 2",
                 servings=4,
@@ -394,7 +507,7 @@ class TestUpdateRecipe:
             ),
         ]
 
-        updated_recipe = Recipe(
+        updated_recipe = create_test_recipe(
             id="recipe-2",
             name="Updated Recipe 2",
             servings=6,
@@ -416,7 +529,7 @@ class TestUpdateRecipe:
     def test_update_recipe_not_found(self):
         """Test that update_recipe raises error when recipe not found."""
         recipes = [
-            Recipe(
+            create_test_recipe(
                 id="recipe-1",
                 name="Recipe 1",
                 servings=2,
@@ -429,7 +542,7 @@ class TestUpdateRecipe:
             ),
         ]
 
-        updated_recipe = Recipe(
+        updated_recipe = create_test_recipe(
             id="nonexistent",
             name="Nonexistent Recipe",
             servings=6,
@@ -448,7 +561,7 @@ class TestUpdateRecipe:
     def test_update_recipe_returns_new_list(self):
         """Test that update_recipe returns a new list (immutable)."""
         recipes = [
-            Recipe(
+            create_test_recipe(
                 id="recipe-1",
                 name="Recipe 1",
                 servings=2,
@@ -461,7 +574,7 @@ class TestUpdateRecipe:
             ),
         ]
 
-        updated_recipe = Recipe(
+        updated_recipe = create_test_recipe(
             id="recipe-1",
             name="Updated Recipe 1",
             servings=4,

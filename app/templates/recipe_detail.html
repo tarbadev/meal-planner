@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ recipe.name }} - Meal Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #3498db;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .recipe-meta {
+            display: flex;
+            gap: 30px;
+            margin: 20px 0 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .meta-item {
+            text-align: center;
+        }
+
+        .meta-label {
+            display: block;
+            color: #7f8c8d;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .meta-value {
+            display: block;
+            color: #2c3e50;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .tags {
+            margin-bottom: 30px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .tag.nutrition-generated {
+            background: #e67e22;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+            font-size: 24px;
+        }
+
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .nutrition-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 3px solid #3498db;
+        }
+
+        .nutrition-label {
+            color: #7f8c8d;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .nutrition-value {
+            color: #2c3e50;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .nutrition-value .unit {
+            font-size: 14px;
+            font-weight: normal;
+            color: #7f8c8d;
+        }
+
+        .ingredients-list {
+            list-style: none;
+        }
+
+        .ingredient-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ingredient-name {
+            flex: 1;
+        }
+
+        .ingredient-quantity {
+            color: #7f8c8d;
+            font-size: 14px;
+            white-space: nowrap;
+            margin-left: 15px;
+        }
+
+        .ingredient-category {
+            display: inline-block;
+            background: #ecf0f1;
+            color: #7f8c8d;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-left: 10px;
+            text-transform: uppercase;
+        }
+
+        .instructions-list {
+            counter-reset: step-counter;
+            list-style: none;
+        }
+
+        .instruction-item {
+            counter-increment: step-counter;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            position: relative;
+            padding-left: 60px;
+        }
+
+        .instruction-item::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .no-data {
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .recipe-meta {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nutrition-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .instruction-item {
+                padding-left: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Meal Plan</a>
+
+        <h1>{{ recipe.name }}</h1>
+
+        <div class="recipe-meta">
+            <div class="meta-item">
+                <span class="meta-label">Servings</span>
+                <span class="meta-value">{{ recipe.servings }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Prep Time</span>
+                <span class="meta-value">{{ recipe.prep_time_minutes }}<span style="font-size: 14px;">min</span></span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Cook Time</span>
+                <span class="meta-value">{{ recipe.cook_time_minutes }}<span style="font-size: 14px;">min</span></span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Total Time</span>
+                <span class="meta-value">{{ recipe.total_time_minutes }}<span style="font-size: 14px;">min</span></span>
+            </div>
+        </div>
+
+        {% if recipe.tags %}
+        <div class="tags">
+            {% for tag in recipe.tags %}
+                <span class="tag {% if tag == 'nutrition-generated' %}nutrition-generated{% endif %}">{{ tag }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Nutrition Information -->
+        <div class="section">
+            <h2>Nutrition (per serving)</h2>
+            <div class="nutrition-grid">
+                <div class="nutrition-item">
+                    <div class="nutrition-label">Calories</div>
+                    <div class="nutrition-value">{{ recipe.calories_per_serving }}<span class="unit"> kcal</span></div>
+                </div>
+                <div class="nutrition-item">
+                    <div class="nutrition-label">Protein</div>
+                    <div class="nutrition-value">{{ "%.1f"|format(recipe.protein_per_serving) }}<span class="unit"> g</span></div>
+                </div>
+                <div class="nutrition-item">
+                    <div class="nutrition-label">Carbohydrates</div>
+                    <div class="nutrition-value">{{ "%.1f"|format(recipe.carbs_per_serving) }}<span class="unit"> g</span></div>
+                </div>
+                <div class="nutrition-item">
+                    <div class="nutrition-label">Fat</div>
+                    <div class="nutrition-value">{{ "%.1f"|format(recipe.fat_per_serving) }}<span class="unit"> g</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ingredients -->
+        <div class="section">
+            <h2>Ingredients</h2>
+            {% if recipe.ingredients %}
+                <ul class="ingredients-list">
+                    {% for ingredient in recipe.ingredients %}
+                        <li class="ingredient-item">
+                            <span class="ingredient-name">
+                                {{ ingredient.item }}
+                                <span class="ingredient-category">{{ ingredient.category }}</span>
+                            </span>
+                            <span class="ingredient-quantity">
+                                {{ ingredient.quantity }} {{ ingredient.unit }}
+                            </span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="no-data">No ingredients listed</div>
+            {% endif %}
+        </div>
+
+        <!-- Instructions -->
+        <div class="section">
+            <h2>Instructions</h2>
+            {% if recipe.instructions %}
+                <ol class="instructions-list">
+                    {% for instruction in recipe.instructions %}
+                        <li class="instruction-item">{{ instruction }}</li>
+                    {% endfor %}
+                </ol>
+            {% else %}
+                <div class="no-data">No instructions available</div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

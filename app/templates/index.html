@@ -126,6 +126,17 @@
             margin-bottom: 8px;
         }
 
+        .meal-card .recipe-name a {
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .meal-card .recipe-name a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
         .meal-card .nutrition {
             font-size: 14px;
             color: #7f8c8d;
@@ -226,6 +237,16 @@
             font-weight: bold;
             color: #2c3e50;
             margin-bottom: 5px;
+        }
+
+        .recipe-card .name a {
+            color: #2c3e50;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .recipe-card .name a:hover {
+            color: #3498db;
         }
 
         .recipe-card .tags {
@@ -487,6 +508,74 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+
+        /* Detailed nutrition styles */
+        .detailed-nutrition {
+            display: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .detailed-nutrition.visible {
+            display: block;
+        }
+
+        .nutrition-toggle {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .nutrition-toggle:hover {
+            background: #2980b9;
+        }
+
+        .detailed-nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .detailed-nutrition-item {
+            background: #f8f9fa;
+            padding: 6px;
+            border-radius: 3px;
+        }
+
+        .detailed-nutrition-item .label {
+            font-size: 11px;
+            color: #7f8c8d;
+        }
+
+        .detailed-nutrition-item .value {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .detailed-totals {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        .detailed-totals.visible {
+            display: block;
+        }
+
+        .detailed-totals h4 {
+            color: #27ae60;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -519,7 +608,7 @@
             <div class="recipe-list">
                 {% for recipe in recipes %}
                 <div class="recipe-card" data-recipe-id="{{ recipe.id }}">
-                    <div class="name">{{ recipe.name }}</div>
+                    <div class="name"><a href="/recipe/{{ recipe.id }}" style="color: #2c3e50; text-decoration: none;">{{ recipe.name }}</a></div>
                     <div style="font-size: 14px; color: #7f8c8d; margin-top: 5px;">
                         {{ recipe.total_time_minutes }} min | {{ recipe.calories_per_serving }} cal
                     </div>
@@ -700,13 +789,21 @@
             });
 
             // Display grouped meals
+            let mealIndex = 0;
             mealPlanEl.innerHTML = Object.entries(mealsByDay).map(([day, meals]) => `
                 <div class="day-section">
                     <div class="day-header">${day}</div>
-                    ${meals.map(meal => `
+                    ${meals.map(meal => {
+                        const currentIndex = mealIndex++;
+                        // Helper to format nutrition value
+                        const formatNutrition = (value, defaultVal = 0) => {
+                            return value !== null && value !== undefined ? Math.round(value) : defaultVal;
+                        };
+
+                        return `
                         <div class="meal-card">
                             <div class="meal-type">${meal.meal_type}</div>
-                            <div class="recipe-name">${meal.recipe_name}</div>
+                            <div class="recipe-name"><a href="/recipe/${meal.recipe_id}">${meal.recipe_name}</a></div>
                             <div class="nutrition">
                                 <span>${Math.round(meal.calories)} cal</span>
                                 <span>${Math.round(meal.protein)}g protein</span>
@@ -714,8 +811,71 @@
                                 <span>${Math.round(meal.fat)}g fat</span>
                                 <span>${meal.total_time} min</span>
                             </div>
+                            <button class="nutrition-toggle" onclick="toggleDetailedNutrition(${currentIndex})">
+                                Show Detailed Nutrition
+                            </button>
+                            <div class="detailed-nutrition" id="detailed-nutrition-${currentIndex}">
+                                <div class="detailed-nutrition-grid">
+                                    ${meal.saturated_fat !== null && meal.saturated_fat > 0 ? `
+                                    <div class="detailed-nutrition-item">
+                                        <div class="label">Saturated Fat</div>
+                                        <div class="value">${formatNutrition(meal.saturated_fat)}g</div>
+                                    </div>` : ''}
+                                    ${meal.polyunsaturated_fat !== null && meal.polyunsaturated_fat > 0 ? `
+                                    <div class="detailed-nutrition-item">
+                                        <div class="label">Polyunsat. Fat</div>
+                                        <div class="value">${formatNutrition(meal.polyunsaturated_fat)}g</div>
+                                    </div>` : ''}
+                                    ${meal.monounsaturated_fat !== null && meal.monounsaturated_fat > 0 ? `
+                                    <div class="detailed-nutrition-item">
+                                        <div class="label">Monounsat. Fat</div>
+                                        <div class="value">${formatNutrition(meal.monounsaturated_fat)}g</div>
+                                    </div>` : ''}
+                                    ${meal.fiber !== null && meal.fiber > 0 ? `
+                                    <div class="detailed-nutrition-item">
+                                        <div class="label">Fiber</div>
+                                        <div class="value">${formatNutrition(meal.fiber)}g</div>
+                                    </div>` : ''}
+                                    ${meal.sugar !== null && meal.sugar > 0 ? `
+                                    <div class="detailed-nutrition-item">
+                                        <div class="label">Sugar</div>
+                                        <div class="value">${formatNutrition(meal.sugar)}g</div>
+                                    </div>` : ''}
+                                    ${meal.sodium !== null && meal.sodium > 0 ? `
+                                    <div class="detailed-nutrition-item">
+                                        <div class="label">Sodium</div>
+                                        <div class="value">${formatNutrition(meal.sodium)}mg</div>
+                                    </div>` : ''}
+                                    ${meal.potassium !== null && meal.potassium > 0 ? `
+                                    <div class="detailed-nutrition-item">
+                                        <div class="label">Potassium</div>
+                                        <div class="value">${formatNutrition(meal.potassium)}mg</div>
+                                    </div>` : ''}
+                                    ${meal.vitamin_a !== null && meal.vitamin_a > 0 ? `
+                                    <div class="detailed-nutrition-item">
+                                        <div class="label">Vitamin A</div>
+                                        <div class="value">${formatNutrition(meal.vitamin_a)}IU</div>
+                                    </div>` : ''}
+                                    ${meal.vitamin_c !== null && meal.vitamin_c > 0 ? `
+                                    <div class="detailed-nutrition-item">
+                                        <div class="label">Vitamin C</div>
+                                        <div class="value">${formatNutrition(meal.vitamin_c)}mg</div>
+                                    </div>` : ''}
+                                    ${meal.calcium !== null && meal.calcium > 0 ? `
+                                    <div class="detailed-nutrition-item">
+                                        <div class="label">Calcium</div>
+                                        <div class="value">${formatNutrition(meal.calcium)}mg</div>
+                                    </div>` : ''}
+                                    ${meal.iron !== null && meal.iron > 0 ? `
+                                    <div class="detailed-nutrition-item">
+                                        <div class="label">Iron</div>
+                                        <div class="value">${formatNutrition(meal.iron)}mg</div>
+                                    </div>` : ''}
+                                </div>
+                            </div>
                         </div>
-                    `).join('')}
+                        `;
+                    }).join('')}
                 </div>
             `).join('');
 
@@ -740,7 +900,80 @@
                         <div class="value">${Math.round(plan.daily_averages.protein)}g</div>
                     </div>
                 </div>
+                <button class="nutrition-toggle" onclick="toggleDetailedTotals()">
+                    Show Detailed Nutrition Totals
+                </button>
+                <div class="detailed-totals" id="detailed-totals">
+                    <h4>Extended Nutrition Totals</h4>
+                    <div class="nutrition-grid">
+                        ${plan.totals.saturated_fat > 0 ? `
+                        <div class="nutrition-item">
+                            <div class="label">Total Saturated Fat</div>
+                            <div class="value">${Math.round(plan.totals.saturated_fat)}g</div>
+                        </div>` : ''}
+                        ${plan.totals.polyunsaturated_fat > 0 ? `
+                        <div class="nutrition-item">
+                            <div class="label">Total Polyunsat. Fat</div>
+                            <div class="value">${Math.round(plan.totals.polyunsaturated_fat)}g</div>
+                        </div>` : ''}
+                        ${plan.totals.monounsaturated_fat > 0 ? `
+                        <div class="nutrition-item">
+                            <div class="label">Total Monounsat. Fat</div>
+                            <div class="value">${Math.round(plan.totals.monounsaturated_fat)}g</div>
+                        </div>` : ''}
+                        ${plan.totals.fiber > 0 ? `
+                        <div class="nutrition-item">
+                            <div class="label">Total Fiber</div>
+                            <div class="value">${Math.round(plan.totals.fiber)}g</div>
+                        </div>` : ''}
+                        ${plan.totals.sugar > 0 ? `
+                        <div class="nutrition-item">
+                            <div class="label">Total Sugar</div>
+                            <div class="value">${Math.round(plan.totals.sugar)}g</div>
+                        </div>` : ''}
+                        ${plan.totals.sodium > 0 ? `
+                        <div class="nutrition-item">
+                            <div class="label">Total Sodium</div>
+                            <div class="value">${Math.round(plan.totals.sodium)}mg</div>
+                        </div>` : ''}
+                        ${plan.totals.potassium > 0 ? `
+                        <div class="nutrition-item">
+                            <div class="label">Total Potassium</div>
+                            <div class="value">${Math.round(plan.totals.potassium)}mg</div>
+                        </div>` : ''}
+                        ${plan.totals.vitamin_a > 0 ? `
+                        <div class="nutrition-item">
+                            <div class="label">Total Vitamin A</div>
+                            <div class="value">${Math.round(plan.totals.vitamin_a)}IU</div>
+                        </div>` : ''}
+                        ${plan.totals.vitamin_c > 0 ? `
+                        <div class="nutrition-item">
+                            <div class="label">Total Vitamin C</div>
+                            <div class="value">${Math.round(plan.totals.vitamin_c)}mg</div>
+                        </div>` : ''}
+                        ${plan.totals.calcium > 0 ? `
+                        <div class="nutrition-item">
+                            <div class="label">Total Calcium</div>
+                            <div class="value">${Math.round(plan.totals.calcium)}mg</div>
+                        </div>` : ''}
+                        ${plan.totals.iron > 0 ? `
+                        <div class="nutrition-item">
+                            <div class="label">Total Iron</div>
+                            <div class="value">${Math.round(plan.totals.iron)}mg</div>
+                        </div>` : ''}
+                    </div>
+                </div>
             `;
+        }
+
+        function toggleDetailedNutrition(index) {
+            const detailedDiv = document.getElementById(`detailed-nutrition-${index}`);
+            detailedDiv.classList.toggle('visible');
+        }
+
+        function toggleDetailedTotals() {
+            const detailedDiv = document.getElementById('detailed-totals');
+            detailedDiv.classList.toggle('visible');
         }
 
         function displayShoppingList(shoppingList) {
