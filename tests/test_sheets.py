@@ -25,7 +25,7 @@ def sample_weekly_plan():
     )
 
     meals = [
-        PlannedMeal(day="Monday", recipe=recipe1, household_portions=2.75)
+        PlannedMeal(day="Monday", meal_type="dinner", recipe=recipe1, household_portions=2.75)
         for _ in range(7)
     ]
 

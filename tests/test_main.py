@@ -22,11 +22,12 @@ def client(tmp_path, monkeypatch):
             protein_per_serving=25,
             carbs_per_serving=55,
             fat_per_serving=12,
-            tags=["italian", "kid-friendly"],
+            tags=["italian", "kid-friendly", "dinner"],
             ingredients=[
                 {"item": "ground beef", "quantity": 500, "unit": "g", "category": "meat"},
                 {"item": "pasta", "quantity": 400, "unit": "g", "category": "pantry"},
-            ]
+            ],
+            instructions=[]
         ),
         Recipe(
             id="chicken-stir-fry",
@@ -38,11 +39,12 @@ def client(tmp_path, monkeypatch):
             protein_per_serving=30,
             carbs_per_serving=25,
             fat_per_serving=10,
-            tags=["asian", "quick"],
+            tags=["asian", "quick", "lunch", "dinner"],
             ingredients=[
                 {"item": "chicken breast", "quantity": 500, "unit": "g", "category": "meat"},
                 {"item": "mixed vegetables", "quantity": 300, "unit": "g", "category": "produce"},
-            ]
+            ],
+            instructions=[]
         ),
     ]
     save_recipes(recipes_file, test_recipes)
@@ -257,3 +259,379 @@ class TestUpdateRecipe:
         assert response.status_code == 400
         data = json.loads(response.data)
         assert 'error' in data or 'message' in data
+
+
+class TestImportRecipe:
+    """Test the /import-recipe endpoint."""
+
+    def test_import_recipe_success(self, client, monkeypatch):
+        """Test successful recipe import from URL."""
+        from unittest.mock import Mock, patch
+        from app.recipe_parser import ParsedRecipe
+
+        # Mock the parser
+        mock_parsed_recipe = ParsedRecipe(
+            name="Imported Recipe",
+            servings=4,
+            prep_time_minutes=20,
+            cook_time_minutes=30,
+            calories_per_serving=400,
+            protein_per_serving=22,
+            carbs_per_serving=50,
+            fat_per_serving=15,
+            tags=["imported"],
+            ingredients=[
+                {"item": "flour", "quantity": 2, "unit": "cups", "category": "pantry"},
+                {"item": "eggs", "quantity": 3, "unit": "whole", "category": "dairy"}
+            ],
+            instructions=["Mix ingredients", "Bake at 350F", "Let cool"]
+        )
+
+        with patch('app.recipe_parser.RecipeParser.parse_from_url') as mock_parse:
+            mock_parse.return_value = mock_parsed_recipe
+
+            response = client.post(
+                '/import-recipe',
+                data=json.dumps({"url": "https://example.com/recipe"}),
+                content_type='application/json'
+            )
+
+            assert response.status_code == 200
+            data = json.loads(response.data)
+            assert data['success'] is True
+            assert 'imported successfully' in data['message'].lower()
+            assert data['recipe']['name'] == "Imported Recipe"
+            assert data['recipe']['ingredient_count'] == 2
+            assert data['recipe']['instruction_count'] == 3
+
+    def test_import_recipe_missing_url(self, client):
+        """Test import without URL."""
+        response = client.post(
+            '/import-recipe',
+            data=json.dumps({}),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+        assert 'URL is required' in data['message']
+
+    def test_import_recipe_invalid_url_format(self, client):
+        """Test import with invalid URL format."""
+        response = client.post(
+            '/import-recipe',
+            data=json.dumps({"url": "not-a-valid-url"}),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+        assert 'http://' in data['message'] or 'https://' in data['message']
+
+    def test_import_recipe_invalid_json(self, client):
+        """Test import with invalid JSON."""
+        response = client.post(
+            '/import-recipe',
+            data="not json",
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_import_recipe_parse_error(self, client):
+        """Test import when parsing fails."""
+        from unittest.mock import patch
+        from app.recipe_parser import RecipeParseError
+
+        with patch('app.recipe_parser.RecipeParser.parse_from_url') as mock_parse:
+            mock_parse.side_effect = RecipeParseError("Could not extract ingredients")
+
+            response = client.post(
+                '/import-recipe',
+                data=json.dumps({"url": "https://example.com/recipe"}),
+                content_type='application/json'
+            )
+
+            assert response.status_code == 400
+            data = json.loads(response.data)
+            assert 'error' in data
+            assert 'Parse error' in data['error']
+            assert 'Could not extract ingredients' in data['message']
+
+    def test_import_recipe_generates_unique_id(self, client, monkeypatch):
+        """Test that imported recipe gets a unique ID."""
+        from unittest.mock import patch
+        from app.recipe_parser import ParsedRecipe
+
+        mock_parsed_recipe = ParsedRecipe(
+            name="Pasta Bolognese",  # Same name as existing recipe
+            servings=4,
+            ingredients=[{"item": "test", "quantity": 1, "unit": "piece", "category": "other"}],
+            instructions=["Do something"]
+        )
+
+        with patch('app.recipe_parser.RecipeParser.parse_from_url') as mock_parse:
+            mock_parse.return_value = mock_parsed_recipe
+
+            response = client.post(
+                '/import-recipe',
+                data=json.dumps({"url": "https://example.com/recipe"}),
+                content_type='application/json'
+            )
+
+            assert response.status_code == 200
+            data = json.loads(response.data)
+            # Should have a different ID than the existing pasta-bolognese
+            assert data['recipe']['id'] == 'pasta-bolognese-2'
+
+    def test_import_recipe_clears_current_plan(self, client, monkeypatch):
+        """Test that importing a recipe clears the current plan."""
+        from unittest.mock import patch
+        from app.recipe_parser import ParsedRecipe
+        from app import main
+
+        # Set a current plan
+        main.current_plan = "some plan"
+        main.current_shopping_list = "some list"
+
+        mock_parsed_recipe = ParsedRecipe(
+            name="New Recipe",
+            ingredients=[{"item": "test", "quantity": 1, "unit": "piece", "category": "other"}],
+            instructions=["Do something"]
+        )
+
+        with patch('app.recipe_parser.RecipeParser.parse_from_url') as mock_parse:
+            mock_parse.return_value = mock_parsed_recipe
+
+            response = client.post(
+                '/import-recipe',
+                data=json.dumps({"url": "https://example.com/recipe"}),
+                content_type='application/json'
+            )
+
+            assert response.status_code == 200
+            # Verify plan was cleared
+            assert main.current_plan is None
+            assert main.current_shopping_list is None
+
+    def test_import_recipe_missing_ingredients_fails(self, client):
+        """Test that importing a recipe without ingredients fails."""
+        from unittest.mock import patch
+        from app.recipe_parser import ParsedRecipe, RecipeParseError
+
+        mock_parsed_recipe = ParsedRecipe(
+            name="Invalid Recipe",
+            ingredients=[],  # Empty ingredients
+            instructions=["Do something"]
+        )
+
+        with patch('app.recipe_parser.RecipeParser.parse_from_url') as mock_parse:
+            mock_parse.return_value = mock_parsed_recipe
+
+            response = client.post(
+                '/import-recipe',
+                data=json.dumps({"url": "https://example.com/recipe"}),
+                content_type='application/json'
+            )
+
+            assert response.status_code == 400
+            data = json.loads(response.data)
+            assert 'Parse error' in data['error']
+            assert 'Could not extract ingredients' in data['message']
+
+    def test_import_recipe_missing_instructions_fails(self, client):
+        """Test that importing a recipe without instructions fails."""
+        from unittest.mock import patch
+        from app.recipe_parser import ParsedRecipe, RecipeParseError
+
+        mock_parsed_recipe = ParsedRecipe(
+            name="Invalid Recipe",
+            ingredients=[{"item": "test", "quantity": 1, "unit": "piece", "category": "other"}],
+            instructions=[]  # Empty instructions
+        )
+
+        with patch('app.recipe_parser.RecipeParser.parse_from_url') as mock_parse:
+            mock_parse.return_value = mock_parsed_recipe
+
+            response = client.post(
+                '/import-recipe',
+                data=json.dumps({"url": "https://example.com/recipe"}),
+                content_type='application/json'
+            )
+
+            assert response.status_code == 400
+            data = json.loads(response.data)
+            assert 'Parse error' in data['error']
+            assert 'Could not extract cooking instructions' in data['message']
+
+    def test_import_recipe_generates_nutrition_when_missing(self, client):
+        """Test that nutrition is automatically generated when missing."""
+        from unittest.mock import patch, Mock
+        from app.recipe_parser import ParsedRecipe
+        from app.nutrition_generator import NutritionData
+
+        # Mock recipe with no nutrition
+        mock_parsed_recipe = ParsedRecipe(
+            name="Test Recipe",
+            servings=4,
+            calories_per_serving=0,  # No nutrition
+            protein_per_serving=0.0,
+            carbs_per_serving=0.0,
+            fat_per_serving=0.0,
+            ingredients=[
+                {"item": "flour", "quantity": 2, "unit": "cups", "category": "pantry"},
+                {"item": "eggs", "quantity": 2, "unit": "whole", "category": "dairy"}
+            ],
+            instructions=["Mix ingredients", "Bake"]
+        )
+
+        # Mock generated nutrition
+        mock_nutrition = NutritionData(
+            calories=350.0,
+            protein=15.0,
+            carbs=45.0,
+            fat=12.0,
+            confidence=0.85
+        )
+
+        with patch('app.recipe_parser.RecipeParser.parse_from_url') as mock_parse, \
+             patch('app.nutrition_generator.NutritionGenerator.generate_from_ingredients') as mock_gen:
+            mock_parse.return_value = mock_parsed_recipe
+            mock_gen.return_value = mock_nutrition
+
+            response = client.post(
+                '/import-recipe',
+                data=json.dumps({"url": "https://example.com/recipe"}),
+                content_type='application/json'
+            )
+
+            assert response.status_code == 200
+            data = json.loads(response.data)
+            assert data['success'] is True
+            assert data['recipe']['has_nutrition'] is True
+            assert data['recipe']['nutrition_generated'] is True
+
+            # Verify nutrition generation was called
+            mock_gen.assert_called_once()
+
+    def test_import_recipe_skips_generation_when_nutrition_present(self, client):
+        """Test that nutrition generation is skipped when nutrition already exists."""
+        from unittest.mock import patch, Mock
+        from app.recipe_parser import ParsedRecipe
+
+        # Mock recipe WITH existing nutrition
+        mock_parsed_recipe = ParsedRecipe(
+            name="Test Recipe",
+            servings=4,
+            calories_per_serving=350,  # Has nutrition
+            protein_per_serving=25.0,
+            carbs_per_serving=40.0,
+            fat_per_serving=12.0,
+            ingredients=[
+                {"item": "flour", "quantity": 2, "unit": "cups", "category": "pantry"}
+            ],
+            instructions=["Mix", "Bake"]
+        )
+
+        with patch('app.recipe_parser.RecipeParser.parse_from_url') as mock_parse, \
+             patch('app.nutrition_generator.NutritionGenerator.generate_from_ingredients') as mock_gen:
+            mock_parse.return_value = mock_parsed_recipe
+
+            response = client.post(
+                '/import-recipe',
+                data=json.dumps({"url": "https://example.com/recipe"}),
+                content_type='application/json'
+            )
+
+            assert response.status_code == 200
+            data = json.loads(response.data)
+            assert data['recipe']['has_nutrition'] is True
+            assert data['recipe']['nutrition_generated'] is False
+
+            # Verify nutrition generation was NOT called
+            mock_gen.assert_not_called()
+
+    def test_import_recipe_continues_when_generation_fails(self, client):
+        """Test that import succeeds even if nutrition generation fails."""
+        from unittest.mock import patch
+        from app.recipe_parser import ParsedRecipe
+
+        # Mock recipe with no nutrition
+        mock_parsed_recipe = ParsedRecipe(
+            name="Test Recipe",
+            servings=4,
+            calories_per_serving=0,
+            protein_per_serving=0.0,
+            ingredients=[
+                {"item": "unknown-ingredient", "quantity": 1, "unit": "piece", "category": "other"}
+            ],
+            instructions=["Do something"]
+        )
+
+        with patch('app.recipe_parser.RecipeParser.parse_from_url') as mock_parse, \
+             patch('app.nutrition_generator.NutritionGenerator.generate_from_ingredients') as mock_gen:
+            mock_parse.return_value = mock_parsed_recipe
+            mock_gen.return_value = None  # Generation failed
+
+            response = client.post(
+                '/import-recipe',
+                data=json.dumps({"url": "https://example.com/recipe"}),
+                content_type='application/json'
+            )
+
+            # Import should still succeed
+            assert response.status_code == 200
+            data = json.loads(response.data)
+            assert data['success'] is True
+            # No nutrition was generated
+            assert data['recipe']['has_nutrition'] is False
+            assert data['recipe']['nutrition_generated'] is False
+
+    def test_import_recipe_with_generated_nutrition_adds_tag(self, client, monkeypatch):
+        """Test that nutrition-generated tag is added when nutrition is generated."""
+        from unittest.mock import patch
+        from app.recipe_parser import ParsedRecipe
+        from app.nutrition_generator import NutritionData
+        from app.recipes import load_recipes
+        import config
+
+        mock_parsed_recipe = ParsedRecipe(
+            name="Test Recipe",
+            servings=4,
+            calories_per_serving=0,
+            protein_per_serving=0.0,
+            ingredients=[
+                {"item": "flour", "quantity": 2, "unit": "cups", "category": "pantry"}
+            ],
+            instructions=["Mix", "Bake"]
+        )
+
+        mock_nutrition = NutritionData(
+            calories=350.0,
+            protein=15.0,
+            carbs=45.0,
+            fat=12.0,
+            confidence=0.85
+        )
+
+        with patch('app.recipe_parser.RecipeParser.parse_from_url') as mock_parse, \
+             patch('app.nutrition_generator.NutritionGenerator.generate_from_ingredients') as mock_gen:
+            mock_parse.return_value = mock_parsed_recipe
+            mock_gen.return_value = mock_nutrition
+
+            response = client.post(
+                '/import-recipe',
+                data=json.dumps({"url": "https://example.com/recipe"}),
+                content_type='application/json'
+            )
+
+            assert response.status_code == 200
+
+            # Load the recipe from file and verify it has the tag
+            recipes = load_recipes(config.RECIPES_FILE)
+            imported_recipe = [r for r in recipes if r.name == "Test Recipe"][0]
+            assert "nutrition-generated" in imported_recipe.tags

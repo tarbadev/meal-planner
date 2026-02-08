@@ -10,16 +10,58 @@
       "protein_per_serving": 25,
       "carbs_per_serving": 55,
       "fat_per_serving": 12,
-      "tags": ["italian", "kid-friendly", "batch-cooking"],
+      "tags": [
+        "italian",
+        "kid-friendly",
+        "batch-cooking",
+        "dinner",
+        "lunch"
+      ],
       "ingredients": [
-        {"item": "ground beef", "quantity": 500, "unit": "g", "category": "meat"},
-        {"item": "pasta", "quantity": 400, "unit": "g", "category": "pantry"},
-        {"item": "tomato sauce", "quantity": 500, "unit": "ml", "category": "pantry"},
-        {"item": "onion", "quantity": 1, "unit": "whole", "category": "produce"},
-        {"item": "garlic", "quantity": 3, "unit": "cloves", "category": "produce"},
-        {"item": "olive oil", "quantity": 2, "unit": "tbsp", "category": "pantry"},
-        {"item": "parmesan cheese", "quantity": 50, "unit": "g", "category": "dairy"}
-      ]
+        {
+          "item": "ground beef",
+          "quantity": 500,
+          "unit": "g",
+          "category": "meat"
+        },
+        {
+          "item": "pasta",
+          "quantity": 400,
+          "unit": "g",
+          "category": "pantry"
+        },
+        {
+          "item": "tomato sauce",
+          "quantity": 500,
+          "unit": "ml",
+          "category": "pantry"
+        },
+        {
+          "item": "onion",
+          "quantity": 1,
+          "unit": "whole",
+          "category": "produce"
+        },
+        {
+          "item": "garlic",
+          "quantity": 3,
+          "unit": "cloves",
+          "category": "produce"
+        },
+        {
+          "item": "olive oil",
+          "quantity": 2,
+          "unit": "tbsp",
+          "category": "pantry"
+        },
+        {
+          "item": "parmesan cheese",
+          "quantity": 50,
+          "unit": "g",
+          "category": "dairy"
+        }
+      ],
+      "instructions": []
     },
     {
       "id": "chicken-stir-fry",
@@ -31,16 +73,58 @@
       "protein_per_serving": 30,
       "carbs_per_serving": 25,
       "fat_per_serving": 10,
-      "tags": ["asian", "quick", "healthy"],
+      "tags": [
+        "asian",
+        "quick",
+        "healthy",
+        "lunch",
+        "dinner"
+      ],
       "ingredients": [
-        {"item": "chicken breast", "quantity": 500, "unit": "g", "category": "meat"},
-        {"item": "mixed vegetables", "quantity": 400, "unit": "g", "category": "produce"},
-        {"item": "soy sauce", "quantity": 3, "unit": "tbsp", "category": "pantry"},
-        {"item": "garlic", "quantity": 2, "unit": "cloves", "category": "produce"},
-        {"item": "ginger", "quantity": 1, "unit": "tbsp", "category": "produce"},
-        {"item": "rice", "quantity": 300, "unit": "g", "category": "pantry"},
-        {"item": "vegetable oil", "quantity": 2, "unit": "tbsp", "category": "pantry"}
-      ]
+        {
+          "item": "chicken breast",
+          "quantity": 500,
+          "unit": "g",
+          "category": "meat"
+        },
+        {
+          "item": "mixed vegetables",
+          "quantity": 400,
+          "unit": "g",
+          "category": "produce"
+        },
+        {
+          "item": "soy sauce",
+          "quantity": 3,
+          "unit": "tbsp",
+          "category": "pantry"
+        },
+        {
+          "item": "garlic",
+          "quantity": 2,
+          "unit": "cloves",
+          "category": "produce"
+        },
+        {
+          "item": "ginger",
+          "quantity": 1,
+          "unit": "tbsp",
+          "category": "produce"
+        },
+        {
+          "item": "rice",
+          "quantity": 300,
+          "unit": "g",
+          "category": "pantry"
+        },
+        {
+          "item": "vegetable oil",
+          "quantity": 2,
+          "unit": "tbsp",
+          "category": "pantry"
+        }
+      ],
+      "instructions": []
     },
     {
       "id": "fish-fingers-mash",
@@ -52,14 +136,46 @@
       "protein_per_serving": 20,
       "carbs_per_serving": 40,
       "fat_per_serving": 14,
-      "tags": ["kid-friendly", "easy", "comfort-food"],
+      "tags": [
+        "kid-friendly",
+        "easy",
+        "comfort-food",
+        "lunch",
+        "dinner"
+      ],
       "ingredients": [
-        {"item": "fish fingers", "quantity": 12, "unit": "pieces", "category": "frozen"},
-        {"item": "potatoes", "quantity": 800, "unit": "g", "category": "produce"},
-        {"item": "butter", "quantity": 50, "unit": "g", "category": "dairy"},
-        {"item": "milk", "quantity": 100, "unit": "ml", "category": "dairy"},
-        {"item": "peas", "quantity": 200, "unit": "g", "category": "frozen"}
-      ]
+        {
+          "item": "fish fingers",
+          "quantity": 12,
+          "unit": "pieces",
+          "category": "frozen"
+        },
+        {
+          "item": "potatoes",
+          "quantity": 800,
+          "unit": "g",
+          "category": "produce"
+        },
+        {
+          "item": "butter",
+          "quantity": 50,
+          "unit": "g",
+          "category": "dairy"
+        },
+        {
+          "item": "milk",
+          "quantity": 100,
+          "unit": "ml",
+          "category": "dairy"
+        },
+        {
+          "item": "peas",
+          "quantity": 200,
+          "unit": "g",
+          "category": "frozen"
+        }
+      ],
+      "instructions": []
     },
     {
       "id": "vegetable-curry",
@@ -71,16 +187,58 @@
       "protein_per_serving": 10,
       "carbs_per_serving": 50,
       "fat_per_serving": 8,
-      "tags": ["vegetarian", "healthy", "batch-cooking"],
+      "tags": [
+        "vegetarian",
+        "healthy",
+        "batch-cooking",
+        "lunch",
+        "dinner"
+      ],
       "ingredients": [
-        {"item": "chickpeas", "quantity": 400, "unit": "g", "category": "pantry"},
-        {"item": "coconut milk", "quantity": 400, "unit": "ml", "category": "pantry"},
-        {"item": "curry paste", "quantity": 2, "unit": "tbsp", "category": "pantry"},
-        {"item": "mixed vegetables", "quantity": 500, "unit": "g", "category": "produce"},
-        {"item": "rice", "quantity": 300, "unit": "g", "category": "pantry"},
-        {"item": "onion", "quantity": 1, "unit": "whole", "category": "produce"},
-        {"item": "garlic", "quantity": 2, "unit": "cloves", "category": "produce"}
-      ]
+        {
+          "item": "chickpeas",
+          "quantity": 400,
+          "unit": "g",
+          "category": "pantry"
+        },
+        {
+          "item": "coconut milk",
+          "quantity": 400,
+          "unit": "ml",
+          "category": "pantry"
+        },
+        {
+          "item": "curry paste",
+          "quantity": 2,
+          "unit": "tbsp",
+          "category": "pantry"
+        },
+        {
+          "item": "mixed vegetables",
+          "quantity": 500,
+          "unit": "g",
+          "category": "produce"
+        },
+        {
+          "item": "rice",
+          "quantity": 300,
+          "unit": "g",
+          "category": "pantry"
+        },
+        {
+          "item": "onion",
+          "quantity": 1,
+          "unit": "whole",
+          "category": "produce"
+        },
+        {
+          "item": "garlic",
+          "quantity": 2,
+          "unit": "cloves",
+          "category": "produce"
+        }
+      ],
+      "instructions": []
     },
     {
       "id": "homemade-pizza",
@@ -92,15 +250,52 @@
       "protein_per_serving": 18,
       "carbs_per_serving": 52,
       "fat_per_serving": 15,
-      "tags": ["kid-friendly", "weekend", "fun"],
+      "tags": [
+        "kid-friendly",
+        "weekend",
+        "fun",
+        "lunch",
+        "dinner"
+      ],
       "ingredients": [
-        {"item": "pizza dough", "quantity": 500, "unit": "g", "category": "bakery"},
-        {"item": "tomato sauce", "quantity": 200, "unit": "ml", "category": "pantry"},
-        {"item": "mozzarella cheese", "quantity": 250, "unit": "g", "category": "dairy"},
-        {"item": "pepperoni", "quantity": 100, "unit": "g", "category": "meat"},
-        {"item": "bell pepper", "quantity": 1, "unit": "whole", "category": "produce"},
-        {"item": "mushrooms", "quantity": 100, "unit": "g", "category": "produce"}
-      ]
+        {
+          "item": "pizza dough",
+          "quantity": 500,
+          "unit": "g",
+          "category": "bakery"
+        },
+        {
+          "item": "tomato sauce",
+          "quantity": 200,
+          "unit": "ml",
+          "category": "pantry"
+        },
+        {
+          "item": "mozzarella cheese",
+          "quantity": 250,
+          "unit": "g",
+          "category": "dairy"
+        },
+        {
+          "item": "pepperoni",
+          "quantity": 100,
+          "unit": "g",
+          "category": "meat"
+        },
+        {
+          "item": "bell pepper",
+          "quantity": 1,
+          "unit": "whole",
+          "category": "produce"
+        },
+        {
+          "item": "mushrooms",
+          "quantity": 100,
+          "unit": "g",
+          "category": "produce"
+        }
+      ],
+      "instructions": []
     },
     {
       "id": "tacos",
@@ -112,16 +307,184 @@
       "protein_per_serving": 22,
       "carbs_per_serving": 35,
       "fat_per_serving": 16,
-      "tags": ["mexican", "kid-friendly", "customizable"],
+      "tags": [
+        "mexican",
+        "kid-friendly",
+        "customizable",
+        "lunch",
+        "dinner"
+      ],
       "ingredients": [
-        {"item": "ground beef", "quantity": 500, "unit": "g", "category": "meat"},
-        {"item": "taco shells", "quantity": 12, "unit": "pieces", "category": "pantry"},
-        {"item": "taco seasoning", "quantity": 2, "unit": "tbsp", "category": "pantry"},
-        {"item": "lettuce", "quantity": 1, "unit": "head", "category": "produce"},
-        {"item": "tomatoes", "quantity": 2, "unit": "whole", "category": "produce"},
-        {"item": "cheddar cheese", "quantity": 200, "unit": "g", "category": "dairy"},
-        {"item": "sour cream", "quantity": 150, "unit": "ml", "category": "dairy"}
-      ]
+        {
+          "item": "ground beef",
+          "quantity": 500,
+          "unit": "g",
+          "category": "meat"
+        },
+        {
+          "item": "taco shells",
+          "quantity": 12,
+          "unit": "pieces",
+          "category": "pantry"
+        },
+        {
+          "item": "taco seasoning",
+          "quantity": 2,
+          "unit": "tbsp",
+          "category": "pantry"
+        },
+        {
+          "item": "lettuce",
+          "quantity": 1,
+          "unit": "head",
+          "category": "produce"
+        },
+        {
+          "item": "tomatoes",
+          "quantity": 2,
+          "unit": "whole",
+          "category": "produce"
+        },
+        {
+          "item": "cheddar cheese",
+          "quantity": 200,
+          "unit": "g",
+          "category": "dairy"
+        },
+        {
+          "item": "sour cream",
+          "quantity": 150,
+          "unit": "ml",
+          "category": "dairy"
+        }
+      ],
+      "instructions": []
+    },
+    {
+      "id": "tacos2",
+      "name": "Tacos 2",
+      "servings": 4,
+      "prep_time_minutes": 15,
+      "cook_time_minutes": 15,
+      "calories_per_serving": 380,
+      "protein_per_serving": 22,
+      "carbs_per_serving": 35,
+      "fat_per_serving": 16,
+      "tags": [
+        "mexican",
+        "kid-friendly",
+        "customizable",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "item": "ground beef",
+          "quantity": 500,
+          "unit": "g",
+          "category": "meat"
+        },
+        {
+          "item": "taco shells",
+          "quantity": 12,
+          "unit": "pieces",
+          "category": "pantry"
+        },
+        {
+          "item": "taco seasoning",
+          "quantity": 2,
+          "unit": "tbsp",
+          "category": "pantry"
+        },
+        {
+          "item": "lettuce",
+          "quantity": 1,
+          "unit": "head",
+          "category": "produce"
+        },
+        {
+          "item": "tomatoes",
+          "quantity": 2,
+          "unit": "whole",
+          "category": "produce"
+        },
+        {
+          "item": "cheddar cheese",
+          "quantity": 200,
+          "unit": "g",
+          "category": "dairy"
+        },
+        {
+          "item": "sour cream",
+          "quantity": 150,
+          "unit": "ml",
+          "category": "dairy"
+        }
+      ],
+      "instructions": []
+    },
+    {
+      "id": "tacos3",
+      "name": "Tacos 3",
+      "servings": 4,
+      "prep_time_minutes": 15,
+      "cook_time_minutes": 15,
+      "calories_per_serving": 380,
+      "protein_per_serving": 22,
+      "carbs_per_serving": 35,
+      "fat_per_serving": 16,
+      "tags": [
+        "mexican",
+        "kid-friendly",
+        "customizable",
+        "lunch",
+        "dinner"
+      ],
+      "ingredients": [
+        {
+          "item": "ground beef",
+          "quantity": 500,
+          "unit": "g",
+          "category": "meat"
+        },
+        {
+          "item": "taco shells",
+          "quantity": 12,
+          "unit": "pieces",
+          "category": "pantry"
+        },
+        {
+          "item": "taco seasoning",
+          "quantity": 2,
+          "unit": "tbsp",
+          "category": "pantry"
+        },
+        {
+          "item": "lettuce",
+          "quantity": 1,
+          "unit": "head",
+          "category": "produce"
+        },
+        {
+          "item": "tomatoes",
+          "quantity": 2,
+          "unit": "whole",
+          "category": "produce"
+        },
+        {
+          "item": "cheddar cheese",
+          "quantity": 200,
+          "unit": "g",
+          "category": "dairy"
+        },
+        {
+          "item": "sour cream",
+          "quantity": 150,
+          "unit": "ml",
+          "category": "dairy"
+        }
+      ],
+      "instructions": []
     },
     {
       "id": "mac-and-cheese",
@@ -133,13 +496,153 @@
       "protein_per_serving": 18,
       "carbs_per_serving": 48,
       "fat_per_serving": 20,
-      "tags": ["kid-friendly", "comfort-food", "easy"],
+      "tags": [
+        "kid-friendly",
+        "comfort-food",
+        "easy",
+        "lunch",
+        "dinner"
+      ],
       "ingredients": [
-        {"item": "macaroni pasta", "quantity": 400, "unit": "g", "category": "pantry"},
-        {"item": "cheddar cheese", "quantity": 300, "unit": "g", "category": "dairy"},
-        {"item": "butter", "quantity": 50, "unit": "g", "category": "dairy"},
-        {"item": "milk", "quantity": 300, "unit": "ml", "category": "dairy"},
-        {"item": "flour", "quantity": 2, "unit": "tbsp", "category": "pantry"}
+        {
+          "item": "macaroni pasta",
+          "quantity": 400,
+          "unit": "g",
+          "category": "pantry"
+        },
+        {
+          "item": "cheddar cheese",
+          "quantity": 300,
+          "unit": "g",
+          "category": "dairy"
+        },
+        {
+          "item": "butter",
+          "quantity": 50,
+          "unit": "g",
+          "category": "dairy"
+        },
+        {
+          "item": "milk",
+          "quantity": 300,
+          "unit": "ml",
+          "category": "dairy"
+        },
+        {
+          "item": "flour",
+          "quantity": 2,
+          "unit": "tbsp",
+          "category": "pantry"
+        }
+      ],
+      "instructions": []
+    },
+    {
+      "id": "stuffed-breakfast-potatoes",
+      "name": "Stuffed Breakfast Potatoes",
+      "servings": 1,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 20,
+      "calories_per_serving": 357,
+      "protein_per_serving": 21.4,
+      "carbs_per_serving": 15.9,
+      "fat_per_serving": 23.2,
+      "tags": [
+        "imported"
+      ],
+      "ingredients": [
+        {
+          "item": "baked potatoes, fully cooked and slightly cooled",
+          "quantity": 1,
+          "unit": "serving",
+          "category": "other"
+        },
+        {
+          "item": "melted butter",
+          "quantity": 1,
+          "unit": "serving",
+          "category": "other"
+        },
+        {
+          "item": "kosher salt and black pepper",
+          "quantity": 1,
+          "unit": "serving",
+          "category": "other"
+        },
+        {
+          "item": "shredded cheese (your choice)",
+          "quantity": 1,
+          "unit": "serving",
+          "category": "other"
+        },
+        {
+          "item": "eggs",
+          "quantity": 1,
+          "unit": "serving",
+          "category": "other"
+        },
+        {
+          "item": "additional fillings of your choice: sauteed vegetables, bacon or ham, etc.",
+          "quantity": 1,
+          "unit": "serving",
+          "category": "other"
+        }
+      ],
+      "instructions": [
+        "Preheat your Oven to 350",
+        "Slice the top off your cooked potato",
+        "Scoop out the middle",
+        "Brush the inside with a little butter, salt, pepper, cayenne, etc... (if you like em a little spicy)",
+        "Start layering your toppings starting with the Cheese",
+        "Add whatever else you like, Peppers, Bacon Bits, Ham, etc...",
+        "Crack an egg on top, then MORE CHEESE :)",
+        "Place on a baking sheet and bake for 20 minutes until the whites are set'"
+      ]
+    },
+    {
+      "id": "neapolitan-pizza-dough-recipe",
+      "name": "Neapolitan Pizza Dough Recipe",
+      "servings": 4,
+      "prep_time_minutes": 15,
+      "cook_time_minutes": 0,
+      "calories_per_serving": 0,
+      "protein_per_serving": 0.0,
+      "carbs_per_serving": 0.0,
+      "fat_per_serving": 0.0,
+      "tags": [
+        "nutrition-generated"
+      ],
+      "ingredients": [
+        {
+          "item": "bread flour ((3 dipped and leveled cups))",
+          "quantity": 461.0,
+          "unit": "grams",
+          "category": "other"
+        },
+        {
+          "item": "fine sea salt ((2 teaspoons))",
+          "quantity": 13.0,
+          "unit": "grams",
+          "category": "other"
+        },
+        {
+          "item": "instant dry yeast ((scant 1/4 teaspoon))",
+          "quantity": 0.9,
+          "unit": "grams",
+          "category": "other"
+        },
+        {
+          "item": "cool water ((scant 1\u00bc cups))",
+          "quantity": 276.0,
+          "unit": "grams",
+          "category": "other"
+        }
+      ],
+      "instructions": [
+        "In a large bowl with an airtight lid, mix together the flour, salt, and yeast with a wooden spoon or dough whisk. Pour in the water and mix with the spoon or dough whisk until most of the dry flour in the bottom of the bowl has been absorbed by the dough, then use your hands to turn and knead the dough just until all the flour is incorporated. (I like to push my fingers in and out of the dough like a cat kneading with its paws. That way, I know the last bits of dry flour are fully incorporated, not just stuck to the surface.)",
+        "Cover the bowl with its lid and let the dough rise at room temperature for 18 to 24 hours (20 hours is my sweet spot) or until it has doubled in volume.",
+        "Scrape the dough onto a floured surface (it will be goopy with bubbles throughout). Divide it into two or three equal-size pieces\u2014two if you like to make 12 to 14-inch pizzas, three if you like to make 10 to 12-inch pizzas. Form the dough pieces into balls, dusting your hands with flour if needed, and place each one in a separate airtight quart-size container. Cover and refrigerate for 24 to 48 hours (or up to 72 hours).",
+        "Take the dough out of the refrigerator at least 1 hour (preferably 2 hours) before you plan to stretch it for pizza."
       ]
     }
   ]

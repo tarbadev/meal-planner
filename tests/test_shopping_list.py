@@ -60,9 +60,9 @@ def sample_planned_meals():
     )
 
     return [
-        PlannedMeal(day="Monday", recipe=recipe1, household_portions=2.75),
-        PlannedMeal(day="Tuesday", recipe=recipe2, household_portions=2.75),
-        PlannedMeal(day="Wednesday", recipe=recipe3, household_portions=2.75),
+        PlannedMeal(day="Monday", meal_type="dinner", recipe=recipe1, household_portions=2.75),
+        PlannedMeal(day="Tuesday", meal_type="dinner", recipe=recipe2, household_portions=2.75),
+        PlannedMeal(day="Wednesday", meal_type="dinner", recipe=recipe3, household_portions=2.75),
     ]
 
 
@@ -84,10 +84,10 @@ def weekly_plan(sample_planned_meals):
     )
 
     all_meals = sample_planned_meals + [
-        PlannedMeal(day="Thursday", recipe=extra_recipe, household_portions=2.75),
-        PlannedMeal(day="Friday", recipe=extra_recipe, household_portions=2.75),
-        PlannedMeal(day="Saturday", recipe=extra_recipe, household_portions=2.75),
-        PlannedMeal(day="Sunday", recipe=extra_recipe, household_portions=2.75),
+        PlannedMeal(day="Thursday", meal_type="dinner", recipe=extra_recipe, household_portions=2.75),
+        PlannedMeal(day="Friday", meal_type="dinner", recipe=extra_recipe, household_portions=2.75),
+        PlannedMeal(day="Saturday", meal_type="dinner", recipe=extra_recipe, household_portions=2.75),
+        PlannedMeal(day="Sunday", meal_type="dinner", recipe=extra_recipe, household_portions=2.75),
     ]
 
     return WeeklyPlan(meals=all_meals)
@@ -172,8 +172,8 @@ class TestGenerateShoppingList:
         )
 
         meals = [
-            PlannedMeal(day="Monday", recipe=recipe1, household_portions=4.0),
-            PlannedMeal(day="Tuesday", recipe=recipe2, household_portions=4.0),
+            PlannedMeal(day="Monday", meal_type="dinner", recipe=recipe1, household_portions=4.0),
+            PlannedMeal(day="Tuesday", meal_type="dinner", recipe=recipe2, household_portions=4.0),
         ]
 
         plan = WeeklyPlan(meals=meals)

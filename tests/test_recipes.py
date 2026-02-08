@@ -24,7 +24,8 @@ def sample_recipes_data():
                 "ingredients": [
                     {"item": "ground beef", "quantity": 500, "unit": "g"},
                     {"item": "pasta", "quantity": 400, "unit": "g"},
-                ]
+                ],
+                "instructions": []
             },
             {
                 "id": "chicken-stir-fry",
@@ -40,7 +41,8 @@ def sample_recipes_data():
                 "ingredients": [
                     {"item": "chicken breast", "quantity": 500, "unit": "g"},
                     {"item": "mixed vegetables", "quantity": 300, "unit": "g"},
-                ]
+                ],
+                "instructions": []
             }
         ]
     }

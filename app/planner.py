@@ -8,9 +8,30 @@ from app.recipes import Recipe
 DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 
+def get_meal_slots_from_schedule(schedule: dict[str, list[str]]) -> list[tuple[str, str]]:
+    """Convert meal schedule to flat list of (day, meal_type) tuples.
+
+    Example:
+        {"Monday": ["dinner"], "Tuesday": ["lunch", "dinner"]}
+        -> [("Monday", "dinner"), ("Tuesday", "lunch"), ("Tuesday", "dinner")]
+
+    Args:
+        schedule: Dictionary mapping day names to list of meal types
+
+    Returns:
+        List of (day, meal_type) tuples representing all meal slots
+    """
+    slots = []
+    for day, meal_types in schedule.items():
+        for meal_type in meal_types:
+            slots.append((day, meal_type))
+    return slots
+
+
 @dataclass
 class PlannedMeal:
     day: str
+    meal_type: str  # "lunch", "dinner", "breakfast", "snack"
     recipe: Recipe
     household_portions: float
 
@@ -86,24 +107,54 @@ class WeeklyPlan:
 
 
 class MealPlanner:
-    def __init__(self, household_portions: float):
+    def __init__(self, household_portions: float, meal_schedule: dict[str, list[str]] = None):
         self.household_portions = household_portions
+        # Default to simple 7-dinner schedule if not provided
+        if meal_schedule is None:
+            meal_schedule = {day: ["dinner"] for day in DAYS_OF_WEEK}
+        self.meal_schedule = meal_schedule
 
     def generate_weekly_plan(self, available_recipes: list[Recipe]) -> WeeklyPlan:
-        if len(available_recipes) < 7:
-            raise ValueError("Need at least 7 recipes to generate a weekly meal plan")
+        # Get meal slots from schedule
+        meal_slots = get_meal_slots_from_schedule(self.meal_schedule)
+        num_meals = len(meal_slots)
 
-        # Randomly select 7 recipes without repeats
-        selected_recipes = random.sample(available_recipes, 7)
+        # Validate enough recipes
+        if len(available_recipes) < num_meals:
+            raise ValueError(
+                f"Need at least {num_meals} recipes to generate meal plan. "
+                f"Only {len(available_recipes)} recipes available."
+            )
 
-        # Create planned meals for each day
-        meals = [
-            PlannedMeal(
-                day=DAYS_OF_WEEK[i],
+        meals = []
+        used_recipes = set()
+
+        for day, meal_type in meal_slots:
+            # Filter recipes that have this meal type tag AND haven't been used
+            suitable_recipes = [
+                r for r in available_recipes
+                if meal_type in r.tags and r.id not in used_recipes
+            ]
+
+            # Fallback: if no suitable recipes, use any unused recipe
+            if not suitable_recipes:
+                suitable_recipes = [
+                    r for r in available_recipes
+                    if r.id not in used_recipes
+                ]
+
+            # Select recipe
+            if not suitable_recipes:
+                raise ValueError(f"Not enough recipes for {day} {meal_type}")
+
+            recipe = random.choice(suitable_recipes)
+            used_recipes.add(recipe.id)
+
+            meals.append(PlannedMeal(
+                day=day,
+                meal_type=meal_type,
                 recipe=recipe,
                 household_portions=self.household_portions
-            )
-            for i, recipe in enumerate(selected_recipes)
-        ]
+            ))
 
         return WeeklyPlan(meals=meals)

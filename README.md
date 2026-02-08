@@ -7,6 +7,8 @@ A local meal planning application that generates weekly meal plans from a recipe
 - Generate 7-day meal plans with no recipe repeats
 - Automatic portion scaling for household size (default: 2.75 portions)
 - Nutrition tracking (calories, protein, carbs, fat)
+- **Automatic nutrition generation** from ingredients using USDA FoodData Central API
+- **Recipe import from URLs** with automatic parsing
 - Automated shopping list generation with ingredient aggregation
 - Google Sheets integration for easy sharing
 - Web UI for easy access
@@ -34,7 +36,21 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Run the App
+### 2. Configure USDA API Key (REQUIRED)
+
+**The app will not start without this!**
+
+```bash
+# Get your free API key from:
+# https://fdc.nal.usda.gov/api-key-signup.html
+
+# Then set it as an environment variable:
+export USDA_API_KEY='your-api-key-here'
+```
+
+See [SETUP.md](SETUP.md) for detailed configuration options.
+
+### 4. Run the App
 
 ```bash
 # Start the Flask server
@@ -44,11 +60,23 @@ python -m flask --app app.main run --host=0.0.0.0 --port=5000
 open http://localhost:5000
 ```
 
-### 3. Generate a Meal Plan
+### 5. Generate a Meal Plan
 
 1. Open http://localhost:5000 in your browser
 2. Click "Generate New Weekly Plan"
 3. View your meal plan and shopping list
+
+## How Automatic Nutrition Generation Works
+
+When you import a recipe from a URL:
+- If the recipe already has nutrition data, it's preserved
+- If nutrition data is missing (common on many recipe sites), the app will:
+  - Look up each ingredient in the USDA database
+  - Calculate nutrition based on quantities
+  - Generate per-serving values
+  - Tag the recipe with "nutrition-generated" for your reference
+
+**Note**: The app will not start without a valid API key configured.
 
 ## Google Sheets Setup (Optional)
 
@@ -179,8 +207,28 @@ Edit `data/recipes.json` to add new recipes:
 - `GET  /` - Web UI
 - `POST /generate` - Generate new weekly plan
 - `GET  /recipes` - List all available recipes
+- `GET  /recipes/<id>` - Get a specific recipe
+- `PUT  /recipes/<id>` - Update a recipe
+- `POST /import-recipe` - Import recipe from URL with automatic nutrition generation
 - `GET  /current-plan` - Get current weekly plan with shopping list
 - `POST /write-to-sheets` - Write current plan to Google Sheets
+
+### Importing Recipes
+
+Import a recipe from any URL:
+
+```bash
+curl -X POST http://localhost:5000/import-recipe \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com/recipe"}'
+```
+
+The importer supports:
+- Schema.org Recipe markup (most recipe sites)
+- WP Recipe Maker plugin
+- Generic HTML parsing (fallback)
+
+Nutrition will be automatically generated if missing (requires USDA API key).
 
 ## Running Tests
 
@@ -249,11 +297,14 @@ After=network.target
 User=pi
 WorkingDirectory=/home/pi/meal-planner
 Environment="PATH=/home/pi/meal-planner/.venv/bin"
+Environment="USDA_API_KEY=your-api-key-here"
 ExecStart=/home/pi/meal-planner/.venv/bin/python -m flask --app app.main run --host=0.0.0.0 --port=5000
 
 [Install]
 WantedBy=multi-user.target
 ```
+
+**Note**: Replace `your-api-key-here` with your actual USDA API key for automatic nutrition generation.
 
 ### 3. Enable and Start Service
 
@@ -313,13 +364,14 @@ python -m flask --app app.main run --port=5001
 See `meal-planner-spec.md` for planned features:
 
 - SQLite database for recipes
-- Recipe CRUD in web UI
+- Recipe CRUD in web UI (edit, delete)
 - Nutrition targets/constraints
 - Meal variety optimization
 - Prep time constraints
 - Leftover planning
 - Cost tracking
-- Recipe import from URLs
+- Manual ingredient-to-USDA food matching UI
+- Nutrition confidence indicators in UI
 
 ## License
 

@@ -24,11 +24,12 @@ class Recipe:
     prep_time_minutes: int
     cook_time_minutes: int
     calories_per_serving: int
-    protein_per_serving: int
-    carbs_per_serving: int
-    fat_per_serving: int
+    protein_per_serving: float
+    carbs_per_serving: float
+    fat_per_serving: float
     tags: list[str] = field(default_factory=list)
     ingredients: list[dict[str, Any]] = field(default_factory=list)
+    instructions: list[str] = field(default_factory=list)
 
     @property
     def total_time_minutes(self) -> int:
@@ -58,6 +59,7 @@ class Recipe:
             fat_per_serving=data["fat_per_serving"],
             tags=data.get("tags", []),
             ingredients=data.get("ingredients", []),
+            instructions=data.get("instructions", []),
         )
 
 

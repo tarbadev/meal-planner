@@ -37,7 +37,10 @@ def generate():
     recipes_file = Path(config.RECIPES_FILE)
     recipes = load_recipes(recipes_file)
 
-    planner = MealPlanner(household_portions=config.TOTAL_PORTIONS)
+    planner = MealPlanner(
+        household_portions=config.TOTAL_PORTIONS,
+        meal_schedule=config.MEAL_SCHEDULE
+    )
     current_plan = planner.generate_weekly_plan(recipes)
     current_shopping_list = generate_shopping_list(current_plan)
 
@@ -45,6 +48,120 @@ def generate():
         "success": True,
         "message": "Weekly plan generated successfully"
     })
+
+
+@app.route("/import-recipe", methods=["POST"])
+def import_recipe():
+    """Import a recipe from a URL."""
+    global current_plan, current_shopping_list
+
+    try:
+        data = request.get_json()
+    except Exception:
+        return jsonify({
+            "error": "Invalid JSON",
+            "message": "Request body must be valid JSON"
+        }), 400
+
+    if not data or 'url' not in data:
+        return jsonify({
+            "error": "Invalid request",
+            "message": "URL is required"
+        }), 400
+
+    url = data['url']
+
+    # Validate URL format
+    if not url.startswith('http://') and not url.startswith('https://'):
+        return jsonify({
+            "error": "Invalid URL",
+            "message": "URL must start with http:// or https://"
+        }), 400
+
+    try:
+        # Parse recipe from URL
+        from app.recipe_parser import RecipeParser, RecipeParseError, generate_recipe_id
+        from app.nutrition_generator import NutritionGenerator
+
+        parser = RecipeParser()
+        parsed_recipe = parser.parse_from_url(url)
+
+        # Generate nutrition if missing
+        nutrition_gen = NutritionGenerator(api_key=config.USDA_API_KEY)
+        if nutrition_gen.should_generate_nutrition(parsed_recipe):
+            generated_nutrition = nutrition_gen.generate_from_ingredients(
+                parsed_recipe.ingredients,
+                parsed_recipe.servings or 4
+            )
+
+            if generated_nutrition:
+                # Update parsed recipe with generated nutrition
+                parsed_recipe.calories_per_serving = int(generated_nutrition.calories)
+                parsed_recipe.protein_per_serving = generated_nutrition.protein
+                parsed_recipe.carbs_per_serving = generated_nutrition.carbs
+                parsed_recipe.fat_per_serving = generated_nutrition.fat
+
+                # Add tag to indicate generated nutrition
+                if not parsed_recipe.tags:
+                    parsed_recipe.tags = []
+                parsed_recipe.tags.append("nutrition-generated")
+
+        # Load existing recipes
+        recipes_file = Path(config.RECIPES_FILE)
+        existing_recipes = load_recipes(recipes_file)
+        existing_ids = {r.id for r in existing_recipes}
+
+        # Generate unique ID
+        recipe_id = generate_recipe_id(parsed_recipe.name, existing_ids)
+
+        # Convert to Recipe dict
+        recipe_dict = parsed_recipe.to_recipe_dict(recipe_id)
+
+        # Validate using Recipe.from_dict
+        new_recipe = Recipe.from_dict(recipe_dict)
+
+        # Add to recipes list and save
+        updated_recipes = existing_recipes + [new_recipe]
+        save_recipes(recipes_file, updated_recipes)
+
+        # Clear current plan to force regeneration
+        current_plan = None
+        current_shopping_list = None
+
+        return jsonify({
+            "success": True,
+            "message": f"Recipe '{new_recipe.name}' imported successfully",
+            "recipe": {
+                "id": new_recipe.id,
+                "name": new_recipe.name,
+                "servings": new_recipe.servings,
+                "has_nutrition": (new_recipe.calories_per_serving > 0),
+                "nutrition_generated": "nutrition-generated" in new_recipe.tags,
+                "ingredient_count": len(new_recipe.ingredients),
+                "instruction_count": len(new_recipe.instructions)
+            }
+        })
+
+    except RecipeParseError as e:
+        return jsonify({
+            "error": "Parse error",
+            "message": str(e)
+        }), 400
+    except ValueError as e:
+        return jsonify({
+            "error": "Validation error",
+            "message": str(e)
+        }), 400
+    except RecipeSaveError as e:
+        return jsonify({
+            "error": "Save error",
+            "message": f"Failed to save recipe: {str(e)}"
+        }), 500
+    except Exception as e:
+        return jsonify({
+            "error": "Import error",
+            "message": f"Unexpected error: {str(e)}"
+        }), 500
 
 
 @app.route("/recipes")
@@ -239,6 +356,7 @@ def get_current_plan():
             "meals": [
                 {
                     "day": meal.day,
+                    "meal_type": meal.meal_type,
                     "recipe_name": meal.recipe.name,
                     "portions": meal.portions,
                     "calories": meal.calories,
