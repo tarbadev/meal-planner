@@ -79,6 +79,71 @@ def generate():
     })
 
 
+@app.route("/generate-with-schedule", methods=["POST"])
+def generate_with_schedule():
+    """Generate a meal plan with custom schedule and per-meal servings."""
+    global manual_plan, current_plan, current_shopping_list
+    import random
+
+    try:
+        data = request.get_json()
+    except Exception:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    schedule = data.get("schedule", {})
+    if not schedule:
+        return jsonify({"error": "Schedule is required"}), 400
+
+    recipes_file = Path(config.RECIPES_FILE)
+    recipes = load_recipes(recipes_file)
+
+    # Build meal slots from schedule
+    meal_slots = []
+    for day, day_meals in schedule.items():
+        for meal_type, servings in day_meals.items():
+            meal_slots.append((day, meal_type, servings))
+
+    # Validate enough recipes
+    if len(recipes) < len(meal_slots):
+        return jsonify({
+            "error": f"Need at least {len(meal_slots)} recipes. Only {len(recipes)} available."
+        }), 400
+
+    # Generate plan
+    manual_plan = {}
+    used_recipes = set()
+
+    for day, meal_type, servings in meal_slots:
+        # Try to find suitable recipe for this meal type
+        suitable = [r for r in recipes if meal_type in r.tags and r.id not in used_recipes]
+
+        # Fallback to any unused recipe
+        if not suitable:
+            suitable = [r for r in recipes if r.id not in used_recipes]
+
+        if not suitable:
+            return jsonify({"error": f"Not enough recipes for {day} {meal_type}"}), 400
+
+        recipe = random.choice(suitable)
+        used_recipes.add(recipe.id)
+
+        # Add to manual plan
+        if day not in manual_plan:
+            manual_plan[day] = {}
+        manual_plan[day][meal_type] = {
+            "recipe_id": recipe.id,
+            "servings": servings
+        }
+
+    # Regenerate plan from manual_plan
+    _regenerate_from_manual_plan(recipes)
+
+    return jsonify({
+        "success": True,
+        "message": f"Generated plan with {len(meal_slots)} meals"
+    })
+
+
 @app.route("/import-recipe", methods=["POST"])
 def import_recipe():
     """Import a recipe from a URL."""

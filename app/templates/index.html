@@ -872,15 +872,25 @@
 
         <div id="message" class="message hidden"></div>
 
-        <!-- Manual Meal Planning Section -->
+        <!-- Weekly Schedule Configuration -->
         <div class="section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-                <h2 style="margin: 0;">Your Weekly Plan</h2>
-                <div style="display: flex; gap: 10px;">
+                <h2 style="margin: 0;">Weekly Schedule</h2>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button onclick="openScheduleConfig()" style="background: #9b59b6; padding: 10px 20px;">
+                        ⚙️ Configure Schedule
+                    </button>
+                    <button id="generateBtn" onclick="generatePlan()" style="background: #3498db; padding: 10px 20px;">
+                        🎲 Generate Meal Plan
+                    </button>
                     <button onclick="clearWeek()" style="background: #e74c3c; padding: 10px 20px;">
-                        Clear Week
+                        🗑️ Clear Week
                     </button>
                 </div>
+            </div>
+
+            <div id="scheduleInfo" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 4px; font-size: 14px; color: #7f8c8d;">
+                Click "Configure Schedule" to set which meals you need each day and how many servings.
             </div>
 
             <div id="weeklyCalendar"></div>
@@ -1046,6 +1056,28 @@
         </div>
     </div>
 
+    <!-- Schedule Configuration Modal -->
+    <div id="scheduleModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2>Configure Weekly Schedule</h2>
+                <button type="button" onclick="closeScheduleModal()">&times;</button>
+            </div>
+            <p style="color: #7f8c8d; margin-bottom: 20px;">
+                Set which meals you need each day and how many servings for each meal.
+            </p>
+            <div id="scheduleConfigForm" style="display: grid; gap: 15px;"></div>
+            <div class="form-actions">
+                <button onclick="saveScheduleConfig()" style="background: #3498db;">
+                    Save Schedule
+                </button>
+                <button type="button" onclick="closeScheduleModal()">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function showMessage(text, type = 'success') {
             const messageEl = document.getElementById('message');
@@ -1058,29 +1090,6 @@
             }, 3000);
         }
 
-        async function generatePlan() {
-            const btn = document.getElementById('generateBtn');
-            btn.disabled = true;
-            btn.textContent = 'Generating...';
-
-            try {
-                const response = await fetch('/generate', {
-                    method: 'POST'
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showMessage('Weekly plan generated successfully!');
-                    await loadCurrentPlan();
-                }
-            } catch (error) {
-                showMessage('Error generating plan: ' + error.message, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Generate New Weekly Plan';
-            }
-        }
 
         async function loadCurrentPlan() {
             try {
@@ -2026,8 +2035,177 @@
             renderWeeklyCalendar();
         };
 
+        // ========== Schedule Configuration Functions ==========
+
+        function getCustomSchedule() {
+            const stored = localStorage.getItem('customSchedule');
+            if (stored) {
+                return JSON.parse(stored);
+            }
+            // Default: use config schedule with default servings
+            const schedule = {};
+            Object.keys(MEAL_SCHEDULE).forEach(day => {
+                schedule[day] = {};
+                MEAL_SCHEDULE[day].forEach(mealType => {
+                    schedule[day][mealType] = {{ household_portions }};
+                });
+            });
+            return schedule;
+        }
+
+        function saveCustomSchedule(schedule) {
+            localStorage.setItem('customSchedule', JSON.stringify(schedule));
+            updateScheduleInfo();
+        }
+
+        function updateScheduleInfo() {
+            const schedule = getCustomSchedule();
+            const infoEl = document.getElementById('scheduleInfo');
+
+            let totalMeals = 0;
+            let scheduleText = [];
+
+            Object.keys(schedule).forEach(day => {
+                const dayMeals = schedule[day];
+                const mealCount = Object.keys(dayMeals).length;
+                if (mealCount > 0) {
+                    totalMeals += mealCount;
+                    const mealDetails = Object.entries(dayMeals)
+                        .map(([type, servings]) => `${type} (${servings} servings)`)
+                        .join(', ');
+                    scheduleText.push(`<strong>${day}</strong>: ${mealDetails}`);
+                }
+            });
+
+            if (totalMeals > 0) {
+                infoEl.innerHTML = `
+                    <strong>Current Schedule (${totalMeals} meals/week):</strong><br>
+                    ${scheduleText.join('<br>')}
+                `;
+            } else {
+                infoEl.innerHTML = 'Click "Configure Schedule" to set which meals you need each day and how many servings.';
+            }
+        }
+
+        function openScheduleConfig() {
+            const schedule = getCustomSchedule();
+            const formEl = document.getElementById('scheduleConfigForm');
+
+            formEl.innerHTML = DAYS_OF_WEEK.map(day => `
+                <div style="border: 1px solid #ecf0f1; padding: 15px; border-radius: 4px;">
+                    <h3 style="margin-bottom: 10px;">${day}</h3>
+                    <div style="display: grid; gap: 10px;">
+                        ${['breakfast', 'lunch', 'dinner', 'snack'].map(mealType => {
+                            const servings = schedule[day]?.[mealType] || '';
+                            const isEnabled = servings !== '';
+                            return `
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <input
+                                        type="checkbox"
+                                        id="enable_${day}_${mealType}"
+                                        ${isEnabled ? 'checked' : ''}
+                                        onchange="toggleMealSlot('${day}', '${mealType}')"
+                                    >
+                                    <label for="enable_${day}_${mealType}" style="flex: 1; text-transform: capitalize;">
+                                        ${mealType}
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="servings_${day}_${mealType}"
+                                        placeholder="Servings"
+                                        value="${servings}"
+                                        min="0.5"
+                                        step="0.5"
+                                        style="width: 100px;"
+                                        ${!isEnabled ? 'disabled' : ''}
+                                    >
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('scheduleModal').classList.remove('hidden');
+        }
+
+        function closeScheduleModal() {
+            document.getElementById('scheduleModal').classList.add('hidden');
+        }
+
+        function toggleMealSlot(day, mealType) {
+            const checkbox = document.getElementById(`enable_${day}_${mealType}`);
+            const servingsInput = document.getElementById(`servings_${day}_${mealType}`);
+
+            if (checkbox.checked) {
+                servingsInput.disabled = false;
+                if (!servingsInput.value) {
+                    servingsInput.value = {{ household_portions }};
+                }
+            } else {
+                servingsInput.disabled = true;
+                servingsInput.value = '';
+            }
+        }
+
+        function saveScheduleConfig() {
+            const schedule = {};
+
+            DAYS_OF_WEEK.forEach(day => {
+                schedule[day] = {};
+                ['breakfast', 'lunch', 'dinner', 'snack'].forEach(mealType => {
+                    const servingsInput = document.getElementById(`servings_${day}_${mealType}`);
+                    if (servingsInput && servingsInput.value && !servingsInput.disabled) {
+                        schedule[day][mealType] = parseFloat(servingsInput.value);
+                    }
+                });
+            });
+
+            saveCustomSchedule(schedule);
+            closeScheduleModal();
+            showMessage('Schedule saved! Click "Generate Meal Plan" to create a plan.', 'success');
+        }
+
+        // Update generatePlan to use custom schedule
+        async function generatePlan() {
+            const btn = document.getElementById('generateBtn');
+            if (!btn) return;
+
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+
+            try {
+                const schedule = getCustomSchedule();
+
+                // Clear existing manual plan first
+                await fetch('/manual-plan/clear', { method: 'POST' });
+
+                // Generate plan with custom schedule
+                const response = await fetch('/generate-with-schedule', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ schedule })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('Meal plan generated! You can now edit individual meals.', 'success');
+                    await loadCurrentPlan();
+                } else if (data.error) {
+                    showMessage('Error: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Error generating plan: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🎲 Generate Meal Plan';
+            }
+        }
+
         // Initial render
         window.addEventListener('DOMContentLoaded', () => {
+            updateScheduleInfo();
             renderWeeklyCalendar();
             {% if current_plan %}
             loadCurrentPlan();
