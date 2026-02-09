@@ -64,7 +64,8 @@ def generate():
 
     planner = MealPlanner(
         household_portions=config.TOTAL_PORTIONS,
-        meal_schedule=config.MEAL_SCHEDULE
+        meal_schedule=config.MEAL_SCHEDULE,
+        daily_calorie_limit=config.DAILY_CALORIE_LIMIT
     )
     current_plan = planner.generate_weekly_plan(recipes)
     current_shopping_list = generate_shopping_list(current_plan)
@@ -662,7 +663,9 @@ def get_current_plan():
                 "vitamin_c": current_plan.avg_daily_vitamin_c,
                 "calcium": current_plan.avg_daily_calcium,
                 "iron": current_plan.avg_daily_iron
-            }
+            },
+            "daily_nutrition": current_plan.get_daily_nutrition(),
+            "daily_calorie_limit": current_plan.daily_calorie_limit
         },
         "shopping_list": {
             "items": [

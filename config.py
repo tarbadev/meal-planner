@@ -66,3 +66,7 @@ MEAL_SCHEDULE = {
     "Saturday": ["lunch", "dinner"],
     "Sunday": ["lunch", "dinner"]
 }
+
+# Daily calorie limit for meal planning
+# Set to None to disable calorie tracking
+DAILY_CALORIE_LIMIT = 2000

@@ -91,6 +91,10 @@
             font-size: 16px;
         }
 
+        .day-header.over-limit {
+            background: #e74c3c;
+        }
+
         .meal-card {
             background: #f8f9fa;
             padding: 15px;
@@ -901,11 +905,28 @@
                 mealsByDay[meal.day].push(meal);
             });
 
+            // Get daily nutrition data
+            const dailyNutrition = plan.daily_nutrition || {};
+            const calorieLimit = plan.daily_calorie_limit;
+
             // Display grouped meals
             let mealIndex = 0;
-            mealPlanEl.innerHTML = Object.entries(mealsByDay).map(([day, meals]) => `
+            mealPlanEl.innerHTML = Object.entries(mealsByDay).map(([day, meals]) => {
+                const dayNutrition = dailyNutrition[day] || {};
+                const dayCalories = Math.round(dayNutrition.calories || 0);
+                const isOverLimit = calorieLimit && dayCalories > calorieLimit;
+                const limitText = calorieLimit ? ` / ${calorieLimit} cal limit` : '';
+                const warningClass = isOverLimit ? ' style="color: #e74c3c;"' : '';
+
+                return `
                 <div class="day-section">
-                    <div class="day-header">${day}</div>
+                    <div class="day-header${isOverLimit ? ' over-limit' : ''}">
+                        ${day}
+                        <div style="font-size: 14px; font-weight: normal; margin-top: 4px;">
+                            ${dayCalories} cal${limitText}
+                            ${isOverLimit ? ' ⚠️ Over limit!' : ''}
+                        </div>
+                    </div>
                     ${meals.map(meal => {
                         const currentIndex = mealIndex++;
                         // Helper to format nutrition value
@@ -990,7 +1011,8 @@
                         `;
                     }).join('')}
                 </div>
-            `).join('');
+            `;
+            }).join('');
 
             // Display totals
             nutritionTotalsEl.innerHTML = `
