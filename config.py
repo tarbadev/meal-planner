@@ -69,4 +69,4 @@ MEAL_SCHEDULE = {
 
 # Daily calorie limit for meal planning
 # Set to None to disable calorie tracking
-DAILY_CALORIE_LIMIT = 2000
+DAILY_CALORIE_LIMIT = 1600
