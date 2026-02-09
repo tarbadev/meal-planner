@@ -219,12 +219,30 @@ By next Friday, you should be able to:
 
 ## Timeline
 
-- **Day 1-2** (Mon-Tue): Mobile UI responsive design
-- **Day 3-4** (Wed-Thu): Meal planner implementation
+- **Day 1-2** (Mon-Tue): Mobile UI responsive design ✅ **DONE**
+  - ✅ Mobile-responsive recipe list page (Commit: 995ed1c)
+  - ✅ Enhanced recipe detail for cooking mode (Commit: 16831e6)
+  - ✅ Daily calorie limit backend support (Commit: 69a87f1)
+- **Day 3-4** (Wed-Thu): Meal planner implementation - **IN PROGRESS**
+  - Backend ready, need to add UI for daily nutrition cap
 - **Day 5-6** (Fri-Sat): Shopping list with checkboxes
 - **Day 7** (Sun): Testing and polish
 
 **Launch**: Monday (use throughout the week, grocery shop Friday)
+
+## Progress Summary
+
+### ✅ Completed Features
+1. **Mobile-responsive UI** - Recipe list and detail pages work well on phones
+2. **Cooking mode** - Large, readable text for following recipes while cooking
+3. **Daily calorie limit (backend)** - Meal planner can track and enforce daily nutrition limits
+
+### 🚧 In Progress
+- Meal planner UI with daily nutrition display
+
+### ⏳ Todo
+- Shopping list with checkboxes (localStorage persistence)
+- Integration testing on actual phone
 
 ## Post-Friday Improvements
 
