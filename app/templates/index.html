@@ -1097,7 +1097,10 @@
                 const data = await response.json();
 
                 if (data.plan) {
-                    displayPlan(data.plan);
+                    // Store plan globally
+                    currentPlanData = data.plan;
+                    // Render the calendar with new plan
+                    renderWeeklyCalendar(data.plan);
                     displayShoppingList(data.shopping_list);
                 }
             } catch (error) {
@@ -1827,13 +1830,21 @@
         const MEAL_SCHEDULE = {{ config.MEAL_SCHEDULE | tojson }};
 
         // Render weekly calendar
-        function renderWeeklyCalendar() {
+        // Global variable to store the current plan
+        let currentPlanData = {% if current_plan %}{{ current_plan | tojson }}{% else %}null{% endif %};
+
+        function renderWeeklyCalendar(planData = null) {
             const calendarEl = document.getElementById('weeklyCalendar');
 
-            const currentPlan = {% if current_plan %}{{ current_plan | tojson }}{% else %}null{% endif %};
+            // Use provided plan or fall back to global
+            const currentPlan = planData || currentPlanData;
+
+            // Get custom schedule to determine which meal slots to show
+            const customSchedule = getCustomSchedule();
 
             calendarEl.innerHTML = DAYS_OF_WEEK.map(day => {
-                const mealSlots = MEAL_SCHEDULE[day] || [];
+                // Get meal slots from custom schedule for this day
+                const mealSlots = customSchedule[day] ? Object.keys(customSchedule[day]) : [];
                 const dayNutrition = currentPlan?.daily_nutrition?.[day] || {};
                 const dayCalories = Math.round(dayNutrition.calories || 0);
                 const calorieLimit = currentPlan?.daily_calorie_limit;
@@ -1874,8 +1885,8 @@
                         <div class="meal-slot-header">
                             <span class="meal-slot-type">${mealType}</span>
                             <div class="meal-actions">
-                                <button class="btn-small btn-edit" onclick="editMealServings('${day}', '${mealType}', ${meal.portions})">
-                                    Edit (${meal.portions} servings)
+                                <button class="btn-small btn-edit" onclick="editMealServings('${day}', '${mealType}', ${meal.portions || 1})">
+                                    Edit (${meal.portions || 1} servings)
                                 </button>
                                 <button class="btn-small btn-remove" onclick="removeMeal('${day}', '${mealType}')">
                                     ✕
@@ -1885,13 +1896,13 @@
                         <div class="meal-content">
                             <div class="meal-info">
                                 <div class="meal-name">
-                                    <a href="/recipe/${meal.recipe_id}">${meal.recipe_name}</a>
+                                    <a href="/recipe/${meal.recipe_id}">${meal.recipe_name || 'Unnamed Recipe'}</a>
                                 </div>
                                 <div class="meal-nutrition">
-                                    <span>${Math.round(meal.calories)} cal</span>
-                                    <span>${Math.round(meal.protein)}g protein</span>
-                                    <span>${Math.round(meal.carbs)}g carbs</span>
-                                    <span>${Math.round(meal.fat)}g fat</span>
+                                    <span>${meal.calories ? Math.round(meal.calories) : 0} cal</span>
+                                    <span>${meal.protein ? Math.round(meal.protein) : 0}g protein</span>
+                                    <span>${meal.carbs ? Math.round(meal.carbs) : 0}g carbs</span>
+                                    <span>${meal.fat ? Math.round(meal.fat) : 0}g fat</span>
                                 </div>
                             </div>
                         </div>
