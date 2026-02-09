@@ -74,7 +74,8 @@
           "category": "dairy"
         }
       ],
-      "instructions": []
+      "instructions": [],
+      "source_url": null
     },
     {
       "id": "chicken-stir-fry",
@@ -150,7 +151,8 @@
           "category": "pantry"
         }
       ],
-      "instructions": []
+      "instructions": [],
+      "source_url": null
     },
     {
       "id": "fish-fingers-mash",
@@ -214,7 +216,8 @@
           "category": "frozen"
         }
       ],
-      "instructions": []
+      "instructions": [],
+      "source_url": null
     },
     {
       "id": "vegetable-curry",
@@ -290,7 +293,8 @@
           "category": "produce"
         }
       ],
-      "instructions": []
+      "instructions": [],
+      "source_url": null
     },
     {
       "id": "homemade-pizza",
@@ -360,7 +364,8 @@
           "category": "produce"
         }
       ],
-      "instructions": []
+      "instructions": [],
+      "source_url": null
     },
     {
       "id": "tacos",
@@ -436,7 +441,8 @@
           "category": "dairy"
         }
       ],
-      "instructions": []
+      "instructions": [],
+      "source_url": null
     },
     {
       "id": "tacos2",
@@ -512,7 +518,8 @@
           "category": "dairy"
         }
       ],
-      "instructions": []
+      "instructions": [],
+      "source_url": null
     },
     {
       "id": "tacos3",
@@ -588,7 +595,8 @@
           "category": "dairy"
         }
       ],
-      "instructions": []
+      "instructions": [],
+      "source_url": null
     },
     {
       "id": "mac-and-cheese",
@@ -652,7 +660,8 @@
           "category": "pantry"
         }
       ],
-      "instructions": []
+      "instructions": [],
+      "source_url": null
     },
     {
       "id": "stuffed-breakfast-potatoes",
@@ -727,7 +736,8 @@
         "Add whatever else you like, Peppers, Bacon Bits, Ham, etc...",
         "Crack an egg on top, then MORE CHEESE :)",
         "Place on a baking sheet and bake for 20 minutes until the whites are set'"
-      ]
+      ],
+      "source_url": null
     },
     {
       "id": "neapolitan-pizza-dough-recipe",
@@ -786,7 +796,8 @@
         "Cover the bowl with its lid and let the dough rise at room temperature for 18 to 24 hours (20 hours is my sweet spot) or until it has doubled in volume.",
         "Scrape the dough onto a floured surface (it will be goopy with bubbles throughout). Divide it into two or three equal-size pieces\u2014two if you like to make 12 to 14-inch pizzas, three if you like to make 10 to 12-inch pizzas. Form the dough pieces into balls, dusting your hands with flour if needed, and place each one in a separate airtight quart-size container. Cover and refrigerate for 24 to 48 hours (or up to 72 hours).",
         "Take the dough out of the refrigerator at least 1 hour (preferably 2 hours) before you plan to stretch it for pizza."
-      ]
+      ],
+      "source_url": null
     },
     {
       "id": "homemade-french-fries-in-air-fry-range",
@@ -853,7 +864,8 @@
         "Place the air fry tray into the Frigidaire Air Fry Oven with a prepared drip tray two rack spaces below the air fry tray to prevent any crumbs or drips from falling onto the bottom of the oven.",
         "Air fry French Fries for 20 minutes turning with a spatula halfway through the cooking cycle.",
         "For extra crispy fries turn the air frying temperature up to 500\u00b0 for an additional 5 minutes or until the fries reach the desired crispness."
-      ]
+      ],
+      "source_url": null
     },
     {
       "id": "mini-heart-shaped-cakes",
@@ -972,7 +984,128 @@
         "Once the cakes are removed, wash and dry the silicone molds thoroughly.",
         "Add\u00a0chocolate chips (\u00be cup)\u00a0and\u00a0coconut oil (1\u00bd tsp)\u00a0to a microwave-safe bowl. Microwave in 20\u201330 second intervals, stirring well between each, until fully melted and smooth.",
         "Pour the melted chocolate evenly into each clean mold cavity. Working quickly, place the frozen cakes upside down into the chocolate, gently pressing so the tops make contact with the coating. Return the mold to the freezer for\u00a015 minutes, then pop the cakes loose."
-      ]
+      ],
+      "source_url": null
+    },
+    {
+      "id": "mini-heart-shaped-cakes-2",
+      "name": "Mini Heart Shaped Cakes",
+      "servings": 4,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 0,
+        "protein": 0.0,
+        "carbs": 0.0,
+        "fat": 0.0,
+        "saturated_fat": null,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": null,
+        "potassium": null,
+        "fiber": null,
+        "sugar": null,
+        "vitamin_a": null,
+        "vitamin_c": null,
+        "calcium": null,
+        "iron": null
+      },
+      "tags": [
+        "nutrition-generated"
+      ],
+      "ingredients": [
+        {
+          "item": "all-purpose flour",
+          "quantity": 120.0,
+          "unit": "g",
+          "category": "grains"
+        },
+        {
+          "item": "baking powder",
+          "quantity": 0.75,
+          "unit": "tsp",
+          "category": "pantry"
+        },
+        {
+          "item": "baking soda",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "category": "pantry"
+        },
+        {
+          "item": "fine salt",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "category": "pantry"
+        },
+        {
+          "item": "unsalted butter",
+          "quantity": 57.0,
+          "unit": "g",
+          "category": "dairy",
+          "notes": "melted and cooled"
+        },
+        {
+          "item": "neutral oil",
+          "quantity": 55.0,
+          "unit": "g",
+          "category": "pantry"
+        },
+        {
+          "item": "granulated sugar",
+          "quantity": 150.0,
+          "unit": "g",
+          "category": "pantry"
+        },
+        {
+          "item": "large egg",
+          "quantity": 50.0,
+          "unit": "g",
+          "category": "dairy"
+        },
+        {
+          "item": "egg yolk",
+          "quantity": 18.0,
+          "unit": "g",
+          "category": "dairy"
+        },
+        {
+          "item": "full-fat sour cream",
+          "quantity": 120.0,
+          "unit": "g",
+          "category": "dairy"
+        },
+        {
+          "item": "vanilla extract",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "category": "pantry"
+        },
+        {
+          "item": "chocolate chips",
+          "quantity": 130.0,
+          "unit": "g",
+          "category": "pantry"
+        },
+        {
+          "item": "coconut oil",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "category": "pantry"
+        }
+      ],
+      "instructions": [
+        "Preheat the oven to 325\u00b0F.",
+        "In a medium bowl, whisk together\u00a0all-purpose flour (1 cup),\u00a0baking powder (\u00be tsp),\u00a0baking soda (\u00bc tsp), and\u00a0fine salt (\u00bc tsp)\u00a0until evenly combined.",
+        "In a separate bowl, whisk\u00a0unsalted butter (\u00bc cup),\u00a0neutral oil (\u00bc cup), and\u00a0granulated sugar (\u00be cup)\u00a0until smooth. Add\u00a0large egg (1)\u00a0and\u00a0egg yolk (1)\u00a0and whisk until fully incorporated, then mix in\u00a0full-fat sour cream (\u00bd cup)\u00a0and\u00a0vanilla extract (1 tsp).",
+        "Gently fold the dry ingredients into the wet ingredients just until combined.",
+        "Place the silicone heart mold on a quarter sheet pan. Fill each cavity with\u00a060\u201365 grams of batter, or about halfway full.",
+        "Bake 16\u201320 minutes, or until the cakes are set in the center. Let cool, then transfer the entire mold to the freezer and freeze for\u00a0at least 3 hours. The cakes should release easily once fully frozen. If they don\u2019t, freeze longer.",
+        "Once the cakes are removed, wash and dry the silicone molds thoroughly.",
+        "Add\u00a0chocolate chips (\u00be cup)\u00a0and\u00a0coconut oil (1\u00bd tsp)\u00a0to a microwave-safe bowl. Microwave in 20\u201330 second intervals, stirring well between each, until fully melted and smooth.",
+        "Pour the melted chocolate evenly into each clean mold cavity. Working quickly, place the frozen cakes upside down into the chocolate, gently pressing so the tops make contact with the coating. Return the mold to the freezer for\u00a015 minutes, then pop the cakes loose."
+      ],
+      "source_url": "https://www.simplysissom.com/mini-heart-shaped-cakes/#tasty-recipes-18913-jump-target"
     }
   ]
 }

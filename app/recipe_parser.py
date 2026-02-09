@@ -87,7 +87,8 @@ class ParsedRecipe:
             "nutrition_per_serving": nutrition_per_serving,
             "tags": self.tags or ["imported"],
             "ingredients": self.ingredients,
-            "instructions": self.instructions
+            "instructions": self.instructions,
+            "source_url": self.source_url
         }
 
 

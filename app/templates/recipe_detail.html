@@ -94,6 +94,25 @@
             background: #e67e22;
         }
 
+        .source-url {
+            margin-bottom: 20px;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid #95a5a6;
+            font-size: 14px;
+        }
+
+        .source-url a {
+            color: #3498db;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .source-url a:hover {
+            text-decoration: underline;
+        }
+
         .section {
             margin-bottom: 40px;
         }
@@ -277,6 +296,12 @@
             {% for tag in recipe.tags %}
                 <span class="tag {% if tag == 'nutrition-generated' %}nutrition-generated{% endif %}">{{ tag }}</span>
             {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if recipe.source_url %}
+        <div class="source-url">
+            <strong>Source:</strong> <a href="{{ recipe.source_url }}" target="_blank" rel="noopener noreferrer">{{ recipe.source_url }}</a>
         </div>
         {% endif %}
 

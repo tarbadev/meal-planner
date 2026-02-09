@@ -27,6 +27,7 @@ class Recipe:
     tags: list[str] = field(default_factory=list)
     ingredients: list[dict[str, Any]] = field(default_factory=list)
     instructions: list[str] = field(default_factory=list)
+    source_url: str | None = None
 
     @property
     def total_time_minutes(self) -> int:
@@ -104,6 +105,7 @@ class Recipe:
             tags=data.get("tags", []),
             ingredients=data.get("ingredients", []),
             instructions=data.get("instructions", []),
+            source_url=data.get("source_url"),
         )
 
 
