@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Any
+
 import gspread
 from google.oauth2.service_account import Credentials
 from gspread.exceptions import WorksheetNotFound
@@ -171,4 +172,4 @@ class SheetsWriter:
                 "message": "Successfully wrote meal plan and shopping list to Google Sheets"
             }
         except Exception as e:
-            raise SheetsError(f"Failed to write to Google Sheets: {e}")
+            raise SheetsError(f"Failed to write to Google Sheets: {e}") from e

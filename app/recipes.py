@@ -1,7 +1,7 @@
 import json
 import os
 import tempfile
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -117,7 +117,7 @@ def load_recipes(file_path: Path | str) -> list[Recipe]:
         with open(file_path) as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
-        raise RecipeLoadError(f"Invalid JSON in recipe file: {e}")
+        raise RecipeLoadError(f"Invalid JSON in recipe file: {e}") from e
 
     if "recipes" not in data:
         raise RecipeLoadError("Recipe file must contain a 'recipes' key")
@@ -168,8 +168,8 @@ def save_recipes(file_path: Path | str, recipes: list[Recipe]) -> None:
                 pass
             raise
 
-    except (IOError, OSError, PermissionError) as e:
-        raise RecipeSaveError(f"Failed to save recipes to {file_path}: {e}")
+    except (OSError, PermissionError) as e:
+        raise RecipeSaveError(f"Failed to save recipes to {file_path}: {e}") from e
 
 
 def update_recipe(recipes: list[Recipe], updated_recipe: Recipe) -> list[Recipe]:

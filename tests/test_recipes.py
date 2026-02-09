@@ -1,9 +1,17 @@
 import json
-import pytest
-from pathlib import Path
 import os
+from pathlib import Path
 
-from app.recipes import load_recipes, Recipe, RecipeLoadError, save_recipes, RecipeSaveError, update_recipe
+import pytest
+
+from app.recipes import (
+    Recipe,
+    RecipeLoadError,
+    RecipeSaveError,
+    load_recipes,
+    save_recipes,
+    update_recipe,
+)
 
 
 def create_test_recipe(**kwargs):

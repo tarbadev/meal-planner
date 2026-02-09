@@ -1,7 +1,8 @@
 import pytest
-from app.shopping_list import ShoppingList, ShoppingListItem, generate_shopping_list
+
 from app.planner import PlannedMeal, WeeklyPlan
 from app.recipes import Recipe
+from app.shopping_list import ShoppingList, ShoppingListItem, generate_shopping_list
 
 
 @pytest.fixture

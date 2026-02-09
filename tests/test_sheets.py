@@ -1,10 +1,11 @@
-import pytest
-from unittest.mock import Mock, MagicMock, patch
 from pathlib import Path
+from unittest.mock import MagicMock, Mock, patch
 
-from app.sheets import SheetsWriter, SheetsError
+import pytest
+
 from app.planner import PlannedMeal, WeeklyPlan
 from app.recipes import Recipe
+from app.sheets import SheetsError, SheetsWriter
 from app.shopping_list import ShoppingList, ShoppingListItem
 
 

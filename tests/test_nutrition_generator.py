@@ -1,13 +1,15 @@
 """Tests for nutrition generator module."""
 
+from unittest.mock import MagicMock, Mock, patch
+
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+
 from app.nutrition_generator import (
+    IngredientNutrition,
+    NutritionData,
+    NutritionGenerator,
     UnitConverter,
     USDAFoodDataClient,
-    NutritionGenerator,
-    NutritionData,
-    IngredientNutrition
 )
 
 

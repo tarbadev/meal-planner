@@ -1,9 +1,9 @@
 """Automatic nutrition generation from ingredients using USDA FoodData Central API."""
 
-from typing import Optional, Dict, List
-import requests
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
+
+import requests
 
 
 @dataclass
@@ -15,17 +15,17 @@ class NutritionData:
     carbs: float
     fat: float
     # Extended nutrients
-    saturated_fat: Optional[float] = None
-    polyunsaturated_fat: Optional[float] = None
-    monounsaturated_fat: Optional[float] = None
-    sodium: Optional[float] = None
-    potassium: Optional[float] = None
-    fiber: Optional[float] = None
-    sugar: Optional[float] = None
-    vitamin_a: Optional[float] = None
-    vitamin_c: Optional[float] = None
-    calcium: Optional[float] = None
-    iron: Optional[float] = None
+    saturated_fat: float | None = None
+    polyunsaturated_fat: float | None = None
+    monounsaturated_fat: float | None = None
+    sodium: float | None = None
+    potassium: float | None = None
+    fiber: float | None = None
+    sugar: float | None = None
+    vitamin_a: float | None = None
+    vitamin_c: float | None = None
+    calcium: float | None = None
+    iron: float | None = None
     # Metadata
     confidence: float = 1.0  # 0.0 to 1.0
 
@@ -34,8 +34,8 @@ class NutritionData:
 class IngredientNutrition:
     """Nutrition for a single ingredient."""
     item: str
-    nutrition: Optional[NutritionData]
-    matched_food: Optional[str]  # USDA food description
+    nutrition: NutritionData | None
+    matched_food: str | None  # USDA food description
     confidence: float
 
 
@@ -101,7 +101,7 @@ class UnitConverter:
         'pieces': 100,
     }
 
-    def convert_to_grams(self, quantity: float, unit: str, item: str = '') -> Optional[float]:
+    def convert_to_grams(self, quantity: float, unit: str, item: str = '') -> float | None:
         """Convert ingredient quantity to grams.
 
         Args:
@@ -149,7 +149,7 @@ class USDAFoodDataClient:
 
     BASE_URL = 'https://api.nal.usda.gov/fdc/v1'
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: str | None = None):
         """Initialize USDA API client.
 
         Args:
@@ -159,7 +159,7 @@ class USDAFoodDataClient:
         self.session = requests.Session()
         self.api_key = api_key
 
-    def search_foods(self, query: str, page_size: int = 5) -> List[Dict]:
+    def search_foods(self, query: str, page_size: int = 5) -> list[dict]:
         """Search for foods in USDA database.
 
         Args:
@@ -192,7 +192,7 @@ class USDAFoodDataClient:
             print(f"USDA API search error: {e}")
             return []
 
-    def get_food_details(self, fdc_id: int) -> Optional[Dict]:
+    def get_food_details(self, fdc_id: int) -> dict | None:
         """Get detailed nutrition for a specific food.
 
         Args:
@@ -218,7 +218,7 @@ class USDAFoodDataClient:
             print(f"USDA API details error: {e}")
             return None
 
-    def extract_nutrition(self, food_data: Dict) -> Optional[NutritionData]:
+    def extract_nutrition(self, food_data: dict) -> NutritionData | None:
         """Extract nutrition from USDA food data.
 
         All values are per 100g.
@@ -301,7 +301,7 @@ class USDAFoodDataClient:
 class NutritionGenerator:
     """Generate nutrition data from ingredient list."""
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: str | None = None):
         """Initialize nutrition generator.
 
         Args:
@@ -325,9 +325,9 @@ class NutritionGenerator:
 
     def generate_from_ingredients(
         self,
-        ingredients: List[Dict],
+        ingredients: list[dict],
         servings: int
-    ) -> Optional[NutritionData]:
+    ) -> NutritionData | None:
         """Generate nutrition data from ingredient list.
 
         Args:
@@ -341,7 +341,7 @@ class NutritionGenerator:
             return None
 
         # Calculate nutrition for each ingredient
-        ingredient_nutritions: List[IngredientNutrition] = []
+        ingredient_nutritions: list[IngredientNutrition] = []
 
         for ingredient in ingredients:
             ing_nutrition = self._calculate_ingredient_nutrition(ingredient)
@@ -401,7 +401,7 @@ class NutritionGenerator:
             confidence=avg_confidence
         )
 
-    def _calculate_ingredient_nutrition(self, ingredient: Dict) -> Optional[IngredientNutrition]:
+    def _calculate_ingredient_nutrition(self, ingredient: dict) -> IngredientNutrition | None:
         """Calculate nutrition for a single ingredient.
 
         Args:

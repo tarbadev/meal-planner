@@ -5,11 +5,11 @@ Extracts structured recipe data from Instagram post descriptions and other
 unstructured recipe text in both English and French.
 """
 
-from dataclasses import dataclass
-from typing import Optional, List, Dict, Any
 import json
+from dataclasses import dataclass
+from typing import Any
+
 from openai import OpenAI
-import config
 
 
 class AIExtractionError(Exception):
@@ -21,12 +21,12 @@ class AIExtractionError(Exception):
 class ExtractedRecipeData:
     """AI-extracted recipe data with confidence score."""
     name: str
-    servings: Optional[int]
-    prep_time_minutes: Optional[int]
-    cook_time_minutes: Optional[int]
-    ingredients: List[Dict[str, Any]]  # [{"item": str, "quantity": float, "unit": str, "category": str}]
-    instructions: List[str]
-    tags: List[str]
+    servings: int | None
+    prep_time_minutes: int | None
+    cook_time_minutes: int | None
+    ingredients: list[dict[str, Any]]  # [{"item": str, "quantity": float, "unit": str, "category": str}]
+    instructions: list[str]
+    tags: list[str]
     language: str  # 'en' or 'fr'
     confidence: float  # 0-1
 
@@ -240,8 +240,8 @@ Now extract the recipe from the following text:"""
             )
 
         except json.JSONDecodeError as e:
-            raise AIExtractionError(f"Failed to parse AI response as JSON: {str(e)}")
+            raise AIExtractionError(f"Failed to parse AI response as JSON: {str(e)}") from e
         except Exception as e:
             if isinstance(e, AIExtractionError):
                 raise
-            raise AIExtractionError(f"AI extraction failed: {str(e)}")
+            raise AIExtractionError(f"AI extraction failed: {str(e)}") from e

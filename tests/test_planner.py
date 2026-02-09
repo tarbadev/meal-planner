@@ -1,8 +1,9 @@
-import pytest
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
 
-from app.planner import MealPlanner, WeeklyPlan, PlannedMeal, get_meal_slots_from_schedule
+import pytest
+
+from app.planner import MealPlanner, PlannedMeal, WeeklyPlan, get_meal_slots_from_schedule
 from app.recipes import Recipe
 
 

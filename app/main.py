@@ -1,11 +1,12 @@
 from pathlib import Path
-from flask import Flask, render_template, jsonify, request
+
+from flask import Flask, jsonify, render_template, request
 
 import config
-from app.recipes import load_recipes, save_recipes, update_recipe, Recipe, RecipeSaveError
 from app.planner import MealPlanner
+from app.recipes import Recipe, RecipeSaveError, load_recipes, save_recipes, update_recipe
+from app.sheets import SheetsError, SheetsWriter
 from app.shopping_list import generate_shopping_list
-from app.sheets import SheetsWriter, SheetsError
 
 app = Flask(__name__)
 
@@ -103,10 +104,10 @@ def import_recipe():
 
     try:
         # Parse recipe from URL
-        from app.recipe_parser import RecipeParser, RecipeParseError, generate_recipe_id
-        from app.nutrition_generator import NutritionGenerator
-        from app.instagram_fetcher import InstagramFetchError
         from app.ai_recipe_extractor import AIExtractionError
+        from app.instagram_fetcher import InstagramFetchError
+        from app.nutrition_generator import NutritionGenerator
+        from app.recipe_parser import RecipeParseError, RecipeParser, generate_recipe_id
 
         parser = RecipeParser()
         parsed_recipe = parser.parse_from_url(url)
@@ -251,10 +252,10 @@ def import_recipe_text():
 
     try:
         # Parse recipe from text using AI
-        from app.instagram_parser import InstagramParser
-        from app.recipe_parser import RecipeParseError, generate_recipe_id
-        from app.nutrition_generator import NutritionGenerator
         from app.ai_recipe_extractor import AIExtractionError
+        from app.instagram_parser import InstagramParser
+        from app.nutrition_generator import NutritionGenerator
+        from app.recipe_parser import RecipeParseError, generate_recipe_id
 
         print("Init of instagram_parser")
         instagram_parser = InstagramParser(

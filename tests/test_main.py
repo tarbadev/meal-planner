@@ -1,6 +1,7 @@
 import json
-import pytest
 from pathlib import Path
+
+import pytest
 
 from app.main import app
 from app.recipes import Recipe, save_recipes
@@ -267,6 +268,7 @@ class TestImportRecipe:
     def test_import_recipe_success(self, client, monkeypatch):
         """Test successful recipe import from URL."""
         from unittest.mock import Mock, patch
+
         from app.recipe_parser import ParsedRecipe
 
         # Mock the parser
@@ -345,6 +347,7 @@ class TestImportRecipe:
     def test_import_recipe_parse_error(self, client):
         """Test import when parsing fails."""
         from unittest.mock import patch
+
         from app.recipe_parser import RecipeParseError
 
         with patch('app.recipe_parser.RecipeParser.parse_from_url') as mock_parse:
@@ -365,6 +368,7 @@ class TestImportRecipe:
     def test_import_recipe_generates_unique_id(self, client, monkeypatch):
         """Test that imported recipe gets a unique ID."""
         from unittest.mock import patch
+
         from app.recipe_parser import ParsedRecipe
 
         mock_parsed_recipe = ParsedRecipe(
@@ -391,8 +395,9 @@ class TestImportRecipe:
     def test_import_recipe_clears_current_plan(self, client, monkeypatch):
         """Test that importing a recipe clears the current plan."""
         from unittest.mock import patch
-        from app.recipe_parser import ParsedRecipe
+
         from app import main
+        from app.recipe_parser import ParsedRecipe
 
         # Set a current plan
         main.current_plan = "some plan"
@@ -421,6 +426,7 @@ class TestImportRecipe:
     def test_import_recipe_missing_ingredients_fails(self, client):
         """Test that importing a recipe without ingredients fails."""
         from unittest.mock import patch
+
         from app.recipe_parser import ParsedRecipe, RecipeParseError
 
         mock_parsed_recipe = ParsedRecipe(
@@ -446,6 +452,7 @@ class TestImportRecipe:
     def test_import_recipe_missing_instructions_fails(self, client):
         """Test that importing a recipe without instructions fails."""
         from unittest.mock import patch
+
         from app.recipe_parser import ParsedRecipe, RecipeParseError
 
         mock_parsed_recipe = ParsedRecipe(
@@ -470,9 +477,10 @@ class TestImportRecipe:
 
     def test_import_recipe_generates_nutrition_when_missing(self, client):
         """Test that nutrition is automatically generated when missing."""
-        from unittest.mock import patch, Mock
-        from app.recipe_parser import ParsedRecipe
+        from unittest.mock import Mock, patch
+
         from app.nutrition_generator import NutritionData
+        from app.recipe_parser import ParsedRecipe
 
         # Mock recipe with no nutrition
         mock_parsed_recipe = ParsedRecipe(
@@ -520,7 +528,8 @@ class TestImportRecipe:
 
     def test_import_recipe_skips_generation_when_nutrition_present(self, client):
         """Test that nutrition generation is skipped when nutrition already exists."""
-        from unittest.mock import patch, Mock
+        from unittest.mock import Mock, patch
+
         from app.recipe_parser import ParsedRecipe
 
         # Mock recipe WITH existing nutrition
@@ -558,6 +567,7 @@ class TestImportRecipe:
     def test_import_recipe_continues_when_generation_fails(self, client):
         """Test that import succeeds even if nutrition generation fails."""
         from unittest.mock import patch
+
         from app.recipe_parser import ParsedRecipe
 
         # Mock recipe with no nutrition
@@ -594,10 +604,11 @@ class TestImportRecipe:
     def test_import_recipe_with_generated_nutrition_adds_tag(self, client, monkeypatch):
         """Test that nutrition-generated tag is added when nutrition is generated."""
         from unittest.mock import patch
-        from app.recipe_parser import ParsedRecipe
-        from app.nutrition_generator import NutritionData
-        from app.recipes import load_recipes
+
         import config
+        from app.nutrition_generator import NutritionData
+        from app.recipe_parser import ParsedRecipe
+        from app.recipes import load_recipes
 
         mock_parsed_recipe = ParsedRecipe(
             name="Test Recipe",

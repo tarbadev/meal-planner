@@ -4,9 +4,8 @@ Main orchestrator for Instagram recipe import.
 Combines fetching, AI extraction, and normalization to parse Instagram recipes.
 """
 
-from typing import Optional
 
-from app.ai_recipe_extractor import AIRecipeExtractor, AIExtractionError
+from app.ai_recipe_extractor import AIExtractionError, AIRecipeExtractor
 from app.ingredient_normalizer import normalize_ingredient
 from app.instagram_fetcher import InstagramFetcher, InstagramFetchError
 from app.recipe_parser import ParsedRecipe
@@ -15,7 +14,7 @@ from app.recipe_parser import ParsedRecipe
 class InstagramParser:
     """Coordinates all Instagram import steps."""
 
-    def __init__(self, openai_api_key: str, instagram_session_file: Optional[str] = None):
+    def __init__(self, openai_api_key: str, instagram_session_file: str | None = None):
         """
         Initialize Instagram parser.
 

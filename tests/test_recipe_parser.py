@@ -1,11 +1,8 @@
-import pytest
 from unittest.mock import Mock, patch
-from app.recipe_parser import (
-    RecipeParser,
-    RecipeParseError,
-    ParsedRecipe,
-    generate_recipe_id
-)
+
+import pytest
+
+from app.recipe_parser import ParsedRecipe, RecipeParseError, RecipeParser, generate_recipe_id
 
 
 class TestGenerateRecipeId:

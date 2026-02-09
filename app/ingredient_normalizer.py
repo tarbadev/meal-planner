@@ -4,9 +4,7 @@ Post-processing to normalize AI-extracted ingredients (bilingual support).
 Standardizes units, handles fractions, and infers categories for ingredients.
 """
 
-from typing import Dict, Any
-import re
-
+from typing import Any
 
 # Bilingual unit mapping (English and French)
 UNIT_MAPPING = {
@@ -155,7 +153,7 @@ CATEGORY_KEYWORDS = {
 }
 
 
-def normalize_ingredient(ai_ingredient: Dict[str, Any]) -> Dict[str, Any]:
+def normalize_ingredient(ai_ingredient: dict[str, Any]) -> dict[str, Any]:
     """
     Normalize AI-extracted ingredient.
 

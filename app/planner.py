@@ -4,7 +4,6 @@ from typing import Any
 
 from app.recipes import Recipe
 
-
 DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 

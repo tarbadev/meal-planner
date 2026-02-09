@@ -5,11 +5,12 @@ Fetches Instagram post data (description, media) for recipe extraction.
 Handles session management and provides clear error messages.
 """
 
-from dataclasses import dataclass
-from typing import Optional, List
 import re
-import instaloader
+from dataclasses import dataclass
 from pathlib import Path
+
+import instaloader
+
 import config
 
 
@@ -22,7 +23,7 @@ class InstagramFetchError(Exception):
 class InstagramPost:
     """Holds Instagram post data for recipe extraction."""
     description: str
-    media_urls: List[str]
+    media_urls: list[str]
     media_type: str  # 'photo', 'video', or 'carousel'
     shortcode: str
     has_owner_comments: bool = False  # Whether owner comments were included
@@ -31,7 +32,7 @@ class InstagramPost:
 class InstagramFetcher:
     """Fetches Instagram posts using Instaloader."""
 
-    def __init__(self, session_file: Optional[str] = None):
+    def __init__(self, session_file: str | None = None):
         """
         Initialize Instagram fetcher.
 
@@ -78,7 +79,7 @@ class InstagramFetcher:
                 if username:
                     print(f"[Instagram] Loading session for user: {username}")
                     self.loader.load_session_from_file(username, str(session_path))
-                    print(f"[Instagram] Session loaded successfully!")
+                    print("[Instagram] Session loaded successfully!")
 
             except FileNotFoundError:
                 print(f"[Instagram] Session file not found: {self.session_file}")
@@ -86,7 +87,7 @@ class InstagramFetcher:
                 print(f"[Instagram] Session load failed: {type(e).__name__}: {str(e)}")
                 print("[Instagram] Will attempt without authentication (may fail)")
 
-    def _fetch_owner_comments(self, post) -> List[str]:
+    def _fetch_owner_comments(self, post) -> list[str]:
         """
         Fetch comments from the post owner.
 
@@ -112,7 +113,7 @@ class InstagramFetcher:
 
                 comment_count += 1
 
-        except Exception as e:
+        except Exception:
             # If we can't fetch comments (rate limit, login required, etc.),
             # just return empty list - we'll still have the caption
             pass
@@ -141,9 +142,9 @@ class InstagramFetcher:
 
         if not match:
             raise InstagramFetchError(
-                f"Invalid Instagram URL format. Expected format: "
-                f"https://www.instagram.com/p/SHORTCODE/ or "
-                f"https://www.instagram.com/reel/SHORTCODE/"
+                "Invalid Instagram URL format. Expected format: "
+                "https://www.instagram.com/p/SHORTCODE/ or "
+                "https://www.instagram.com/reel/SHORTCODE/"
             )
 
         return match.group(1)
@@ -228,18 +229,18 @@ class InstagramFetcher:
                 "AUTOMATED SOLUTION: Not reliably possible with current Instagram protections.\n"
                 "Instagram will continue to block API access even with valid sessions.\n\n"
                 "The only 100% reliable method is manual text paste."
-            )
-        except instaloader.exceptions.LoginRequiredException:
+            ) from e
+        except instaloader.exceptions.LoginRequiredException as e:
             raise InstagramFetchError(
                 "Instagram requires login to access this post. "
                 "Your session may have expired.\n"
                 "Try logging in again: instaloader --login=YOUR_USERNAME"
-            )
-        except instaloader.exceptions.PrivateProfileNotFollowedException:
+            ) from e
+        except instaloader.exceptions.PrivateProfileNotFollowedException as e:
             raise InstagramFetchError(
                 "This Instagram post is from a private account. "
                 "You cannot import recipes from private accounts."
-            )
+            ) from e
         except instaloader.exceptions.ConnectionException as e:
             error_msg = str(e)
             # Check if this is a 403 Forbidden error (Instagram blocking)
@@ -256,11 +257,11 @@ class InstagramFetcher:
                     "2. Set: export INSTAGRAM_SESSION_FILE=~/.instaloader-session-YOUR_USERNAME\n"
                     "3. Restart the app\n\n"
                     "The manual paste method works 100% of the time!"
-                )
+                ) from e
             raise InstagramFetchError(
                 f"Failed to connect to Instagram: {error_msg}. "
                 "Please check your internet connection or try the manual paste fallback."
-            )
+            ) from e
         except Exception as e:
             error_msg = str(e)
             # Also check for 403 in generic exceptions
@@ -277,8 +278,8 @@ class InstagramFetcher:
                     "2. Set: export INSTAGRAM_SESSION_FILE=~/.instaloader-session-YOUR_USERNAME\n"
                     "3. Restart the app\n\n"
                     "The manual paste method works 100% of the time!"
-                )
+                ) from e
             raise InstagramFetchError(
                 f"Unexpected error fetching Instagram post: {error_msg}. "
                 "Please try the manual paste fallback."
-            )
+            ) from e

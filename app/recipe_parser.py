@@ -1,35 +1,35 @@
-from dataclasses import dataclass
-from typing import Optional
-import requests
-from bs4 import BeautifulSoup
 import json
 import re
+from dataclasses import dataclass
+
+import requests
+from bs4 import BeautifulSoup
 
 
 @dataclass
 class ParsedRecipe:
     """Intermediate representation of parsed recipe data."""
     name: str
-    servings: Optional[int] = None
-    prep_time_minutes: Optional[int] = None
-    cook_time_minutes: Optional[int] = None
+    servings: int | None = None
+    prep_time_minutes: int | None = None
+    cook_time_minutes: int | None = None
     # Core nutrition fields
-    calories_per_serving: Optional[int] = None
-    protein_per_serving: Optional[float] = None
-    carbs_per_serving: Optional[float] = None
-    fat_per_serving: Optional[float] = None
+    calories_per_serving: int | None = None
+    protein_per_serving: float | None = None
+    carbs_per_serving: float | None = None
+    fat_per_serving: float | None = None
     # Extended nutrition fields
-    saturated_fat_per_serving: Optional[float] = None
-    polyunsaturated_fat_per_serving: Optional[float] = None
-    monounsaturated_fat_per_serving: Optional[float] = None
-    sodium_per_serving: Optional[float] = None
-    potassium_per_serving: Optional[float] = None
-    fiber_per_serving: Optional[float] = None
-    sugar_per_serving: Optional[float] = None
-    vitamin_a_per_serving: Optional[float] = None
-    vitamin_c_per_serving: Optional[float] = None
-    calcium_per_serving: Optional[float] = None
-    iron_per_serving: Optional[float] = None
+    saturated_fat_per_serving: float | None = None
+    polyunsaturated_fat_per_serving: float | None = None
+    monounsaturated_fat_per_serving: float | None = None
+    sodium_per_serving: float | None = None
+    potassium_per_serving: float | None = None
+    fiber_per_serving: float | None = None
+    sugar_per_serving: float | None = None
+    vitamin_a_per_serving: float | None = None
+    vitamin_c_per_serving: float | None = None
+    calcium_per_serving: float | None = None
+    iron_per_serving: float | None = None
     # Other fields
     tags: list[str] = None
     ingredients: list[dict] = None
@@ -105,8 +105,8 @@ class RecipeParser:
         """Main entry point - parse recipe from URL."""
         # Check if this is an Instagram URL
         if self._is_instagram_url(url):
-            from app.instagram_parser import InstagramParser
             import config
+            from app.instagram_parser import InstagramParser
             print("Init of instagram_parser")
             instagram_parser = InstagramParser(
                 openai_api_key=config.OPENAI_API_KEY,
@@ -139,11 +139,11 @@ class RecipeParser:
             return recipe
 
         except requests.RequestException as e:
-            raise RecipeParseError(f"Failed to fetch URL: {str(e)}")
+            raise RecipeParseError(f"Failed to fetch URL: {str(e)}") from e
         except Exception as e:
-            raise RecipeParseError(f"Failed to fetch URL: {str(e)}")
+            raise RecipeParseError(f"Failed to fetch URL: {str(e)}") from e
 
-    def _parse_schema_org(self, html: str) -> Optional[ParsedRecipe]:
+    def _parse_schema_org(self, html: str) -> ParsedRecipe | None:
         """Extract recipe from schema.org JSON-LD markup."""
         soup = BeautifulSoup(html, 'html.parser')
 
@@ -237,7 +237,7 @@ class RecipeParser:
             instructions=instructions
         )
 
-    def _extract_servings(self, yield_value) -> Optional[int]:
+    def _extract_servings(self, yield_value) -> int | None:
         """Extract servings from recipeYield (can be string or number)."""
         if isinstance(yield_value, int):
             return yield_value
@@ -248,7 +248,7 @@ class RecipeParser:
                 return int(match.group(1))
         return None
 
-    def _extract_calories(self, nutrition: dict) -> Optional[int]:
+    def _extract_calories(self, nutrition: dict) -> int | None:
         """Extract calories from nutrition object."""
         cal_str = nutrition.get('calories', '')
         if isinstance(cal_str, str):
@@ -257,7 +257,7 @@ class RecipeParser:
                 return int(match.group(1))
         return None
 
-    def _extract_nutrient(self, nutrition: dict, key: str) -> Optional[float]:
+    def _extract_nutrient(self, nutrition: dict, key: str) -> float | None:
         """Extract nutrient value (protein, carbs, fat) from nutrition object."""
         value_str = nutrition.get(key, '')
         if isinstance(value_str, str):
@@ -267,7 +267,7 @@ class RecipeParser:
                 return float(match.group(1))
         return None
 
-    def _parse_ingredient(self, ingredient_str: str) -> Optional[dict]:
+    def _parse_ingredient(self, ingredient_str: str) -> dict | None:
         """Parse ingredient string into structured format."""
         # Simple heuristic: look for number at start
         match = re.match(r'([\d./]+)\s*([a-zA-Z]+)?\s+(.+)', ingredient_str.strip())
@@ -298,7 +298,7 @@ class RecipeParser:
             "category": "other"
         }
 
-    def _parse_wprm(self, html: str) -> Optional[ParsedRecipe]:
+    def _parse_wprm(self, html: str) -> ParsedRecipe | None:
         """Parse WP Recipe Maker (WPRM) plugin data from window.wprm_recipes."""
         # Look for window.wprm_recipes JavaScript variable
         match = re.search(r'window\.wprm_recipes\s*=\s*(\{.+?\});', html, re.DOTALL)
@@ -401,7 +401,7 @@ class RecipeParser:
                 return float(match.group(1))
         return 0.0
 
-    def _parse_html_patterns(self, html: str) -> Optional[ParsedRecipe]:
+    def _parse_html_patterns(self, html: str) -> ParsedRecipe | None:
         """Fallback parser for common HTML patterns on sites without structured data."""
         soup = BeautifulSoup(html, 'html.parser')
 
