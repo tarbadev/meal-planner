@@ -5,6 +5,8 @@ from dataclasses import dataclass
 import requests
 from bs4 import BeautifulSoup
 
+from app.ingredient_parser import IngredientParser
+
 
 @dataclass
 class ParsedRecipe:
@@ -269,34 +271,9 @@ class RecipeParser:
 
     def _parse_ingredient(self, ingredient_str: str) -> dict | None:
         """Parse ingredient string into structured format."""
-        # Simple heuristic: look for number at start
-        match = re.match(r'([\d./]+)\s*([a-zA-Z]+)?\s+(.+)', ingredient_str.strip())
-        if match:
-            quantity_str, unit, item = match.groups()
-            try:
-                # Handle fractions like 1/2
-                if '/' in quantity_str:
-                    num, denom = quantity_str.split('/')
-                    quantity = float(num) / float(denom)
-                else:
-                    quantity = float(quantity_str)
-
-                return {
-                    "item": item.strip(),
-                    "quantity": quantity,
-                    "unit": unit or "pieces",
-                    "category": "other"  # Default, user can edit
-                }
-            except ValueError:
-                pass
-
-        # Fallback: store whole string as item
-        return {
-            "item": ingredient_str.strip(),
-            "quantity": 1,
-            "unit": "serving",
-            "category": "other"
-        }
+        parser = IngredientParser()
+        parsed = parser.parse(ingredient_str)
+        return parser.to_dict(parsed)
 
     def _parse_wprm(self, html: str) -> ParsedRecipe | None:
         """Parse WP Recipe Maker (WPRM) plugin data from window.wprm_recipes."""
@@ -313,16 +290,27 @@ class RecipeParser:
 
             # Extract ingredients
             ingredients = []
+            ingredient_parser = IngredientParser()
             for ing_group in recipe_data.get('ingredients', []):
                 for ing in ing_group.get('ingredients', []):
+                    # Use structured data from WPRM but improve item name and category
+                    item_name = ing.get('name', '')
+                    if not item_name:
+                        continue
+
+                    # Parse the item name to extract clean name and notes
+                    item_clean, notes = ingredient_parser._extract_item_and_notes(item_name)
+
                     parsed = {
-                        "item": ing.get('name', ''),
+                        "item": item_clean,
                         "quantity": self._parse_fraction(ing.get('amount', '1')),
                         "unit": ing.get('unit', 'pieces'),
-                        "category": "other"
+                        "category": ingredient_parser._categorize(item_clean)
                     }
-                    if parsed["item"]:
-                        ingredients.append(parsed)
+                    if notes:
+                        parsed["notes"] = notes
+
+                    ingredients.append(parsed)
 
             # Extract instructions
             instructions = []

@@ -149,11 +149,19 @@
             border-radius: 4px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
         }
 
         .ingredient-name {
             flex: 1;
+        }
+
+        .ingredient-notes {
+            display: block;
+            color: #95a5a6;
+            font-size: 13px;
+            font-style: italic;
+            margin-top: 4px;
         }
 
         .ingredient-quantity {
@@ -305,6 +313,9 @@
                             <span class="ingredient-name">
                                 {{ ingredient.item }}
                                 <span class="ingredient-category">{{ ingredient.category }}</span>
+                                {% if ingredient.notes %}
+                                    <span class="ingredient-notes">{{ ingredient.notes }}</span>
+                                {% endif %}
                             </span>
                             <span class="ingredient-quantity">
                                 {{ ingredient.quantity }} {{ ingredient.unit }}
