@@ -4,11 +4,16 @@ import sys
 GOOGLE_SHEETS_ID = "your-spreadsheet-id"
 CREDENTIALS_FILE = "credentials.json"
 
+# Check if we're running in a test environment
+def _is_testing():
+    """Check if code is running under pytest."""
+    return "pytest" in sys.modules or "PYTEST_CURRENT_TEST" in os.environ
+
 # USDA FoodData Central API key (REQUIRED for nutrition generation)
 # Get your free API key at: https://fdc.nal.usda.gov/api-key-signup.html
-USDA_API_KEY = os.environ.get("USDA_API_KEY")
+USDA_API_KEY = os.environ.get("USDA_API_KEY", "test-key" if _is_testing() else None)
 
-if not USDA_API_KEY:
+if not USDA_API_KEY and not _is_testing():
     print("\n" + "=" * 70, file=sys.stderr)
     print("ERROR: USDA_API_KEY environment variable is required", file=sys.stderr)
     print("=" * 70, file=sys.stderr)
@@ -22,9 +27,9 @@ if not USDA_API_KEY:
 
 # OpenAI API key (REQUIRED for Instagram recipe import)
 # Get your API key at: https://platform.openai.com/api-keys
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "test-key" if _is_testing() else None)
 
-if not OPENAI_API_KEY:
+if not OPENAI_API_KEY and not _is_testing():
     print("\n" + "=" * 70, file=sys.stderr)
     print("ERROR: OPENAI_API_KEY environment variable is required", file=sys.stderr)
     print("=" * 70, file=sys.stderr)

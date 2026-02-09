@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from app.recipe_parser import ParsedRecipe, RecipeParseError, RecipeParser, generate_recipe_id
+from tests.conftest import create_test_recipe
 
 
 class TestGenerateRecipeId:
@@ -63,10 +64,10 @@ class TestParsedRecipeToDict:
         assert result["servings"] == 4
         assert result["prep_time_minutes"] == 15
         assert result["cook_time_minutes"] == 30
-        assert result["calories_per_serving"] == 350
-        assert result["protein_per_serving"] == 25
-        assert result["carbs_per_serving"] == 40
-        assert result["fat_per_serving"] == 12
+        assert result["nutrition_per_serving"]["calories"] == 350
+        assert result["nutrition_per_serving"]["protein"] == 25
+        assert result["nutrition_per_serving"]["carbs"] == 40
+        assert result["nutrition_per_serving"]["fat"] == 12
         assert result["tags"] == ["italian", "quick"]
         assert len(result["ingredients"]) == 1
         assert len(result["instructions"]) == 2
@@ -84,10 +85,10 @@ class TestParsedRecipeToDict:
         assert result["servings"] == 4  # Default
         assert result["prep_time_minutes"] == 0
         assert result["cook_time_minutes"] == 0
-        assert result["calories_per_serving"] == 0
-        assert result["protein_per_serving"] == 0
-        assert result["carbs_per_serving"] == 0
-        assert result["fat_per_serving"] == 0
+        assert result["nutrition_per_serving"]["calories"] == 0
+        assert result["nutrition_per_serving"]["protein"] == 0.0
+        assert result["nutrition_per_serving"]["carbs"] == 0.0
+        assert result["nutrition_per_serving"]["fat"] == 0.0
         assert result["tags"] == ["imported"]  # Default tag
 
     def test_missing_ingredients_raises_error(self):

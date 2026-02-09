@@ -7,20 +7,21 @@ from app.planner import PlannedMeal, WeeklyPlan
 from app.recipes import Recipe
 from app.sheets import SheetsError, SheetsWriter
 from app.shopping_list import ShoppingList, ShoppingListItem
+from tests.conftest import create_test_recipe
 
 
 @pytest.fixture
 def sample_weekly_plan():
-    recipe1 = Recipe(
-        id="recipe-1",
+    recipe1 = create_test_recipe(
+        recipe_id="recipe-1",
         name="Test Recipe 1",
         servings=4,
         prep_time_minutes=10,
         cook_time_minutes=20,
-        calories_per_serving=400,
-        protein_per_serving=20,
-        carbs_per_serving=50,
-        fat_per_serving=10,
+        calories=400,
+        protein=20,
+        carbs=50,
+        fat=10,
         tags=["tag1"],
         ingredients=[{"item": "pasta", "quantity": 400, "unit": "g", "category": "pantry"}]
     )

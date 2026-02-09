@@ -3,20 +3,21 @@ import pytest
 from app.planner import PlannedMeal, WeeklyPlan
 from app.recipes import Recipe
 from app.shopping_list import ShoppingList, ShoppingListItem, generate_shopping_list
+from tests.conftest import create_test_recipe
 
 
 @pytest.fixture
 def sample_planned_meals():
-    recipe1 = Recipe(
-        id="recipe-1",
+    recipe1 = create_test_recipe(
+        recipe_id="recipe-1",
         name="Recipe 1",
         servings=4,
         prep_time_minutes=10,
         cook_time_minutes=20,
-        calories_per_serving=400,
-        protein_per_serving=20,
-        carbs_per_serving=50,
-        fat_per_serving=10,
+        calories=400,
+        protein=20,
+        carbs=50,
+        fat=10,
         tags=[],
         ingredients=[
             {"item": "onion", "quantity": 1, "unit": "whole", "category": "produce"},
@@ -25,16 +26,16 @@ def sample_planned_meals():
         ]
     )
 
-    recipe2 = Recipe(
-        id="recipe-2",
+    recipe2 = create_test_recipe(
+        recipe_id="recipe-2",
         name="Recipe 2",
         servings=4,
         prep_time_minutes=15,
         cook_time_minutes=25,
-        calories_per_serving=350,
-        protein_per_serving=25,
-        carbs_per_serving=40,
-        fat_per_serving=12,
+        calories=350,
+        protein=25,
+        carbs=40,
+        fat=12,
         tags=[],
         ingredients=[
             {"item": "onion", "quantity": 2, "unit": "whole", "category": "produce"},
@@ -43,16 +44,16 @@ def sample_planned_meals():
         ]
     )
 
-    recipe3 = Recipe(
-        id="recipe-3",
+    recipe3 = create_test_recipe(
+        recipe_id="recipe-3",
         name="Recipe 3",
         servings=4,
         prep_time_minutes=5,
         cook_time_minutes=15,
-        calories_per_serving=300,
-        protein_per_serving=15,
-        carbs_per_serving=35,
-        fat_per_serving=8,
+        calories=300,
+        protein=15,
+        carbs=35,
+        fat=8,
         tags=[],
         ingredients=[
             {"item": "garlic", "quantity": 2, "unit": "cloves", "category": "produce"},
@@ -70,16 +71,16 @@ def sample_planned_meals():
 @pytest.fixture
 def weekly_plan(sample_planned_meals):
     # Add 4 more meals to make it 7
-    extra_recipe = Recipe(
-        id="extra",
+    extra_recipe = create_test_recipe(
+        recipe_id="extra",
         name="Extra",
         servings=4,
         prep_time_minutes=10,
         cook_time_minutes=20,
-        calories_per_serving=400,
-        protein_per_serving=20,
-        carbs_per_serving=50,
-        fat_per_serving=10,
+        calories=400,
+        protein=20,
+        carbs=50,
+        fat=10,
         tags=[],
         ingredients=[{"item": "bread", "quantity": 200, "unit": "g", "category": "bakery"}]
     )
@@ -140,32 +141,32 @@ class TestGenerateShoppingList:
 
     def test_generate_shopping_list_keeps_items_with_different_units_separate(self):
         # Create recipes with same item but different units
-        recipe1 = Recipe(
-            id="r1",
+        recipe1 = create_test_recipe(
+            recipe_id="r1",
             name="R1",
             servings=4,
             prep_time_minutes=10,
             cook_time_minutes=20,
-            calories_per_serving=400,
-            protein_per_serving=20,
-            carbs_per_serving=50,
-            fat_per_serving=10,
+            calories=400,
+            protein=20,
+            carbs=50,
+            fat=10,
             tags=[],
             ingredients=[
                 {"item": "milk", "quantity": 200, "unit": "ml", "category": "dairy"}
             ]
         )
 
-        recipe2 = Recipe(
-            id="r2",
+        recipe2 = create_test_recipe(
+            recipe_id="r2",
             name="R2",
             servings=4,
             prep_time_minutes=10,
             cook_time_minutes=20,
-            calories_per_serving=400,
-            protein_per_serving=20,
-            carbs_per_serving=50,
-            fat_per_serving=10,
+            calories=400,
+            protein=20,
+            carbs=50,
+            fat=10,
             tags=[],
             ingredients=[
                 {"item": "milk", "quantity": 1, "unit": "cup", "category": "dairy"}

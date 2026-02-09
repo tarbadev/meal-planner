@@ -5,6 +5,7 @@ import pytest
 
 from app.main import app
 from app.recipes import Recipe, save_recipes
+from tests.conftest import create_test_recipe
 
 
 @pytest.fixture
@@ -13,39 +14,37 @@ def client(tmp_path, monkeypatch):
     # Create test recipes file
     recipes_file = tmp_path / "recipes.json"
     test_recipes = [
-        Recipe(
-            id="pasta-bolognese",
+        create_test_recipe(
+            recipe_id="pasta-bolognese",
             name="Pasta Bolognese",
             servings=4,
             prep_time_minutes=15,
             cook_time_minutes=30,
-            calories_per_serving=450,
-            protein_per_serving=25,
-            carbs_per_serving=55,
-            fat_per_serving=12,
+            calories=450,
+            protein=25,
+            carbs=55,
+            fat=12,
             tags=["italian", "kid-friendly", "dinner"],
             ingredients=[
                 {"item": "ground beef", "quantity": 500, "unit": "g", "category": "meat"},
                 {"item": "pasta", "quantity": 400, "unit": "g", "category": "pantry"},
             ],
-            instructions=[]
         ),
-        Recipe(
-            id="chicken-stir-fry",
+        create_test_recipe(
+            recipe_id="chicken-stir-fry",
             name="Chicken Stir Fry",
             servings=4,
             prep_time_minutes=10,
             cook_time_minutes=15,
-            calories_per_serving=350,
-            protein_per_serving=30,
-            carbs_per_serving=25,
-            fat_per_serving=10,
+            calories=350,
+            protein=30,
+            carbs=25,
+            fat=10,
             tags=["asian", "quick", "lunch", "dinner"],
             ingredients=[
                 {"item": "chicken breast", "quantity": 500, "unit": "g", "category": "meat"},
                 {"item": "mixed vegetables", "quantity": 300, "unit": "g", "category": "produce"},
             ],
-            instructions=[]
         ),
     ]
     save_recipes(recipes_file, test_recipes)

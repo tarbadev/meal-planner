@@ -11,6 +11,7 @@ from app.nutrition_generator import (
     UnitConverter,
     USDAFoodDataClient,
 )
+from tests.conftest import create_test_recipe
 
 
 class TestUnitConverter:

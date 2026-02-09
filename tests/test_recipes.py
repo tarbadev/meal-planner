@@ -12,36 +12,7 @@ from app.recipes import (
     save_recipes,
     update_recipe,
 )
-
-
-def create_test_recipe(**kwargs):
-    """Helper to create Recipe with nested nutrition structure for tests."""
-    # Extract flat nutrition fields if provided
-    calories = kwargs.pop("calories_per_serving", 0)
-    protein = kwargs.pop("protein_per_serving", 0.0)
-    carbs = kwargs.pop("carbs_per_serving", 0.0)
-    fat = kwargs.pop("fat_per_serving", 0.0)
-
-    # Create nested nutrition structure
-    nutrition_per_serving = kwargs.pop("nutrition_per_serving", {
-        "calories": calories,
-        "protein": protein,
-        "carbs": carbs,
-        "fat": fat,
-        "saturated_fat": None,
-        "polyunsaturated_fat": None,
-        "monounsaturated_fat": None,
-        "sodium": None,
-        "potassium": None,
-        "fiber": None,
-        "sugar": None,
-        "vitamin_a": None,
-        "vitamin_c": None,
-        "calcium": None,
-        "iron": None
-    })
-
-    return Recipe(nutrition_per_serving=nutrition_per_serving, **kwargs)
+from tests.conftest import create_test_recipe
 
 
 @pytest.fixture
@@ -281,15 +252,15 @@ class TestSaveRecipes:
         file_path = tmp_path / "output.json"
         recipes = [
             create_test_recipe(
-                id="test-recipe",
+                recipe_id="test-recipe",
                 name="Test Recipe",
                 servings=2,
                 prep_time_minutes=5,
                 cook_time_minutes=10,
-                calories_per_serving=200,
-                protein_per_serving=15,
-                carbs_per_serving=20,
-                fat_per_serving=8
+                calories=200,
+                protein=15,
+                carbs=20,
+                fat=8
             )
         ]
 
@@ -302,15 +273,15 @@ class TestSaveRecipes:
         file_path = tmp_path / "output.json"
         recipes = [
             create_test_recipe(
-                id="test-recipe",
+                recipe_id="test-recipe",
                 name="Test Recipe",
                 servings=2,
                 prep_time_minutes=5,
                 cook_time_minutes=10,
-                calories_per_serving=200,
-                protein_per_serving=15,
-                carbs_per_serving=20,
-                fat_per_serving=8
+                calories=200,
+                protein=15,
+                carbs=20,
+                fat=8
             )
         ]
 
@@ -328,15 +299,15 @@ class TestSaveRecipes:
         file_path = tmp_path / "output.json"
         recipes = [
             create_test_recipe(
-                id="pasta-bolognese",
+                recipe_id="pasta-bolognese",
                 name="Pasta Bolognese",
                 servings=4,
                 prep_time_minutes=15,
                 cook_time_minutes=30,
-                calories_per_serving=450,
-                protein_per_serving=25,
-                carbs_per_serving=55,
-                fat_per_serving=12,
+                calories=450,
+                protein=25,
+                carbs=55,
+                fat=12,
                 tags=["italian", "kid-friendly"],
                 ingredients=[
                     {"item": "ground beef", "quantity": 500, "unit": "g", "category": "meat"},
@@ -376,15 +347,15 @@ class TestSaveRecipes:
         file_path = read_only_dir / "recipes.json"
         recipes = [
             create_test_recipe(
-                id="test-recipe",
+                recipe_id="test-recipe",
                 name="Test Recipe",
                 servings=2,
                 prep_time_minutes=5,
                 cook_time_minutes=10,
-                calories_per_serving=200,
-                protein_per_serving=15,
-                carbs_per_serving=20,
-                fat_per_serving=8
+                calories=200,
+                protein=15,
+                carbs=20,
+                fat=8
             )
         ]
 
@@ -401,15 +372,15 @@ class TestSaveRecipes:
         # Create initial file
         initial_recipes = [
             create_test_recipe(
-                id="recipe-1",
+                recipe_id="recipe-1",
                 name="Recipe 1",
                 servings=2,
                 prep_time_minutes=5,
                 cook_time_minutes=10,
-                calories_per_serving=200,
-                protein_per_serving=15,
-                carbs_per_serving=20,
-                fat_per_serving=8
+                calories=200,
+                protein=15,
+                carbs=20,
+                fat=8
             )
         ]
         save_recipes(file_path, initial_recipes)
@@ -422,15 +393,15 @@ class TestSaveRecipes:
         # Write new recipes
         new_recipes = [
             create_test_recipe(
-                id="recipe-2",
+                recipe_id="recipe-2",
                 name="Recipe 2",
                 servings=4,
                 prep_time_minutes=10,
                 cook_time_minutes=20,
-                calories_per_serving=300,
-                protein_per_serving=20,
-                carbs_per_serving=30,
-                fat_per_serving=10
+                calories=300,
+                protein=20,
+                carbs=30,
+                fat=10
             )
         ]
         save_recipes(file_path, new_recipes)
@@ -446,39 +417,39 @@ class TestUpdateRecipe:
         """Test that update_recipe replaces the correct recipe."""
         recipes = [
             create_test_recipe(
-                id="recipe-1",
+                recipe_id="recipe-1",
                 name="Recipe 1",
                 servings=2,
                 prep_time_minutes=5,
                 cook_time_minutes=10,
-                calories_per_serving=200,
-                protein_per_serving=15,
-                carbs_per_serving=20,
-                fat_per_serving=8
+                calories=200,
+                protein=15,
+                carbs=20,
+                fat=8
             ),
             create_test_recipe(
-                id="recipe-2",
+                recipe_id="recipe-2",
                 name="Recipe 2",
                 servings=4,
                 prep_time_minutes=10,
                 cook_time_minutes=20,
-                calories_per_serving=300,
-                protein_per_serving=20,
-                carbs_per_serving=30,
-                fat_per_serving=10
+                calories=300,
+                protein=20,
+                carbs=30,
+                fat=10
             ),
         ]
 
         updated_recipe = create_test_recipe(
-            id="recipe-2",
+            recipe_id="recipe-2",
             name="Updated Recipe 2",
             servings=6,
             prep_time_minutes=15,
             cook_time_minutes=25,
-            calories_per_serving=350,
-            protein_per_serving=25,
-            carbs_per_serving=35,
-            fat_per_serving=12
+            calories=350,
+            protein=25,
+            carbs=35,
+            fat=12
         )
 
         result = update_recipe(recipes, updated_recipe)
@@ -492,39 +463,39 @@ class TestUpdateRecipe:
         """Test that update_recipe doesn't modify other recipes."""
         recipes = [
             create_test_recipe(
-                id="recipe-1",
+                recipe_id="recipe-1",
                 name="Recipe 1",
                 servings=2,
                 prep_time_minutes=5,
                 cook_time_minutes=10,
-                calories_per_serving=200,
-                protein_per_serving=15,
-                carbs_per_serving=20,
-                fat_per_serving=8
+                calories=200,
+                protein=15,
+                carbs=20,
+                fat=8
             ),
             create_test_recipe(
-                id="recipe-2",
+                recipe_id="recipe-2",
                 name="Recipe 2",
                 servings=4,
                 prep_time_minutes=10,
                 cook_time_minutes=20,
-                calories_per_serving=300,
-                protein_per_serving=20,
-                carbs_per_serving=30,
-                fat_per_serving=10
+                calories=300,
+                protein=20,
+                carbs=30,
+                fat=10
             ),
         ]
 
         updated_recipe = create_test_recipe(
-            id="recipe-2",
+            recipe_id="recipe-2",
             name="Updated Recipe 2",
             servings=6,
             prep_time_minutes=15,
             cook_time_minutes=25,
-            calories_per_serving=350,
-            protein_per_serving=25,
-            carbs_per_serving=35,
-            fat_per_serving=12
+            calories=350,
+            protein=25,
+            carbs=35,
+            fat=12
         )
 
         result = update_recipe(recipes, updated_recipe)
@@ -538,28 +509,28 @@ class TestUpdateRecipe:
         """Test that update_recipe raises error when recipe not found."""
         recipes = [
             create_test_recipe(
-                id="recipe-1",
+                recipe_id="recipe-1",
                 name="Recipe 1",
                 servings=2,
                 prep_time_minutes=5,
                 cook_time_minutes=10,
-                calories_per_serving=200,
-                protein_per_serving=15,
-                carbs_per_serving=20,
-                fat_per_serving=8
+                calories=200,
+                protein=15,
+                carbs=20,
+                fat=8
             ),
         ]
 
         updated_recipe = create_test_recipe(
-            id="nonexistent",
+            recipe_id="nonexistent",
             name="Nonexistent Recipe",
             servings=6,
             prep_time_minutes=15,
             cook_time_minutes=25,
-            calories_per_serving=350,
-            protein_per_serving=25,
-            carbs_per_serving=35,
-            fat_per_serving=12
+            calories=350,
+            protein=25,
+            carbs=35,
+            fat=12
         )
 
         with pytest.raises(ValueError) as exc_info:
@@ -570,28 +541,28 @@ class TestUpdateRecipe:
         """Test that update_recipe returns a new list (immutable)."""
         recipes = [
             create_test_recipe(
-                id="recipe-1",
+                recipe_id="recipe-1",
                 name="Recipe 1",
                 servings=2,
                 prep_time_minutes=5,
                 cook_time_minutes=10,
-                calories_per_serving=200,
-                protein_per_serving=15,
-                carbs_per_serving=20,
-                fat_per_serving=8
+                calories=200,
+                protein=15,
+                carbs=20,
+                fat=8
             ),
         ]
 
         updated_recipe = create_test_recipe(
-            id="recipe-1",
+            recipe_id="recipe-1",
             name="Updated Recipe 1",
             servings=4,
             prep_time_minutes=10,
             cook_time_minutes=15,
-            calories_per_serving=250,
-            protein_per_serving=20,
-            carbs_per_serving=25,
-            fat_per_serving=10
+            calories=250,
+            protein=20,
+            carbs=25,
+            fat=10
         )
 
         result = update_recipe(recipes, updated_recipe)
