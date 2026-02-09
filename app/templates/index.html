@@ -292,6 +292,30 @@
                 font-size: 16px;
                 padding: 12px 20px;
             }
+
+            /* Shopping list mobile optimization */
+            .shopping-item {
+                padding: 16px 0;
+                gap: 16px;
+            }
+
+            .shopping-item input[type="checkbox"] {
+                width: 28px;
+                height: 28px;
+            }
+
+            .shopping-item .name {
+                font-size: 16px;
+            }
+
+            .shopping-item .quantity {
+                font-size: 15px;
+            }
+
+            .category-section h3 {
+                font-size: 18px;
+                padding: 8px 0;
+            }
         }
 
         .recipe-card {
@@ -1177,6 +1201,18 @@
             } else {
                 itemDiv.classList.remove('checked');
             }
+
+            // Update counter
+            updateShoppingListCounter();
+        }
+
+        function updateShoppingListCounter() {
+            const total = document.querySelectorAll('.shopping-item input[type="checkbox"]').length;
+            const checked = document.querySelectorAll('.shopping-item input[type="checkbox"]:checked').length;
+            const counterEl = document.getElementById('shoppingListCounter');
+            if (counterEl) {
+                counterEl.textContent = `${checked} / ${total} items`;
+            }
         }
 
         function clearAllCheckedItems() {
@@ -1189,6 +1225,9 @@
                     checkbox.checked = false;
                     checkbox.closest('.shopping-item').classList.remove('checked');
                 });
+
+                // Update counter
+                updateShoppingListCounter();
 
                 showMessage('All items unchecked', 'info');
             }
@@ -1207,8 +1246,11 @@
             const byCategory = shoppingList.items_by_category;
 
             shoppingListEl.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0;">Shopping List</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h2 style="margin: 0;">Shopping List</h2>
+                        <div id="shoppingListCounter" style="font-size: 14px; color: #7f8c8d; margin-top: 4px;">0 / 0 items</div>
+                    </div>
                     <button onclick="clearAllCheckedItems()" style="background: #95a5a6; padding: 8px 16px; font-size: 14px;">
                         Clear Checked
                     </button>
@@ -1239,6 +1281,9 @@
                     </div>
                 </div>
             `).join('')}`;
+
+            // Update counter after rendering
+            updateShoppingListCounter();
         }
 
         // Load current plan on page load if it exists
