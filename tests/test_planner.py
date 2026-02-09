@@ -3,7 +3,13 @@ from pathlib import Path
 
 import pytest
 
-from app.planner import MealPlanner, PlannedMeal, WeeklyPlan, get_meal_slots_from_schedule
+from app.planner import (
+    DAYS_OF_WEEK,
+    MealPlanner,
+    PlannedMeal,
+    WeeklyPlan,
+    get_meal_slots_from_schedule,
+)
 from app.recipes import Recipe
 from tests.conftest import create_test_recipe
 
@@ -462,3 +468,77 @@ class TestWeeklyPlan:
         # 7 meals = 5600 total calories
         expected_total = 400 * 2.0 * 7
         assert abs(plan.total_calories - expected_total) < 0.01
+
+    def test_weekly_plan_calculates_daily_nutrition(self, planner, sample_recipes):
+        plan = planner.generate_weekly_plan(sample_recipes)
+        daily_nutrition = plan.get_daily_nutrition()
+
+        # Should have entries for each unique day in the plan
+        assert len(daily_nutrition) > 0
+
+        # Each day should have nutrition data
+        for day, nutrition in daily_nutrition.items():
+            assert "calories" in nutrition
+            assert "protein" in nutrition
+            assert "carbs" in nutrition
+            assert "fat" in nutrition
+            assert nutrition["calories"] > 0
+
+    def test_weekly_plan_with_calorie_limit(self):
+        recipes = [
+            create_test_recipe(
+                recipe_id=f"meal-{i}",
+                name=f"Meal {i}",
+                servings=4,
+                prep_time_minutes=10,
+                cook_time_minutes=20,
+                calories=500,
+                protein=25,
+                carbs=60,
+                fat=15,
+                tags=["dinner"],
+                ingredients=[]
+            )
+            for i in range(7)
+        ]
+
+        planner = MealPlanner(household_portions=2.0, daily_calorie_limit=2000)
+        plan = planner.generate_weekly_plan(recipes)
+
+        assert plan.daily_calorie_limit == 2000
+
+        # Each meal is 500 cal/serving * 2.0 portions = 1000 cal
+        # So daily total should be 1000 cal (one dinner per day)
+        daily_nutrition = plan.get_daily_nutrition()
+        for day, nutrition in daily_nutrition.items():
+            assert abs(nutrition["calories"] - 1000) < 0.01
+
+    def test_weekly_plan_daily_nutrition_sums_multiple_meals_per_day(self):
+        recipes = [
+            create_test_recipe(
+                recipe_id=f"meal-{i}",
+                name=f"Meal {i}",
+                servings=4,
+                prep_time_minutes=10,
+                cook_time_minutes=20,
+                calories=400,
+                protein=20,
+                carbs=50,
+                fat=10,
+                tags=["lunch", "dinner"],
+                ingredients=[]
+            )
+            for i in range(14)  # Need 14 recipes for 2 meals per day * 7 days
+        ]
+
+        # Schedule with lunch and dinner
+        meal_schedule = {day: ["lunch", "dinner"] for day in DAYS_OF_WEEK}
+        planner = MealPlanner(household_portions=2.0, meal_schedule=meal_schedule)
+        plan = planner.generate_weekly_plan(recipes)
+
+        daily_nutrition = plan.get_daily_nutrition()
+
+        # Each meal is 400 cal * 2.0 = 800 cal
+        # Two meals per day = 1600 cal
+        for day, nutrition in daily_nutrition.items():
+            assert abs(nutrition["calories"] - 1600) < 0.01

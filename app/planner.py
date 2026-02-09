@@ -123,6 +123,7 @@ class PlannedMeal:
 @dataclass
 class WeeklyPlan:
     meals: list[PlannedMeal]
+    daily_calorie_limit: float | None = None
 
     # Core nutrition totals
     @property
@@ -248,10 +249,45 @@ class WeeklyPlan:
     def avg_daily_iron(self) -> float:
         return self.total_iron / len(self.meals) if self.meals else 0
 
+    def get_daily_nutrition(self) -> dict[str, dict[str, float]]:
+        """Calculate nutrition totals for each day.
+
+        Returns:
+            Dictionary mapping day names to nutrition data:
+            {
+                "Monday": {"calories": 2000, "protein": 150, ...},
+                "Tuesday": {"calories": 1800, "protein": 140, ...},
+                ...
+            }
+        """
+        daily_totals: dict[str, dict[str, float]] = {}
+
+        for meal in self.meals:
+            if meal.day not in daily_totals:
+                daily_totals[meal.day] = {
+                    "calories": 0,
+                    "protein": 0,
+                    "carbs": 0,
+                    "fat": 0,
+                }
+
+            daily_totals[meal.day]["calories"] += meal.calories
+            daily_totals[meal.day]["protein"] += meal.protein
+            daily_totals[meal.day]["carbs"] += meal.carbs
+            daily_totals[meal.day]["fat"] += meal.fat
+
+        return daily_totals
+
 
 class MealPlanner:
-    def __init__(self, household_portions: float, meal_schedule: dict[str, list[str]] = None):
+    def __init__(
+        self,
+        household_portions: float,
+        meal_schedule: dict[str, list[str]] = None,
+        daily_calorie_limit: float | None = None,
+    ):
         self.household_portions = household_portions
+        self.daily_calorie_limit = daily_calorie_limit
         # Default to simple 7-dinner schedule if not provided
         if meal_schedule is None:
             meal_schedule = {day: ["dinner"] for day in DAYS_OF_WEEK}
@@ -300,4 +336,4 @@ class MealPlanner:
                 household_portions=self.household_portions
             ))
 
-        return WeeklyPlan(meals=meals)
+        return WeeklyPlan(meals=meals, daily_calorie_limit=self.daily_calorie_limit)
