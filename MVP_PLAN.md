@@ -228,8 +228,13 @@ By next Friday, you should be able to:
   - ✅ Daily nutrition tracking per day
   - ✅ Visual warnings when exceeding calorie limit
   - ✅ Configurable daily calorie limit (default: 2000 cal)
-- **Day 5-6** (Fri-Sat): Shopping list with checkboxes
-- **Day 7** (Sun): Testing and polish
+- **Day 5-6** (Fri-Sat): Shopping list with checkboxes ✅ **DONE**
+  - ✅ Interactive checkboxes for each item (Commit: 53c30b4)
+  - ✅ localStorage persistence (survives page refresh)
+  - ✅ Progress counter (X / Y items checked)
+  - ✅ Mobile-optimized layout with large touch targets (Commit: 56a08ff)
+  - ✅ "Clear Checked" button to reset
+- **Day 7** (Sun): Testing and polish - **READY FOR TESTING**
 
 **Launch**: Monday (use throughout the week, grocery shop Friday)
 
@@ -240,10 +245,16 @@ By next Friday, you should be able to:
 2. **Cooking mode** - Large, readable text for following recipes while cooking
 3. **Daily calorie tracking** - Shows per-day nutrition totals with configurable calorie limit
 4. **Over-limit warnings** - Visual alerts (red header + ⚠️) when daily calories exceed limit
+5. **Interactive shopping list** - Checkboxes with localStorage persistence
+6. **Progress tracking** - Shows checked/total items count while shopping
+7. **Mobile-optimized shopping** - Large touch targets, clear text for use in grocery store
 
-### ⏳ Todo
-- Shopping list with checkboxes (localStorage persistence)
-- Integration testing on actual phone
+### 🎯 Ready for Testing
+The MVP is feature-complete and ready for real-world testing:
+- Test recipe import on phone
+- Generate meal plan and verify daily calorie tracking
+- Use shopping list at grocery store (check off items)
+- Follow recipes while cooking (verify readability)
 
 ## Post-Friday Improvements
 
