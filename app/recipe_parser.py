@@ -97,8 +97,24 @@ class RecipeParseError(Exception):
 class RecipeParser:
     """Parse recipes from URLs using multiple strategies."""
 
+    def _is_instagram_url(self, url: str) -> bool:
+        """Check if URL is an Instagram post or reel."""
+        return 'instagram.com' in url.lower() and ('/p/' in url or '/reel/' in url)
+
     def parse_from_url(self, url: str) -> ParsedRecipe:
         """Main entry point - parse recipe from URL."""
+        # Check if this is an Instagram URL
+        if self._is_instagram_url(url):
+            from app.instagram_parser import InstagramParser
+            import config
+            print("Init of instagram_parser")
+            instagram_parser = InstagramParser(
+                openai_api_key=config.OPENAI_API_KEY,
+                instagram_session_file=config.INSTAGRAM_SESSION_FILE
+            )
+            return instagram_parser.parse(url)
+
+        # Regular recipe website parsing
         try:
             # Fetch the page with a proper user agent
             headers = {

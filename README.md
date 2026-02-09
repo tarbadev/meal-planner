@@ -9,6 +9,7 @@ A local meal planning application that generates weekly meal plans from a recipe
 - Nutrition tracking (calories, protein, carbs, fat)
 - **Automatic nutrition generation** from ingredients using USDA FoodData Central API
 - **Recipe import from URLs** with automatic parsing
+- **Instagram recipe import** with AI-powered extraction (English & French)
 - Automated shopping list generation with ingredient aggregation
 - Google Sheets integration for easy sharing
 - Web UI for easy access
@@ -36,16 +37,20 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Configure USDA API Key (REQUIRED)
+### 2. Configure API Keys (REQUIRED)
 
-**The app will not start without this!**
+**The app will not start without these!**
 
 ```bash
+# 1. USDA API Key (for automatic nutrition generation)
 # Get your free API key from:
 # https://fdc.nal.usda.gov/api-key-signup.html
-
-# Then set it as an environment variable:
 export USDA_API_KEY='your-api-key-here'
+
+# 2. OpenAI API Key (for Instagram recipe import)
+# Get your API key from:
+# https://platform.openai.com/api-keys
+export OPENAI_API_KEY='sk-your-api-key-here'
 ```
 
 See [SETUP.md](SETUP.md) for detailed configuration options.
@@ -210,10 +215,13 @@ Edit `data/recipes.json` to add new recipes:
 - `GET  /recipes/<id>` - Get a specific recipe
 - `PUT  /recipes/<id>` - Update a recipe
 - `POST /import-recipe` - Import recipe from URL with automatic nutrition generation
+- `POST /import-recipe-text` - Import recipe from text (Instagram fallback)
 - `GET  /current-plan` - Get current weekly plan with shopping list
 - `POST /write-to-sheets` - Write current plan to Google Sheets
 
 ### Importing Recipes
+
+#### From Recipe Websites
 
 Import a recipe from any URL:
 
@@ -229,6 +237,48 @@ The importer supports:
 - Generic HTML parsing (fallback)
 
 Nutrition will be automatically generated if missing (requires USDA API key).
+
+#### From Instagram Posts
+
+Import recipes directly from Instagram posts or reels using AI extraction:
+
+```bash
+curl -X POST http://localhost:5000/import-recipe \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://www.instagram.com/p/ABC123/"}'
+```
+
+**Features:**
+- AI-powered extraction using GPT-4o
+- **Automatically extracts from captions AND owner comments** (up to 50 comments)
+- Supports both English and French recipes
+- Automatic ingredient parsing (quantity, unit, item)
+- Nutrition generation from USDA database
+- Confidence scoring (warns if < 0.7)
+
+**Note:** Many creators post full recipes in their first comment - this is handled automatically!
+
+**Cost**: ~$0.015 per recipe import
+
+**Manual Paste Fallback**: If Instagram blocks automated access, use the text import endpoint:
+
+```bash
+curl -X POST http://localhost:5000/import-recipe-text \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Paste Instagram post description here...",
+    "language": "auto"
+  }'
+```
+
+**Setup for Instagram (Optional)**:
+```bash
+# For automatic Instagram fetching, create a session:
+instaloader --login=your_username
+
+# Set session file path (optional):
+export INSTAGRAM_SESSION_FILE=~/.instaloader-session
+```
 
 ## Running Tests
 

@@ -20,6 +20,25 @@ if not USDA_API_KEY:
     print("=" * 70 + "\n", file=sys.stderr)
     sys.exit(1)
 
+# OpenAI API key (REQUIRED for Instagram recipe import)
+# Get your API key at: https://platform.openai.com/api-keys
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+
+if not OPENAI_API_KEY:
+    print("\n" + "=" * 70, file=sys.stderr)
+    print("ERROR: OPENAI_API_KEY environment variable is required", file=sys.stderr)
+    print("=" * 70, file=sys.stderr)
+    print("\nThe OpenAI API key is required for Instagram recipe imports.", file=sys.stderr)
+    print("Get your API key at: https://platform.openai.com/api-keys", file=sys.stderr)
+    print("\nThen set the environment variable:", file=sys.stderr)
+    print("  export OPENAI_API_KEY='sk-...'", file=sys.stderr)
+    print("\nOr add it to a .env file and load it before starting the app.", file=sys.stderr)
+    print("=" * 70 + "\n", file=sys.stderr)
+    sys.exit(1)
+
+# Instagram session file (optional, for automatic fetching)
+INSTAGRAM_SESSION_FILE = os.environ.get("INSTAGRAM_SESSION_FILE")
+
 HOUSEHOLD_PORTIONS = {
     "adults": 2,
     "child_4y": 0.5,

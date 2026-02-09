@@ -509,6 +509,54 @@
             border: 1px solid #f5c6cb;
         }
 
+        /* Import tabs styles */
+        .import-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .import-tab {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            font-size: 15px;
+            cursor: pointer;
+            color: #7f8c8d;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            margin-bottom: -2px;
+        }
+
+        .import-tab:hover {
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .import-tab.active {
+            color: #3498db;
+            border-bottom-color: #3498db;
+            font-weight: 600;
+        }
+
+        .import-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 14px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .import-form textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
         /* Detailed nutrition styles */
         .detailed-nutrition {
             display: none;
@@ -602,7 +650,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 style="margin: 0;">Available Recipes ({{ recipes|length }})</h2>
                 <button class="btn-import" onclick="openImportModal()">
-                    📥 Import from URL
+                    📥 Import Recipe
                 </button>
             </div>
             <div class="recipe-list">
@@ -700,22 +748,53 @@
     <div id="importModal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Import Recipe from URL</h2>
+                <h2>Import Recipe</h2>
                 <button type="button" onclick="closeImportModal()">&times;</button>
             </div>
-            <form id="importRecipeForm" onsubmit="handleImportFormSubmit(event)">
+
+            <!-- Import Tabs -->
+            <div class="import-tabs">
+                <button class="import-tab active" onclick="switchImportTab('url')">🔗 From URL</button>
+                <button class="import-tab" onclick="switchImportTab('text')">📝 From Text</button>
+            </div>
+
+            <!-- URL Import Form -->
+            <form id="importRecipeForm" class="import-form" onsubmit="handleImportFormSubmit(event)">
                 <label>
                     Recipe URL:
-                    <input type="url" id="recipeUrl" placeholder="https://example.com/recipe" required>
+                    <input type="url" id="recipeUrl" placeholder="https://example.com/recipe or Instagram URL" required>
                 </label>
                 <p style="font-size: 14px; color: #7f8c8d; margin-top: 5px;">
-                    Paste the URL of a recipe from any website. We'll try to extract the recipe information automatically.
+                    📍 Supports recipe websites and <strong>Instagram posts/reels</strong><br>
+                    ⚠️ If Instagram blocks the URL, use "From Text" tab
                 </p>
 
                 <div id="importStatus" class="import-status hidden"></div>
 
                 <div class="form-actions">
                     <button type="submit" id="importBtn">Import Recipe</button>
+                    <button type="button" onclick="closeImportModal()">Cancel</button>
+                </div>
+            </form>
+
+            <!-- Text Import Form -->
+            <form id="importTextForm" class="import-form hidden" onsubmit="handleTextImportFormSubmit(event)">
+                <label>
+                    Recipe Text:
+                    <textarea id="recipeText" placeholder="Paste Instagram post text here (caption + comments with recipe)..." rows="12" required></textarea>
+                </label>
+                <p style="font-size: 14px; color: #7f8c8d; margin-top: 5px;">
+                    💡 <strong>Instagram blocked?</strong> Copy the post text from your browser:<br>
+                    1. Visit Instagram post in browser<br>
+                    2. Copy caption + any comments with recipe details<br>
+                    3. Paste here and import!<br>
+                    🌍 Supports English and French recipes
+                </p>
+
+                <div id="importTextStatus" class="import-status hidden"></div>
+
+                <div class="form-actions">
+                    <button type="submit" id="importTextBtn">Import from Text</button>
                     <button type="button" onclick="closeImportModal()">Cancel</button>
                 </div>
             </form>
@@ -1166,13 +1245,46 @@
 
         function openImportModal() {
             document.getElementById('importModal').classList.remove('hidden');
-            document.getElementById('recipeUrl').value = '';
-            document.getElementById('importStatus').classList.add('hidden');
+            // Reset to URL tab by default
+            switchImportTab('url');
         }
 
         function closeImportModal() {
             document.getElementById('importModal').classList.add('hidden');
             document.getElementById('importRecipeForm').reset();
+            document.getElementById('importTextForm').reset();
+            document.getElementById('importStatus').classList.add('hidden');
+            document.getElementById('importTextStatus').classList.add('hidden');
+        }
+
+        function switchImportTab(tab) {
+            // Update tab buttons
+            const tabs = document.querySelectorAll('.import-tab');
+            tabs.forEach(t => {
+                if (t.textContent.includes('URL') && tab === 'url') {
+                    t.classList.add('active');
+                } else if (t.textContent.includes('Text') && tab === 'text') {
+                    t.classList.add('active');
+                } else {
+                    t.classList.remove('active');
+                }
+            });
+
+            // Update forms
+            const urlForm = document.getElementById('importRecipeForm');
+            const textForm = document.getElementById('importTextForm');
+
+            if (tab === 'url') {
+                urlForm.classList.remove('hidden');
+                textForm.classList.add('hidden');
+                document.getElementById('recipeUrl').value = '';
+                document.getElementById('importStatus').classList.add('hidden');
+            } else {
+                urlForm.classList.add('hidden');
+                textForm.classList.remove('hidden');
+                document.getElementById('recipeText').value = '';
+                document.getElementById('importTextStatus').classList.add('hidden');
+            }
         }
 
         async function handleImportFormSubmit(event) {
@@ -1209,11 +1321,23 @@
                         info.push(`✓ ${data.recipe.ingredient_count} ingredients`);
                         info.push(`✓ ${data.recipe.instruction_count} steps`);
 
-                        if (!data.recipe.has_nutrition) {
+                        // Show AI confidence for Instagram imports
+                        if (data.recipe.ai_confidence) {
+                            info.push(`✓ AI Confidence: ${(data.recipe.ai_confidence * 100).toFixed(0)}%`);
+                        }
+
+                        if (data.recipe.nutrition_generated) {
+                            info.push('✓ Nutrition generated automatically');
+                        } else if (!data.recipe.has_nutrition) {
                             info.push('⚠ Nutrition information may need to be added manually');
                         }
 
                         statusEl.textContent += '\n\n' + info.join('\n');
+                    }
+
+                    // Show warning if present
+                    if (data.warning) {
+                        statusEl.textContent += '\n\n⚠️ ' + data.warning;
                     }
 
                     // Reload page after 2 seconds
@@ -1222,7 +1346,24 @@
                     }, 2000);
                 } else {
                     statusEl.className = 'import-status error';
-                    statusEl.textContent = data.message || data.error || 'Error importing recipe';
+                    let errorMsg = data.message || data.error || 'Error importing recipe';
+
+                    // Add suggestion if provided
+                    if (data.suggestion) {
+                        errorMsg += '\n\n💡 ' + data.suggestion;
+                    }
+
+                    // Special handling for Instagram errors
+                    if (errorMsg.includes('Instagram') || errorMsg.includes('403')) {
+                        errorMsg += '\n\n➡️ TIP: Switch to the "From Text" tab above and paste the post text directly!';
+                    }
+
+                    // Show confidence warning if present
+                    if (data.warning) {
+                        errorMsg += '\n\n⚠️ ' + data.warning;
+                    }
+
+                    statusEl.textContent = errorMsg;
                 }
             } catch (error) {
                 statusEl.className = 'import-status error';
@@ -1230,6 +1371,83 @@
             } finally {
                 importBtn.disabled = false;
                 importBtn.textContent = 'Import Recipe';
+            }
+        }
+
+        async function handleTextImportFormSubmit(event) {
+            event.preventDefault();
+
+            const text = document.getElementById('recipeText').value;
+            const importBtn = document.getElementById('importTextBtn');
+            const statusEl = document.getElementById('importTextStatus');
+
+            // Show loading state
+            importBtn.disabled = true;
+            importBtn.textContent = 'Extracting recipe...';
+            statusEl.className = 'import-status';
+            statusEl.textContent = 'Using AI to extract recipe from text...';
+
+            try {
+                const response = await fetch('/import-recipe-text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        language: 'auto'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    statusEl.className = 'import-status success';
+                    statusEl.textContent = data.message;
+
+                    // Show additional info about imported recipe
+                    if (data.recipe) {
+                        const info = [];
+                        info.push(`✓ ${data.recipe.ingredient_count} ingredients extracted`);
+                        info.push(`✓ ${data.recipe.instruction_count} steps extracted`);
+
+                        if (data.recipe.ai_confidence) {
+                            info.push(`✓ AI Confidence: ${(data.recipe.ai_confidence * 100).toFixed(0)}%`);
+                        }
+
+                        if (data.recipe.nutrition_generated) {
+                            info.push('✓ Nutrition generated automatically');
+                        }
+
+                        statusEl.textContent += '\n\n' + info.join('\n');
+                    }
+
+                    // Show warning if present
+                    if (data.warning) {
+                        statusEl.textContent += '\n\n⚠️ ' + data.warning;
+                    }
+
+                    // Reload page after 2 seconds
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    statusEl.className = 'import-status error';
+                    let errorMsg = data.message || data.error || 'Error importing recipe';
+
+                    // Add suggestion if provided
+                    if (data.suggestion) {
+                        errorMsg += '\n\n💡 ' + data.suggestion;
+                    }
+
+                    statusEl.textContent = errorMsg;
+                }
+            } catch (error) {
+                statusEl.className = 'import-status error';
+                statusEl.textContent = 'Error importing recipe: ' + error.message;
+            } finally {
+                importBtn.disabled = false;
+                importBtn.textContent = 'Import from Text';
             }
         }
     </script>

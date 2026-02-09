@@ -105,6 +105,8 @@ def import_recipe():
         # Parse recipe from URL
         from app.recipe_parser import RecipeParser, RecipeParseError, generate_recipe_id
         from app.nutrition_generator import NutritionGenerator
+        from app.instagram_fetcher import InstagramFetchError
+        from app.ai_recipe_extractor import AIExtractionError
 
         parser = RecipeParser()
         parsed_recipe = parser.parse_from_url(url)
@@ -162,7 +164,8 @@ def import_recipe():
         current_plan = None
         current_shopping_list = None
 
-        return jsonify({
+        # Build response with optional AI confidence
+        response_data = {
             "success": True,
             "message": f"Recipe '{new_recipe.name}' imported successfully",
             "recipe": {
@@ -174,8 +177,174 @@ def import_recipe():
                 "ingredient_count": len(new_recipe.ingredients),
                 "instruction_count": len(new_recipe.instructions)
             }
-        })
+        }
 
+        # Add AI confidence if available (Instagram imports)
+        if hasattr(parsed_recipe, 'ai_confidence'):
+            response_data["recipe"]["ai_confidence"] = parsed_recipe.ai_confidence
+            if parsed_recipe.ai_confidence < 0.7:
+                response_data["warning"] = "Recipe extraction confidence is low. Please review the imported data carefully."
+
+        return jsonify(response_data)
+
+    except InstagramFetchError as e:
+        return jsonify({
+            "error": "Instagram fetch error",
+            "message": str(e),
+            "suggestion": "Try using 'Import from Text' by copying the post description manually"
+        }), 400
+    except AIExtractionError as e:
+        return jsonify({
+            "error": "AI extraction error",
+            "message": str(e),
+            "suggestion": "The recipe text may be unclear or incomplete. Please try a different post or add manually."
+        }), 400
+    except RecipeParseError as e:
+        return jsonify({
+            "error": "Parse error",
+            "message": str(e)
+        }), 400
+    except ValueError as e:
+        return jsonify({
+            "error": "Validation error",
+            "message": str(e)
+        }), 400
+    except RecipeSaveError as e:
+        return jsonify({
+            "error": "Save error",
+            "message": f"Failed to save recipe: {str(e)}"
+        }), 500
+    except Exception as e:
+        return jsonify({
+            "error": "Import error",
+            "message": f"Unexpected error: {str(e)}"
+        }), 500
+
+
+@app.route("/import-recipe-text", methods=["POST"])
+def import_recipe_text():
+    """Import a recipe from manually pasted text (Instagram fallback)."""
+    global current_plan, current_shopping_list
+
+    try:
+        data = request.get_json()
+    except Exception:
+        return jsonify({
+            "error": "Invalid JSON",
+            "message": "Request body must be valid JSON"
+        }), 400
+
+    if not data or 'text' not in data:
+        return jsonify({
+            "error": "Invalid request",
+            "message": "Text is required"
+        }), 400
+
+    text = data['text']
+    language = data.get('language', 'auto')
+
+    if not text or len(text.strip()) < 50:
+        return jsonify({
+            "error": "Invalid text",
+            "message": "Recipe text must be at least 50 characters long"
+        }), 400
+
+    try:
+        # Parse recipe from text using AI
+        from app.instagram_parser import InstagramParser
+        from app.recipe_parser import RecipeParseError, generate_recipe_id
+        from app.nutrition_generator import NutritionGenerator
+        from app.ai_recipe_extractor import AIExtractionError
+
+        print("Init of instagram_parser")
+        instagram_parser = InstagramParser(
+            openai_api_key=config.OPENAI_API_KEY
+        )
+        print("Init of instagram_parser")
+        parsed_recipe = instagram_parser.parse_from_text(text, language)
+
+        # Generate nutrition if missing
+        nutrition_gen = NutritionGenerator(api_key=config.USDA_API_KEY)
+        if nutrition_gen.should_generate_nutrition(parsed_recipe):
+            generated_nutrition = nutrition_gen.generate_from_ingredients(
+                parsed_recipe.ingredients,
+                parsed_recipe.servings or 4
+            )
+
+            if generated_nutrition:
+                # Update parsed recipe with generated nutrition (all 15 fields)
+                parsed_recipe.calories_per_serving = int(generated_nutrition.calories)
+                parsed_recipe.protein_per_serving = generated_nutrition.protein
+                parsed_recipe.carbs_per_serving = generated_nutrition.carbs
+                parsed_recipe.fat_per_serving = generated_nutrition.fat
+                parsed_recipe.saturated_fat_per_serving = generated_nutrition.saturated_fat
+                parsed_recipe.polyunsaturated_fat_per_serving = generated_nutrition.polyunsaturated_fat
+                parsed_recipe.monounsaturated_fat_per_serving = generated_nutrition.monounsaturated_fat
+                parsed_recipe.sodium_per_serving = generated_nutrition.sodium
+                parsed_recipe.potassium_per_serving = generated_nutrition.potassium
+                parsed_recipe.fiber_per_serving = generated_nutrition.fiber
+                parsed_recipe.sugar_per_serving = generated_nutrition.sugar
+                parsed_recipe.vitamin_a_per_serving = generated_nutrition.vitamin_a
+                parsed_recipe.vitamin_c_per_serving = generated_nutrition.vitamin_c
+                parsed_recipe.calcium_per_serving = generated_nutrition.calcium
+                parsed_recipe.iron_per_serving = generated_nutrition.iron
+
+                # Add tag to indicate generated nutrition
+                if not parsed_recipe.tags:
+                    parsed_recipe.tags = []
+                parsed_recipe.tags.append("nutrition-generated")
+
+        # Load existing recipes
+        recipes_file = Path(config.RECIPES_FILE)
+        existing_recipes = load_recipes(recipes_file)
+        existing_ids = {r.id for r in existing_recipes}
+
+        # Generate unique ID
+        recipe_id = generate_recipe_id(parsed_recipe.name, existing_ids)
+
+        # Convert to Recipe dict
+        recipe_dict = parsed_recipe.to_recipe_dict(recipe_id)
+
+        # Validate using Recipe.from_dict
+        new_recipe = Recipe.from_dict(recipe_dict)
+
+        # Add to recipes list and save
+        updated_recipes = existing_recipes + [new_recipe]
+        save_recipes(recipes_file, updated_recipes)
+
+        # Clear current plan to force regeneration
+        current_plan = None
+        current_shopping_list = None
+
+        # Build response with AI confidence
+        response_data = {
+            "success": True,
+            "message": f"Recipe '{new_recipe.name}' imported successfully from text",
+            "recipe": {
+                "id": new_recipe.id,
+                "name": new_recipe.name,
+                "servings": new_recipe.servings,
+                "has_nutrition": (new_recipe.calories_per_serving > 0),
+                "nutrition_generated": "nutrition-generated" in new_recipe.tags,
+                "ingredient_count": len(new_recipe.ingredients),
+                "instruction_count": len(new_recipe.instructions)
+            }
+        }
+
+        # Add AI confidence
+        if hasattr(parsed_recipe, 'ai_confidence'):
+            response_data["recipe"]["ai_confidence"] = parsed_recipe.ai_confidence
+            if parsed_recipe.ai_confidence < 0.7:
+                response_data["warning"] = "Recipe extraction confidence is low. Please review the imported data carefully."
+
+        return jsonify(response_data)
+
+    except AIExtractionError as e:
+        return jsonify({
+            "error": "AI extraction error",
+            "message": str(e),
+            "suggestion": "The recipe text may be unclear or incomplete. Please try different text or add manually."
+        }), 400
     except RecipeParseError as e:
         return jsonify({
             "error": "Parse error",
