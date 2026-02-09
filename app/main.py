@@ -14,6 +14,8 @@ app = Flask(__name__)
 # Store the current plan in memory (v1 - simple approach)
 current_plan = None
 current_shopping_list = None
+# Manual meal plan storage: {day: {meal_type: {recipe_id, servings}}}
+manual_plan = {}
 
 
 @app.route("/")
@@ -27,7 +29,8 @@ def index():
         recipes=recipes,
         current_plan=current_plan,
         current_shopping_list=current_shopping_list,
-        household_portions=config.TOTAL_PORTIONS
+        household_portions=config.TOTAL_PORTIONS,
+        config=config
     )
 
 
@@ -690,6 +693,170 @@ def get_current_plan():
             }
         }
     })
+
+
+@app.route("/manual-plan/add-meal", methods=["POST"])
+def add_meal_to_plan():
+    """Add a meal to the manual meal plan."""
+    global manual_plan, current_plan, current_shopping_list
+
+    try:
+        data = request.get_json()
+    except Exception:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    # Validate required fields
+    required = ["day", "meal_type", "recipe_id", "servings"]
+    for field in required:
+        if field not in data:
+            return jsonify({"error": f"Missing required field: {field}"}), 400
+
+    day = data["day"]
+    meal_type = data["meal_type"]
+    recipe_id = data["recipe_id"]
+    servings = data["servings"]
+
+    # Validate recipe exists
+    recipes_file = Path(config.RECIPES_FILE)
+    recipes = load_recipes(recipes_file)
+    recipe = next((r for r in recipes if r.id == recipe_id), None)
+    if not recipe:
+        return jsonify({"error": f"Recipe not found: {recipe_id}"}), 404
+
+    # Add meal to manual plan
+    if day not in manual_plan:
+        manual_plan[day] = {}
+    manual_plan[day][meal_type] = {
+        "recipe_id": recipe_id,
+        "servings": servings
+    }
+
+    # Regenerate plan and shopping list from manual plan
+    _regenerate_from_manual_plan(recipes)
+
+    return jsonify({
+        "success": True,
+        "message": f"Added {recipe.name} to {day} {meal_type}"
+    })
+
+
+@app.route("/manual-plan/remove-meal", methods=["POST"])
+def remove_meal_from_plan():
+    """Remove a meal from the manual meal plan."""
+    global manual_plan, current_plan, current_shopping_list
+
+    try:
+        data = request.get_json()
+    except Exception:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    day = data.get("day")
+    meal_type = data.get("meal_type")
+
+    if not day or not meal_type:
+        return jsonify({"error": "Missing day or meal_type"}), 400
+
+    # Remove meal from manual plan
+    if day in manual_plan and meal_type in manual_plan[day]:
+        del manual_plan[day][meal_type]
+        if not manual_plan[day]:  # Remove day if no meals left
+            del manual_plan[day]
+
+    # Regenerate plan and shopping list
+    recipes_file = Path(config.RECIPES_FILE)
+    recipes = load_recipes(recipes_file)
+    _regenerate_from_manual_plan(recipes)
+
+    return jsonify({
+        "success": True,
+        "message": f"Removed meal from {day} {meal_type}"
+    })
+
+
+@app.route("/manual-plan/update-servings", methods=["POST"])
+def update_meal_servings():
+    """Update servings for a meal in the manual plan."""
+    global manual_plan, current_plan, current_shopping_list
+
+    try:
+        data = request.get_json()
+    except Exception:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    day = data.get("day")
+    meal_type = data.get("meal_type")
+    servings = data.get("servings")
+
+    if not day or not meal_type or servings is None:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    if day not in manual_plan or meal_type not in manual_plan[day]:
+        return jsonify({"error": "Meal not found in plan"}), 404
+
+    # Update servings
+    manual_plan[day][meal_type]["servings"] = servings
+
+    # Regenerate plan and shopping list
+    recipes_file = Path(config.RECIPES_FILE)
+    recipes = load_recipes(recipes_file)
+    _regenerate_from_manual_plan(recipes)
+
+    return jsonify({
+        "success": True,
+        "message": f"Updated servings for {day} {meal_type}"
+    })
+
+
+@app.route("/manual-plan/clear", methods=["POST"])
+def clear_manual_plan():
+    """Clear the entire manual meal plan."""
+    global manual_plan, current_plan, current_shopping_list
+
+    manual_plan = {}
+    current_plan = None
+    current_shopping_list = None
+
+    return jsonify({
+        "success": True,
+        "message": "Manual meal plan cleared"
+    })
+
+
+def _regenerate_from_manual_plan(recipes: list[Recipe]):
+    """Regenerate current_plan and shopping list from manual_plan."""
+    global current_plan, current_shopping_list
+    from app.planner import PlannedMeal, WeeklyPlan
+
+    if not manual_plan:
+        current_plan = None
+        current_shopping_list = None
+        return
+
+    # Build list of PlannedMeal objects from manual_plan
+    meals = []
+    for day, day_meals in manual_plan.items():
+        for meal_type, meal_data in day_meals.items():
+            recipe_id = meal_data["recipe_id"]
+            servings = meal_data["servings"]
+
+            # Find recipe
+            recipe = next((r for r in recipes if r.id == recipe_id), None)
+            if recipe:
+                meals.append(PlannedMeal(
+                    day=day,
+                    meal_type=meal_type,
+                    recipe=recipe,
+                    household_portions=servings
+                ))
+
+    # Create WeeklyPlan from manually planned meals
+    current_plan = WeeklyPlan(
+        meals=meals,
+        daily_calorie_limit=config.DAILY_CALORIE_LIMIT
+    )
+
+    # Generate shopping list
+    current_shopping_list = generate_shopping_list(current_plan)
 
 
 @app.route("/write-to-sheets", methods=["POST"])

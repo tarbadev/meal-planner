@@ -716,21 +716,175 @@
             margin-bottom: 10px;
             font-size: 16px;
         }
+
+        /* Weekly Calendar Styles */
+        .calendar-day {
+            margin-bottom: 20px;
+            border: 1px solid #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .calendar-day-header {
+            background: #3498db;
+            color: white;
+            padding: 12px 15px;
+            font-weight: bold;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .calendar-day-header.over-limit {
+            background: #e74c3c;
+        }
+
+        .calendar-day-nutrition {
+            font-size: 14px;
+            font-weight: normal;
+            margin-top: 4px;
+        }
+
+        .calendar-meals {
+            padding: 15px;
+            background: #f8f9fa;
+        }
+
+        .calendar-meal-slot {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: white;
+            border-radius: 4px;
+            border: 2px dashed #bdc3c7;
+        }
+
+        .calendar-meal-slot.has-meal {
+            border: 1px solid #3498db;
+            border-style: solid;
+        }
+
+        .meal-slot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .meal-slot-type {
+            font-weight: 600;
+            color: #27ae60;
+            text-transform: capitalize;
+        }
+
+        .meal-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .meal-info {
+            flex: 1;
+        }
+
+        .meal-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .meal-name a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .meal-name a:hover {
+            text-decoration: underline;
+        }
+
+        .meal-nutrition {
+            font-size: 14px;
+            color: #7f8c8d;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .meal-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 3px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-add {
+            background: #2ecc71;
+            color: white;
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .btn-add:hover {
+            background: #27ae60;
+        }
+
+        .btn-edit {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #2980b9;
+        }
+
+        .btn-remove {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-remove:hover {
+            background: #c0392b;
+        }
+
+        .empty-slot-message {
+            color: #95a5a6;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Meal Planner</h1>
-        <p class="subtitle">Weekly meal planning for a household of {{ household_portions }} portions</p>
-
-        <button id="generateBtn" onclick="generatePlan()">Generate New Weekly Plan</button>
+        <p class="subtitle">Plan your meals, track nutrition, and generate shopping lists</p>
 
         <div id="message" class="message hidden"></div>
 
-        <div id="planSection" class="section {% if not current_plan %}hidden{% endif %}">
-            <h2>This Week's Meal Plan</h2>
-            <div id="mealPlan" class="meal-plan"></div>
-            <div id="nutritionTotals" class="nutrition-totals"></div>
+        <!-- Manual Meal Planning Section -->
+        <div class="section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                <h2 style="margin: 0;">Your Weekly Plan</h2>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="clearWeek()" style="background: #e74c3c; padding: 10px 20px;">
+                        Clear Week
+                    </button>
+                </div>
+            </div>
+
+            <div id="weeklyCalendar"></div>
+            <div id="nutritionTotals" class="nutrition-totals" style="display: none;"></div>
         </div>
 
         <div id="shoppingSection" class="section {% if not current_shopping_list %}hidden{% endif %}">
@@ -1657,6 +1811,228 @@
                 importBtn.textContent = 'Import from Text';
             }
         }
+
+        // ========== Manual Meal Planning Functions ==========
+
+        const DAYS_OF_WEEK = {{ config.DAYS_OF_WEEK | tojson }};
+        const MEAL_SCHEDULE = {{ config.MEAL_SCHEDULE | tojson }};
+
+        // Render weekly calendar
+        function renderWeeklyCalendar() {
+            const calendarEl = document.getElementById('weeklyCalendar');
+
+            const currentPlan = {% if current_plan %}{{ current_plan | tojson }}{% else %}null{% endif %};
+
+            calendarEl.innerHTML = DAYS_OF_WEEK.map(day => {
+                const mealSlots = MEAL_SCHEDULE[day] || [];
+                const dayNutrition = currentPlan?.daily_nutrition?.[day] || {};
+                const dayCalories = Math.round(dayNutrition.calories || 0);
+                const calorieLimit = currentPlan?.daily_calorie_limit;
+                const isOverLimit = calorieLimit && dayCalories > calorieLimit;
+                const limitText = calorieLimit ? ` / ${calorieLimit} cal` : '';
+
+                return `
+                    <div class="calendar-day">
+                        <div class="calendar-day-header${isOverLimit ? ' over-limit' : ''}">
+                            <span>${day}</span>
+                            <span class="calendar-day-nutrition">
+                                ${dayCalories} cal${limitText}
+                                ${isOverLimit ? ' ⚠️' : ''}
+                            </span>
+                        </div>
+                        <div class="calendar-meals">
+                            ${mealSlots.map(mealType => renderMealSlot(day, mealType, currentPlan)).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Show nutrition totals if we have a plan
+            if (currentPlan && currentPlan.meals && currentPlan.meals.length > 0) {
+                document.getElementById('nutritionTotals').style.display = 'block';
+            } else {
+                document.getElementById('nutritionTotals').style.display = 'none';
+            }
+        }
+
+        function renderMealSlot(day, mealType, currentPlan) {
+            // Find meal for this slot
+            const meal = currentPlan?.meals?.find(m => m.day === day && m.meal_type === mealType);
+
+            if (meal) {
+                return `
+                    <div class="calendar-meal-slot has-meal">
+                        <div class="meal-slot-header">
+                            <span class="meal-slot-type">${mealType}</span>
+                            <div class="meal-actions">
+                                <button class="btn-small btn-edit" onclick="editMealServings('${day}', '${mealType}', ${meal.portions})">
+                                    Edit (${meal.portions} servings)
+                                </button>
+                                <button class="btn-small btn-remove" onclick="removeMeal('${day}', '${mealType}')">
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+                        <div class="meal-content">
+                            <div class="meal-info">
+                                <div class="meal-name">
+                                    <a href="/recipe/${meal.recipe_id}">${meal.recipe_name}</a>
+                                </div>
+                                <div class="meal-nutrition">
+                                    <span>${Math.round(meal.calories)} cal</span>
+                                    <span>${Math.round(meal.protein)}g protein</span>
+                                    <span>${Math.round(meal.carbs)}g carbs</span>
+                                    <span>${Math.round(meal.fat)}g fat</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="calendar-meal-slot">
+                        <div class="meal-slot-header">
+                            <span class="meal-slot-type">${mealType}</span>
+                        </div>
+                        <div class="empty-slot-message">
+                            No meal planned
+                        </div>
+                        <button class="btn-add" onclick="openRecipeSelector('${day}', '${mealType}')">
+                            + Add Recipe
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        async function clearWeek() {
+            if (!confirm('Clear all meals from your plan?')) return;
+
+            try {
+                const response = await fetch('/manual-plan/clear', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('Week cleared!', 'info');
+                    await loadCurrentPlan();
+                }
+            } catch (error) {
+                showMessage('Error clearing week: ' + error.message, 'error');
+            }
+        }
+
+        function openRecipeSelector(day, mealType) {
+            // For now, use a simple prompt. We'll add a proper modal later.
+            const recipes = {{ recipes | tojson }};
+
+            // Build recipe list
+            let recipeList = 'Available Recipes:\n\n';
+            recipes.forEach((recipe, index) => {
+                recipeList += `${index + 1}. ${recipe.name} (${recipe.calories_per_serving} cal)\n`;
+            });
+            recipeList += '\nEnter recipe number:';
+
+            const selection = prompt(recipeList);
+            if (!selection) return;
+
+            const index = parseInt(selection) - 1;
+            if (index < 0 || index >= recipes.length) {
+                alert('Invalid selection');
+                return;
+            }
+
+            const recipe = recipes[index];
+            const servings = prompt(`How many servings of ${recipe.name}?`, '{{ household_portions }}');
+            if (!servings) return;
+
+            addMealToPlan(day, mealType, recipe.id, parseFloat(servings));
+        }
+
+        async function addMealToPlan(day, mealType, recipeId, servings) {
+            try {
+                const response = await fetch('/manual-plan/add-meal', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({day, meal_type: mealType, recipe_id: recipeId, servings})
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    await loadCurrentPlan();
+                } else {
+                    showMessage(data.error || 'Error adding meal', 'error');
+                }
+            } catch (error) {
+                showMessage('Error adding meal: ' + error.message, 'error');
+            }
+        }
+
+        async function removeMeal(day, mealType) {
+            if (!confirm(`Remove ${mealType} from ${day}?`)) return;
+
+            try {
+                const response = await fetch('/manual-plan/remove-meal', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({day, meal_type: mealType})
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(data.message, 'info');
+                    await loadCurrentPlan();
+                } else {
+                    showMessage(data.error || 'Error removing meal', 'error');
+                }
+            } catch (error) {
+                showMessage('Error removing meal: ' + error.message, 'error');
+            }
+        }
+
+        async function editMealServings(day, mealType, currentServings) {
+            const newServings = prompt(`Edit servings for ${mealType}:`, currentServings);
+            if (!newServings || newServings === currentServings.toString()) return;
+
+            try {
+                const response = await fetch('/manual-plan/update-servings', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({day, meal_type: mealType, servings: parseFloat(newServings)})
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    await loadCurrentPlan();
+                } else {
+                    showMessage(data.error || 'Error updating servings', 'error');
+                }
+            } catch (error) {
+                showMessage('Error updating servings: ' + error.message, 'error');
+            }
+        }
+
+        // Update loadCurrentPlan to also render calendar
+        const originalLoadCurrentPlan = loadCurrentPlan;
+        loadCurrentPlan = async function() {
+            await originalLoadCurrentPlan();
+            renderWeeklyCalendar();
+        };
+
+        // Initial render
+        window.addEventListener('DOMContentLoaded', () => {
+            renderWeeklyCalendar();
+            {% if current_plan %}
+            loadCurrentPlan();
+            {% endif %}
+        });
     </script>
 </body>
 </html>
