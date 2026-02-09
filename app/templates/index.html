@@ -207,23 +207,53 @@
         }
 
         .shopping-item {
-            padding: 8px 0;
+            padding: 12px 0;
             border-bottom: 1px solid #ecf0f1;
             display: flex;
-            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
         }
 
         .shopping-item:last-child {
             border-bottom: none;
         }
 
+        .shopping-item input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .shopping-item .item-content {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .shopping-item .name {
             font-weight: 500;
             color: #2c3e50;
+            transition: all 0.3s;
         }
 
         .shopping-item .quantity {
             color: #7f8c8d;
+            margin-left: 12px;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .shopping-item.checked .name {
+            text-decoration: line-through;
+            color: #95a5a6;
+        }
+
+        .shopping-item.checked .quantity {
+            color: #bdc3c7;
         }
 
         .recipe-list {
@@ -680,7 +710,6 @@
         </div>
 
         <div id="shoppingSection" class="section {% if not current_shopping_list %}hidden{% endif %}">
-            <h2>Shopping List</h2>
             <div id="shoppingList" class="shopping-list"></div>
         </div>
 
@@ -1111,28 +1140,105 @@
             detailedDiv.classList.toggle('visible');
         }
 
+        // Shopping list localStorage functions
+        function getShoppingListKey() {
+            // Use a key based on current plan to avoid mixing different plans
+            return 'shoppingList_checked';
+        }
+
+        function loadCheckedItems() {
+            const key = getShoppingListKey();
+            const stored = localStorage.getItem(key);
+            return stored ? JSON.parse(stored) : {};
+        }
+
+        function saveCheckedItems(checkedItems) {
+            const key = getShoppingListKey();
+            localStorage.setItem(key, JSON.stringify(checkedItems));
+        }
+
+        function toggleShoppingItem(category, itemName) {
+            const checkedItems = loadCheckedItems();
+            const itemKey = `${category}:${itemName}`;
+
+            if (checkedItems[itemKey]) {
+                delete checkedItems[itemKey];
+            } else {
+                checkedItems[itemKey] = true;
+            }
+
+            saveCheckedItems(checkedItems);
+
+            // Update UI
+            const checkbox = document.querySelector(`input[data-item-key="${itemKey}"]`);
+            const itemDiv = checkbox.closest('.shopping-item');
+            if (checkbox.checked) {
+                itemDiv.classList.add('checked');
+            } else {
+                itemDiv.classList.remove('checked');
+            }
+        }
+
+        function clearAllCheckedItems() {
+            if (confirm('Clear all checked items?')) {
+                const key = getShoppingListKey();
+                localStorage.removeItem(key);
+
+                // Uncheck all and remove checked class
+                document.querySelectorAll('.shopping-item input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                    checkbox.closest('.shopping-item').classList.remove('checked');
+                });
+
+                showMessage('All items unchecked', 'info');
+            }
+        }
+
         function displayShoppingList(shoppingList) {
             const shoppingSection = document.getElementById('shoppingSection');
             const shoppingListEl = document.getElementById('shoppingList');
 
             shoppingSection.classList.remove('hidden');
 
+            // Load checked items from localStorage
+            const checkedItems = loadCheckedItems();
+
             // Group items by category
             const byCategory = shoppingList.items_by_category;
 
-            shoppingListEl.innerHTML = Object.entries(byCategory).map(([category, items]) => `
+            shoppingListEl.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0;">Shopping List</h2>
+                    <button onclick="clearAllCheckedItems()" style="background: #95a5a6; padding: 8px 16px; font-size: 14px;">
+                        Clear Checked
+                    </button>
+                </div>
+                ${Object.entries(byCategory).map(([category, items]) => `
                 <div class="category-section">
                     <h3>${category}</h3>
                     <div class="shopping-items">
-                        ${items.map(item => `
-                            <div class="shopping-item">
-                                <span class="name">${item.item}</span>
-                                <span class="quantity">${item.quantity} ${item.unit}</span>
+                        ${items.map(item => {
+                            const itemKey = `${category}:${item.item}`;
+                            const isChecked = checkedItems[itemKey] || false;
+                            return `
+                            <div class="shopping-item${isChecked ? ' checked' : ''}" onclick="event.target.tagName !== 'INPUT' && this.querySelector('input').click()">
+                                <input
+                                    type="checkbox"
+                                    ${isChecked ? 'checked' : ''}
+                                    data-item-key="${itemKey}"
+                                    onchange="toggleShoppingItem('${category}', '${item.item}')"
+                                    onclick="event.stopPropagation()"
+                                >
+                                <div class="item-content">
+                                    <span class="name">${item.item}</span>
+                                    <span class="quantity">${item.quantity} ${item.unit}</span>
+                                </div>
                             </div>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </div>
                 </div>
-            `).join('');
+            `).join('')}`;
         }
 
         // Load current plan on page load if it exists
