@@ -223,8 +223,11 @@ By next Friday, you should be able to:
   - ✅ Mobile-responsive recipe list page (Commit: 995ed1c)
   - ✅ Enhanced recipe detail for cooking mode (Commit: 16831e6)
   - ✅ Daily calorie limit backend support (Commit: 69a87f1)
-- **Day 3-4** (Wed-Thu): Meal planner implementation - **IN PROGRESS**
-  - Backend ready, need to add UI for daily nutrition cap
+  - ✅ Daily calorie limit UI with warnings (Commit: ec857b3)
+- **Day 3-4** (Wed-Thu): Meal planner implementation ✅ **DONE**
+  - ✅ Daily nutrition tracking per day
+  - ✅ Visual warnings when exceeding calorie limit
+  - ✅ Configurable daily calorie limit (default: 2000 cal)
 - **Day 5-6** (Fri-Sat): Shopping list with checkboxes
 - **Day 7** (Sun): Testing and polish
 
@@ -235,10 +238,8 @@ By next Friday, you should be able to:
 ### ✅ Completed Features
 1. **Mobile-responsive UI** - Recipe list and detail pages work well on phones
 2. **Cooking mode** - Large, readable text for following recipes while cooking
-3. **Daily calorie limit (backend)** - Meal planner can track and enforce daily nutrition limits
-
-### 🚧 In Progress
-- Meal planner UI with daily nutrition display
+3. **Daily calorie tracking** - Shows per-day nutrition totals with configurable calorie limit
+4. **Over-limit warnings** - Visual alerts (red header + ⚠️) when daily calories exceed limit
 
 ### ⏳ Todo
 - Shopping list with checkboxes (localStorage persistence)
