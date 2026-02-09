@@ -225,7 +225,7 @@ class TestRecipeParserHelpers:
         assert result["item"] == "flour"
         assert result["quantity"] == 2.0
         assert result["unit"] == "cups"
-        assert result["category"] == "other"
+        assert result["category"] == "grains"  # Automatically categorized
 
     def test_parse_ingredient_with_fraction(self):
         """Test parsing ingredient with fraction."""

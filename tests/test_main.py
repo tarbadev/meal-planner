@@ -645,3 +645,103 @@ class TestImportRecipe:
             recipes = load_recipes(config.RECIPES_FILE)
             imported_recipe = [r for r in recipes if r.name == "Test Recipe"][0]
             assert "nutrition-generated" in imported_recipe.tags
+
+    def test_import_recipe_no_tag_when_nutrition_all_zeros(self, client, monkeypatch):
+        """Test that nutrition-generated tag is NOT added when nutrition is all zeros."""
+        from unittest.mock import patch
+
+        import config
+        from app.nutrition_generator import NutritionData
+        from app.recipe_parser import ParsedRecipe
+        from app.recipes import load_recipes
+
+        mock_parsed_recipe = ParsedRecipe(
+            name="Test Recipe No Nutrition",
+            servings=4,
+            calories_per_serving=0,
+            protein_per_serving=0.0,
+            ingredients=[
+                {"item": "flour", "quantity": 2, "unit": "cups", "category": "pantry"}
+            ],
+            instructions=["Mix", "Bake"]
+        )
+
+        # Mock nutrition with all zeros (failed generation)
+        mock_nutrition = NutritionData(
+            calories=0.0,
+            protein=0.0,
+            carbs=0.0,
+            fat=0.0,
+            confidence=0.0
+        )
+
+        with patch('app.recipe_parser.RecipeParser.parse_from_url') as mock_parse, \
+             patch('app.nutrition_generator.NutritionGenerator.generate_from_ingredients') as mock_gen:
+            mock_parse.return_value = mock_parsed_recipe
+            mock_gen.return_value = mock_nutrition
+
+            response = client.post(
+                '/import-recipe',
+                data=json.dumps({"url": "https://example.com/recipe"}),
+                content_type='application/json'
+            )
+
+            assert response.status_code == 200
+
+            # Load the recipe from file and verify it does NOT have the tag
+            recipes = load_recipes(config.RECIPES_FILE)
+            imported_recipe = [r for r in recipes if r.name == "Test Recipe No Nutrition"][0]
+            assert "nutrition-generated" not in imported_recipe.tags
+
+    def test_import_recipe_adds_inferred_tags(self, client, monkeypatch):
+        """Test that tag inference adds appropriate tags during import."""
+        from unittest.mock import patch
+
+        from app.recipe_parser import ParsedRecipe
+        from app.recipes import load_recipes
+        import config
+
+        # Mock a dessert recipe
+        mock_parsed_recipe = ParsedRecipe(
+            name="Chocolate Cake",
+            servings=8,
+            prep_time_minutes=20,
+            cook_time_minutes=30,
+            calories_per_serving=350,
+            protein_per_serving=5.0,
+            carbs_per_serving=45.0,
+            fat_per_serving=15.0,
+            ingredients=[
+                {"item": "all-purpose flour", "quantity": 200, "unit": "g", "category": "grains"},
+                {"item": "sugar", "quantity": 150, "unit": "g", "category": "pantry"},
+                {"item": "cocoa powder", "quantity": 50, "unit": "g", "category": "pantry"},
+                {"item": "eggs", "quantity": 2, "unit": "whole", "category": "dairy"},
+                {"item": "baking powder", "quantity": 1, "unit": "tsp", "category": "pantry"}
+            ],
+            instructions=["Preheat oven to 350°F", "Mix ingredients", "Bake for 30 minutes"],
+            tags=[]
+        )
+
+        with patch('app.recipe_parser.RecipeParser.parse_from_url') as mock_parse, \
+             patch('app.nutrition_generator.NutritionGenerator.generate_from_ingredients') as mock_gen:
+            mock_parse.return_value = mock_parsed_recipe
+            mock_gen.return_value = None  # No nutrition generation
+
+            response = client.post(
+                '/import-recipe',
+                data=json.dumps({"url": "https://example.com/recipe"}),
+                content_type='application/json'
+            )
+
+            assert response.status_code == 200
+
+            # Load the recipe and verify inferred tags
+            recipes = load_recipes(config.RECIPES_FILE)
+            imported_recipe = [r for r in recipes if r.name == "Chocolate Cake"][0]
+
+            # Should have inferred dessert tag
+            assert "dessert" in imported_recipe.tags
+            # Should have inferred baking tag
+            assert "baking" in imported_recipe.tags
+            # Should have inferred vegetarian tag (no meat)
+            assert "vegetarian" in imported_recipe.tags

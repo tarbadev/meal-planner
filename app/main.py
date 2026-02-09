@@ -7,6 +7,7 @@ from app.planner import MealPlanner
 from app.recipes import Recipe, RecipeSaveError, load_recipes, save_recipes, update_recipe
 from app.sheets import SheetsError, SheetsWriter
 from app.shopping_list import generate_shopping_list
+from app.tag_inference import TagInferencer
 
 app = Flask(__name__)
 
@@ -138,10 +139,28 @@ def import_recipe():
                 parsed_recipe.calcium_per_serving = generated_nutrition.calcium
                 parsed_recipe.iron_per_serving = generated_nutrition.iron
 
-                # Add tag to indicate generated nutrition
-                if not parsed_recipe.tags:
-                    parsed_recipe.tags = []
-                parsed_recipe.tags.append("nutrition-generated")
+                # Only add tag if meaningful nutrition was generated (not all zeros)
+                has_meaningful_nutrition = (
+                    generated_nutrition.calories > 0 or
+                    generated_nutrition.protein > 0 or
+                    generated_nutrition.carbs > 0 or
+                    generated_nutrition.fat > 0
+                )
+                if has_meaningful_nutrition:
+                    if not parsed_recipe.tags:
+                        parsed_recipe.tags = []
+                    parsed_recipe.tags.append("nutrition-generated")
+
+        # Infer additional tags based on recipe content
+        tag_inferencer = TagInferencer()
+        parsed_recipe.tags = tag_inferencer.enhance_tags(
+            name=parsed_recipe.name,
+            ingredients=parsed_recipe.ingredients or [],
+            instructions=parsed_recipe.instructions or [],
+            prep_time_minutes=parsed_recipe.prep_time_minutes or 0,
+            cook_time_minutes=parsed_recipe.cook_time_minutes or 0,
+            existing_tags=parsed_recipe.tags or []
+        )
 
         # Load existing recipes
         recipes_file = Path(config.RECIPES_FILE)
@@ -290,10 +309,28 @@ def import_recipe_text():
                 parsed_recipe.calcium_per_serving = generated_nutrition.calcium
                 parsed_recipe.iron_per_serving = generated_nutrition.iron
 
-                # Add tag to indicate generated nutrition
-                if not parsed_recipe.tags:
-                    parsed_recipe.tags = []
-                parsed_recipe.tags.append("nutrition-generated")
+                # Only add tag if meaningful nutrition was generated (not all zeros)
+                has_meaningful_nutrition = (
+                    generated_nutrition.calories > 0 or
+                    generated_nutrition.protein > 0 or
+                    generated_nutrition.carbs > 0 or
+                    generated_nutrition.fat > 0
+                )
+                if has_meaningful_nutrition:
+                    if not parsed_recipe.tags:
+                        parsed_recipe.tags = []
+                    parsed_recipe.tags.append("nutrition-generated")
+
+        # Infer additional tags based on recipe content
+        tag_inferencer = TagInferencer()
+        parsed_recipe.tags = tag_inferencer.enhance_tags(
+            name=parsed_recipe.name,
+            ingredients=parsed_recipe.ingredients or [],
+            instructions=parsed_recipe.instructions or [],
+            prep_time_minutes=parsed_recipe.prep_time_minutes or 0,
+            cook_time_minutes=parsed_recipe.cook_time_minutes or 0,
+            existing_tags=parsed_recipe.tags or []
+        )
 
         # Load existing recipes
         recipes_file = Path(config.RECIPES_FILE)
