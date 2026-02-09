@@ -93,7 +93,7 @@ def migrate_recipes_file(file_path: Path) -> bool:
 
     # Load current recipes
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path) as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
         print(f"Error: Invalid JSON in {file_path}: {e}")
@@ -122,7 +122,7 @@ def migrate_recipes_file(file_path: Path) -> bool:
             json.dump(data, f, indent=2)
         print("✓ Migration complete!")
         return True
-    except (IOError, OSError) as e:
+    except OSError as e:
         print(f"Error: Failed to write to {file_path}: {e}")
         return False
 

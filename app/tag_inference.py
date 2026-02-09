@@ -1,6 +1,5 @@
 """Automatic tag inference for recipes based on content."""
 
-import re
 
 
 class TagInferencer:

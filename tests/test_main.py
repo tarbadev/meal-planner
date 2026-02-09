@@ -697,9 +697,9 @@ class TestImportRecipe:
         """Test that tag inference adds appropriate tags during import."""
         from unittest.mock import patch
 
+        import config
         from app.recipe_parser import ParsedRecipe
         from app.recipes import load_recipes
-        import config
 
         # Mock a dessert recipe
         mock_parsed_recipe = ParsedRecipe(
