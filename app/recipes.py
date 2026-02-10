@@ -139,6 +139,9 @@ def save_recipes(file_path: Path | str, recipes: list[Recipe]) -> None:
     """
     file_path = Path(file_path)
 
+    # Ensure parent directory exists
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
     # Convert Recipe objects to dicts
     recipes_data = [asdict(recipe) for recipe in recipes]
 
