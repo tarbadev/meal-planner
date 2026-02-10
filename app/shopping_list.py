@@ -16,6 +16,7 @@ class ShoppingListItem:
 class ShoppingList:
     items: list[ShoppingListItem]
 
+    @property
     def items_by_category(self) -> dict[str, list[ShoppingListItem]]:
         """Group items by category."""
         grouped = defaultdict(list)

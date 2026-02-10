@@ -124,7 +124,7 @@ class SheetsWriter:
         # Prepare rows grouped by category
         rows = [headers]
 
-        items_by_category = shopping_list.items_by_category()
+        items_by_category = shopping_list.items_by_category
 
         for category in sorted(items_by_category.keys()):
             items = items_by_category[category]

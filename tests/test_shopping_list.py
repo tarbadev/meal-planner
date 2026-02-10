@@ -202,7 +202,7 @@ class TestShoppingList:
 
     def test_shopping_list_items_by_category(self, weekly_plan):
         shopping_list = generate_shopping_list(weekly_plan)
-        by_category = shopping_list.items_by_category()
+        by_category = shopping_list.items_by_category
 
         assert isinstance(by_category, dict)
 
@@ -220,7 +220,7 @@ class TestShoppingList:
         ]
 
         shopping_list = ShoppingList(items=items)
-        by_category = shopping_list.items_by_category()
+        by_category = shopping_list.items_by_category
 
         assert len(by_category["produce"]) == 2
         assert len(by_category["dairy"]) == 2

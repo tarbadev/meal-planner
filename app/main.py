@@ -922,7 +922,7 @@ def get_current_plan():
                     }
                     for item in items
                 ]
-                for category, items in current_shopping_list.items_by_category().items()
+                for category, items in current_shopping_list.items_by_category.items()
             }
         }
     })
