@@ -474,6 +474,174 @@ def import_recipe_text():
         }), 500
 
 
+@app.route("/import-recipe-image", methods=["POST"])
+def import_recipe_image():
+    """Import a recipe from a photo."""
+    global current_plan, current_shopping_list
+
+    # Check if image file is present
+    if 'image' not in request.files:
+        return jsonify({
+            "error": "No image provided",
+            "message": "Image file is required"
+        }), 400
+
+    file = request.files['image']
+
+    if file.filename == '':
+        return jsonify({
+            "error": "No file selected",
+            "message": "Please select an image file"
+        }), 400
+
+    # Validate file type
+    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+    file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+    if file_ext not in allowed_extensions:
+        return jsonify({
+            "error": "Invalid file type",
+            "message": f"Allowed types: {', '.join(allowed_extensions)}"
+        }), 400
+
+    try:
+        # Read image data
+        image_data = file.read()
+
+        # Extract recipe from image using Vision API
+        from app.image_recipe_extractor import ImageRecipeExtractor
+        from app.nutrition_generator import NutritionGenerator
+        from app.recipe_parser import ParsedRecipe, generate_recipe_id
+
+        extractor = ImageRecipeExtractor(api_key=config.OPENAI_API_KEY)
+        extracted_data = extractor.extract_recipe(image_data, file_ext)
+
+        # Convert to ParsedRecipe format
+        parsed_recipe = ParsedRecipe(
+            name=extracted_data.name,
+            servings=extracted_data.servings,
+            prep_time_minutes=extracted_data.prep_time_minutes,
+            cook_time_minutes=extracted_data.cook_time_minutes,
+            total_time_minutes=(extracted_data.prep_time_minutes or 0) + (extracted_data.cook_time_minutes or 0) if extracted_data.prep_time_minutes or extracted_data.cook_time_minutes else None,
+            ingredients=extracted_data.ingredients,
+            instructions=extracted_data.instructions,
+            tags=extracted_data.tags + ["photo-imported"],
+            source_url=None,
+            notes=extracted_data.notes,
+            calories_per_serving=None,
+            protein_per_serving=None,
+            carbs_per_serving=None,
+            fat_per_serving=None
+        )
+        parsed_recipe.ai_confidence = extracted_data.confidence
+
+        # Generate nutrition if missing
+        nutrition_gen = NutritionGenerator(api_key=config.USDA_API_KEY)
+        if nutrition_gen.should_generate_nutrition(parsed_recipe):
+            generated_nutrition = nutrition_gen.generate_from_ingredients(
+                parsed_recipe.ingredients,
+                parsed_recipe.servings or 4
+            )
+
+            if generated_nutrition:
+                parsed_recipe.calories_per_serving = int(generated_nutrition.calories)
+                parsed_recipe.protein_per_serving = generated_nutrition.protein
+                parsed_recipe.carbs_per_serving = generated_nutrition.carbs
+                parsed_recipe.fat_per_serving = generated_nutrition.fat
+                parsed_recipe.saturated_fat_per_serving = generated_nutrition.saturated_fat
+                parsed_recipe.polyunsaturated_fat_per_serving = generated_nutrition.polyunsaturated_fat
+                parsed_recipe.monounsaturated_fat_per_serving = generated_nutrition.monounsaturated_fat
+                parsed_recipe.sodium_per_serving = generated_nutrition.sodium
+                parsed_recipe.potassium_per_serving = generated_nutrition.potassium
+                parsed_recipe.fiber_per_serving = generated_nutrition.fiber
+                parsed_recipe.sugar_per_serving = generated_nutrition.sugar
+                parsed_recipe.vitamin_a_per_serving = generated_nutrition.vitamin_a
+                parsed_recipe.vitamin_c_per_serving = generated_nutrition.vitamin_c
+                parsed_recipe.calcium_per_serving = generated_nutrition.calcium
+                parsed_recipe.iron_per_serving = generated_nutrition.iron
+
+                has_meaningful_nutrition = (
+                    generated_nutrition.calories > 0 or
+                    generated_nutrition.protein > 0 or
+                    generated_nutrition.carbs > 0 or
+                    generated_nutrition.fat > 0
+                )
+                if has_meaningful_nutrition:
+                    if not parsed_recipe.tags:
+                        parsed_recipe.tags = []
+                    parsed_recipe.tags.append("nutrition-generated")
+
+        # Infer additional tags
+        tag_inferencer = TagInferencer()
+        parsed_recipe.tags = tag_inferencer.enhance_tags(
+            name=parsed_recipe.name,
+            ingredients=parsed_recipe.ingredients or [],
+            instructions=parsed_recipe.instructions or [],
+            prep_time_minutes=parsed_recipe.prep_time_minutes or 0,
+            cook_time_minutes=parsed_recipe.cook_time_minutes or 0,
+            existing_tags=parsed_recipe.tags or []
+        )
+
+        # Load existing recipes
+        recipes_file = Path(config.RECIPES_FILE)
+        existing_recipes = load_recipes(recipes_file)
+        existing_ids = {r.id for r in existing_recipes}
+
+        # Generate unique ID
+        recipe_id = generate_recipe_id(parsed_recipe.name, existing_ids)
+
+        # Convert to Recipe dict
+        recipe_dict = parsed_recipe.to_recipe_dict(recipe_id)
+
+        # Validate using Recipe.from_dict
+        new_recipe = Recipe.from_dict(recipe_dict)
+
+        # Add to recipes list and save
+        updated_recipes = existing_recipes + [new_recipe]
+        save_recipes(recipes_file, updated_recipes)
+
+        # Clear current plan
+        current_plan = None
+        current_shopping_list = None
+
+        # Build response
+        response_data = {
+            "success": True,
+            "message": f"Recipe '{new_recipe.name}' imported successfully from photo",
+            "recipe": {
+                "id": new_recipe.id,
+                "name": new_recipe.name,
+                "servings": new_recipe.servings,
+                "has_nutrition": (new_recipe.calories_per_serving > 0),
+                "nutrition_generated": "nutrition-generated" in new_recipe.tags,
+                "ingredient_count": len(new_recipe.ingredients),
+                "instruction_count": len(new_recipe.instructions),
+                "ai_confidence": extracted_data.confidence
+            }
+        }
+
+        if extracted_data.confidence < 0.7:
+            response_data["warning"] = "Recipe extraction confidence is low. Please review the imported data carefully."
+
+        return jsonify(response_data)
+
+    except ValueError as e:
+        return jsonify({
+            "error": "Extraction error",
+            "message": str(e),
+            "suggestion": "The image may be unclear or not contain a recipe. Please try a clearer photo."
+        }), 400
+    except RecipeSaveError as e:
+        return jsonify({
+            "error": "Save error",
+            "message": f"Failed to save recipe: {str(e)}"
+        }), 500
+    except Exception as e:
+        return jsonify({
+            "error": "Import error",
+            "message": f"Unexpected error: {str(e)}"
+        }), 500
+
+
 @app.route("/recipes")
 def recipes():
     """List all available recipes."""

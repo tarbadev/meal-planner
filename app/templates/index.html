@@ -1025,6 +1025,7 @@
             <div class="import-tabs">
                 <button class="import-tab active" onclick="switchImportTab('url')">🔗 From URL</button>
                 <button class="import-tab" onclick="switchImportTab('text')">📝 From Text</button>
+                <button class="import-tab" onclick="switchImportTab('photo')">📷 From Photo</button>
             </div>
 
             <!-- URL Import Form -->
@@ -1064,6 +1065,33 @@
 
                 <div class="form-actions">
                     <button type="submit" id="importTextBtn">Import from Text</button>
+                    <button type="button" onclick="closeImportModal()">Cancel</button>
+                </div>
+            </form>
+
+            <!-- Photo Import Form -->
+            <form id="importPhotoForm" class="import-form hidden" onsubmit="handlePhotoImportFormSubmit(event)">
+                <label>
+                    Recipe Photo:
+                    <input type="file" id="recipePhoto" accept="image/*" capture="environment" required style="padding: 10px; border: 2px dashed #3498db; border-radius: 4px; cursor: pointer;">
+                </label>
+                <p style="font-size: 14px; color: #7f8c8d; margin-top: 5px;">
+                    📸 <strong>Import from photo:</strong><br>
+                    • Recipe cards from the store<br>
+                    • Cookbook pages or magazine recipes<br>
+                    • Handwritten family recipes<br>
+                    • Screenshots from social media<br>
+                    📱 Tap "Choose File" to use camera or select from gallery
+                </p>
+
+                <div id="photoPreview" style="margin: 15px 0; display: none;">
+                    <img id="photoPreviewImg" style="max-width: 100%; max-height: 200px; border-radius: 4px; border: 1px solid #ddd;">
+                </div>
+
+                <div id="importPhotoStatus" class="import-status hidden"></div>
+
+                <div class="form-actions">
+                    <button type="submit" id="importPhotoBtn">Import from Photo</button>
                     <button type="button" onclick="closeImportModal()">Cancel</button>
                 </div>
             </form>
@@ -1640,8 +1668,11 @@
             document.getElementById('importModal').classList.add('hidden');
             document.getElementById('importRecipeForm').reset();
             document.getElementById('importTextForm').reset();
+            document.getElementById('importPhotoForm').reset();
             document.getElementById('importStatus').classList.add('hidden');
             document.getElementById('importTextStatus').classList.add('hidden');
+            document.getElementById('importPhotoStatus').classList.add('hidden');
+            document.getElementById('photoPreview').style.display = 'none';
         }
 
         function switchImportTab(tab) {
@@ -1652,6 +1683,8 @@
                     t.classList.add('active');
                 } else if (t.textContent.includes('Text') && tab === 'text') {
                     t.classList.add('active');
+                } else if (t.textContent.includes('Photo') && tab === 'photo') {
+                    t.classList.add('active');
                 } else {
                     t.classList.remove('active');
                 }
@@ -1660,17 +1693,27 @@
             // Update forms
             const urlForm = document.getElementById('importRecipeForm');
             const textForm = document.getElementById('importTextForm');
+            const photoForm = document.getElementById('importPhotoForm');
 
+            // Hide all forms
+            urlForm.classList.add('hidden');
+            textForm.classList.add('hidden');
+            photoForm.classList.add('hidden');
+
+            // Show selected form and reset
             if (tab === 'url') {
                 urlForm.classList.remove('hidden');
-                textForm.classList.add('hidden');
                 document.getElementById('recipeUrl').value = '';
                 document.getElementById('importStatus').classList.add('hidden');
-            } else {
-                urlForm.classList.add('hidden');
+            } else if (tab === 'text') {
                 textForm.classList.remove('hidden');
                 document.getElementById('recipeText').value = '';
                 document.getElementById('importTextStatus').classList.add('hidden');
+            } else if (tab === 'photo') {
+                photoForm.classList.remove('hidden');
+                document.getElementById('recipePhoto').value = '';
+                document.getElementById('importPhotoStatus').classList.add('hidden');
+                document.getElementById('photoPreview').style.display = 'none';
             }
         }
 
@@ -1835,6 +1878,108 @@
             } finally {
                 importBtn.disabled = false;
                 importBtn.textContent = 'Import from Text';
+            }
+        }
+
+        // Photo preview on file selection
+        document.addEventListener('DOMContentLoaded', () => {
+            const photoInput = document.getElementById('recipePhoto');
+            if (photoInput) {
+                photoInput.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
+                    if (file && file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const preview = document.getElementById('photoPreview');
+                            const img = document.getElementById('photoPreviewImg');
+                            img.src = e.target.result;
+                            preview.style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        });
+
+        async function handlePhotoImportFormSubmit(event) {
+            event.preventDefault();
+
+            const fileInput = document.getElementById('recipePhoto');
+            const file = fileInput.files[0];
+            const importBtn = document.getElementById('importPhotoBtn');
+            const statusEl = document.getElementById('importPhotoStatus');
+
+            if (!file) {
+                statusEl.className = 'import-status error';
+                statusEl.textContent = 'Please select an image file';
+                return;
+            }
+
+            // Show loading state
+            importBtn.disabled = true;
+            importBtn.textContent = 'Analyzing photo...';
+            statusEl.className = 'import-status';
+            statusEl.textContent = 'Using AI to extract recipe from photo... (this may take 10-15 seconds)';
+
+            try {
+                // Create FormData for file upload
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const response = await fetch('/import-recipe-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    statusEl.className = 'import-status success';
+                    statusEl.textContent = data.message;
+
+                    // Show additional info about imported recipe
+                    if (data.recipe) {
+                        const info = [];
+                        info.push(`✓ ${data.recipe.ingredient_count} ingredients extracted`);
+                        info.push(`✓ ${data.recipe.instruction_count} steps extracted`);
+
+                        if (data.recipe.ai_confidence) {
+                            info.push(`✓ AI Confidence: ${(data.recipe.ai_confidence * 100).toFixed(0)}%`);
+                        }
+
+                        if (data.recipe.nutrition_generated) {
+                            info.push('✓ Nutrition generated automatically');
+                        }
+
+                        statusEl.textContent += '\n\n' + info.join('\n');
+                    }
+
+                    // Show warning if present
+                    if (data.warning) {
+                        statusEl.textContent += '\n\n⚠️ ' + data.warning;
+                    }
+
+                    // Reload page after 2 seconds
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    statusEl.className = 'import-status error';
+                    let errorMsg = data.message || data.error || 'Error importing recipe';
+
+                    // Add suggestion if provided
+                    if (data.suggestion) {
+                        errorMsg += '\n\n💡 ' + data.suggestion;
+                    }
+
+                    statusEl.textContent = errorMsg;
+                }
+            } catch (error) {
+                statusEl.className = 'import-status error';
+                statusEl.textContent = 'Error importing recipe: ' + error.message;
+            } finally {
+                importBtn.disabled = false;
+                importBtn.textContent = 'Import from Photo';
             }
         }
 

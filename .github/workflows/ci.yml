@@ -59,30 +59,43 @@ jobs:
 
       - name: Deploy to Railway
         run: |
-          railway up --service "web" --detach
+          DEPLOY_OUTPUT=$(railway up --service "web" --detach)
+          echo "$DEPLOY_OUTPUT"
+          # Try to extract deployment ID from output if possible, or just rely on status polling
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
       - name: Wait for Deployment
         run: |
           echo "Waiting for deployment to complete..."
-          # Poll Railway API or CLI for deployment status
-          # This is a simplified polling logic
           MAX_ATTEMPTS=60 # 10 minutes (10s intervals)
           ATTEMPT=0
           
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-            # Get the latest deployment status
-            # railway status returns a table, we need to parse it or use the API
-            # For simplicity in this environment, we'll use a script that checks if the latest deployment is 'SUCCESS'
-            STATUS=$(railway status --json | jq -r '.deployments.edges[0].node.status')
-            DEPLOYMENT_ID=$(railway status --json | jq -r '.deployments.edges[0].node.id')
-            echo "Current status: $STATUS (ID: $DEPLOYMENT_ID)"
+            # Fetch JSON status
+            RAW_STATUS=$(railway status --json)
+            
+            # Debug: Print raw status if it's the first attempt or if we get nulls later
+            if [ $ATTEMPT -eq 0 ]; then
+              echo "Debug: Raw status JSON structure:"
+              echo "$RAW_STATUS" | jq -c '.' | cut -c 1-500
+            fi
+
+            # The structure might be different than expected. 
+            # Often it's nested under a service or environment.
+            # We'll try to find the status more robustly.
+            
+            # Try to get status from the first deployment in the list
+            # We use try/catch in jq to avoid script failure on missing keys
+            STATUS=$(echo "$RAW_STATUS" | jq -r '.deployments[0].status // .deployments.edges[0].node.status // "UNKNOWN"' 2>/dev/null)
+            DEPLOYMENT_ID=$(echo "$RAW_STATUS" | jq -r '.deployments[0].id // .deployments.edges[0].node.id // "UNKNOWN"' 2>/dev/null)
+            
+            echo "Attempt $ATTEMPT: Status: $STATUS (ID: $DEPLOYMENT_ID)"
             
             if [ "$STATUS" = "SUCCESS" ]; then
               echo "✅ Deployment successful!"
               exit 0
-            elif [ "$STATUS" = "FAILED" ] || [ "$STATUS" = "CRASHED" ]; then
+            elif [ "$STATUS" = "FAILED" ] || [ "$STATUS" = "CRASHED" ] || [ "$STATUS" = "REMOVED" ]; then
               echo "❌ Deployment failed with status: $STATUS"
               exit 1
             fi
