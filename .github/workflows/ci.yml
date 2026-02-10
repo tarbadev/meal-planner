@@ -45,17 +45,53 @@ jobs:
         continue-on-error: true
 
   deploy:
-    name: Deploy to Render
+    name: Deploy to Railway
     runs-on: ubuntu-latest
     needs: lint-and-test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
-      - name: Trigger Render Deployment
-        run: |
-          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+      - name: Checkout code
+        uses: actions/checkout@v6
 
-      - name: Deployment initiated
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
         run: |
-          echo "✅ Deployment triggered on Render"
-          echo "Check status at: https://dashboard.render.com"
+          railway up --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Wait for Deployment
+        run: |
+          echo "Waiting for deployment to complete..."
+          # Poll Railway API or CLI for deployment status
+          # This is a simplified polling logic
+          MAX_ATTEMPTS=60 # 10 minutes (10s intervals)
+          ATTEMPT=0
+          
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            # Get the latest deployment status
+            # railway status returns a table, we need to parse it or use the API
+            # For simplicity in this environment, we'll use a script that checks if the latest deployment is 'SUCCESS'
+            STATUS=$(railway status --json | jq -r '.deployments.edges[0].node.status')
+            DEPLOYMENT_ID=$(railway status --json | jq -r '.deployments.edges[0].node.id')
+            echo "Current status: $STATUS (ID: $DEPLOYMENT_ID)"
+            
+            if [ "$STATUS" = "SUCCESS" ]; then
+              echo "✅ Deployment successful!"
+              exit 0
+            elif [ "$STATUS" = "FAILED" ] || [ "$STATUS" = "CRASHED" ]; then
+              echo "❌ Deployment failed with status: $STATUS"
+              exit 1
+            fi
+            
+            ATTEMPT=$((ATTEMPT + 1))
+            sleep 10
+          done
+          
+          echo "❌ Deployment timed out"
+          exit 1
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

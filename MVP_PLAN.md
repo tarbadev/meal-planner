@@ -123,7 +123,7 @@ def generate_shopping_list(meal_plan):
 
 ### Deployment
 - **Current setup** - Whatever you're using now
-- **Or Railway/Render** - Free tier with custom domain
+- **Railway** - Recommended for free tier with custom domain and no auto-sleep.
 - **HTTPS required** - For PWA features and camera access
 
 ## Feature Priorities
@@ -245,7 +245,7 @@ By next Friday, you should be able to:
 ### 🌐 Phase 3: Deployment & PWA (Day 6, Wednesday)
 **Goal**: Make it accessible to family with zero setup
 
-- [ ] Deploy to Railway or Render (free tier)
+- [ ] Deploy to Railway (free tier)
   - One-click deployment
   - Environment variables for API keys
   - Custom domain (optional)
