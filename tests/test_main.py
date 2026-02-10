@@ -50,7 +50,7 @@ def client(tmp_path, monkeypatch):
     save_recipes(recipes_file, test_recipes)
 
     # Patch the config to use our test file
-    import config
+    from app import config
     monkeypatch.setattr(config, 'RECIPES_FILE', str(recipes_file))
 
     # Create test client
@@ -83,7 +83,7 @@ class TestGetRecipe:
 class TestUpdateRecipe:
     def test_update_recipe_success(self, client, tmp_path, monkeypatch):
         """Test successful recipe update."""
-        import config
+        from app import config
 
         updated_data = {
             "id": "pasta-bolognese",
@@ -123,7 +123,7 @@ class TestUpdateRecipe:
 
     def test_update_recipe_persists_to_file(self, client, tmp_path, monkeypatch):
         """Test that recipe updates are persisted to the file."""
-        import config
+        from app import config
         from app.recipes import load_recipes
 
         updated_data = {
@@ -604,7 +604,7 @@ class TestImportRecipe:
         """Test that nutrition-generated tag is added when nutrition is generated."""
         from unittest.mock import patch
 
-        import config
+        from app import config
         from app.nutrition_generator import NutritionData
         from app.recipe_parser import ParsedRecipe
         from app.recipes import load_recipes
@@ -650,7 +650,7 @@ class TestImportRecipe:
         """Test that nutrition-generated tag is NOT added when nutrition is all zeros."""
         from unittest.mock import patch
 
-        import config
+        from app import config
         from app.nutrition_generator import NutritionData
         from app.recipe_parser import ParsedRecipe
         from app.recipes import load_recipes
@@ -697,7 +697,7 @@ class TestImportRecipe:
         """Test that tag inference adds appropriate tags during import."""
         from unittest.mock import patch
 
-        import config
+        from app import config
         from app.recipe_parser import ParsedRecipe
         from app.recipes import load_recipes
 

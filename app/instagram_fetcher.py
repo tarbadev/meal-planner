@@ -11,7 +11,7 @@ from pathlib import Path
 
 import instaloader
 
-import config
+from app import config
 
 
 class InstagramFetchError(Exception):

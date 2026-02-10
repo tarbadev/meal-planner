@@ -112,7 +112,7 @@ To enable Google Sheets integration:
 
 ### 4. Configure the App
 
-Edit `config.py`:
+Edit `app/config.py`:
 
 ```python
 GOOGLE_SHEETS_ID = "your-spreadsheet-id-here"
@@ -131,7 +131,7 @@ Or use the web UI (if integrated).
 
 ## Configuration
 
-Edit `config.py` to customize:
+Edit `app/config.py` to customize:
 
 ```python
 # Google Sheets
@@ -157,6 +157,7 @@ RECIPES_FILE = "data/recipes.json"
 meal-planner/
 ├── app/
 │   ├── __init__.py
+│   ├── config.py            # Configuration settings
 │   ├── main.py              # Flask app
 │   ├── recipes.py           # Recipe loading and validation
 │   ├── planner.py           # Meal planning logic
@@ -171,7 +172,8 @@ meal-planner/
 │   ├── test_planner.py
 │   ├── test_shopping_list.py
 │   └── test_sheets.py
-├── config.py                # Configuration
+├── app/
+│   ├── config.py            # Configuration
 ├── requirements.txt
 └── README.md
 ```
@@ -389,12 +391,12 @@ http://<pi-ip-address>:5000
 
 - Verify `credentials.json` is in the project root
 - Check that the spreadsheet is shared with the service account email
-- Ensure the spreadsheet ID in `config.py` is correct
+- Ensure the spreadsheet ID in `app/config.py` is correct
 
 ### No Recipes Found
 
 - Verify `data/recipes.json` exists and is valid JSON
-- Check that the path in `config.py` is correct
+- Check that the path in `app/config.py` is correct
 
 ### Port Already in Use
 

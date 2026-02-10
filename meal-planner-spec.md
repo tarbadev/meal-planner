@@ -33,6 +33,7 @@ meal-planner/
 ├── app/
 │   ├── __init__.py
 │   ├── recipes.py           # Recipe dataclass + loading (done)
+│   ├── config.py            # Configuration settings
 │   ├── main.py              # Flask app entry point
 │   ├── planner.py           # Meal planning logic
 │   ├── sheets.py            # Google Sheets integration
@@ -43,7 +44,6 @@ meal-planner/
 ├── tests/
 │   ├── __init__.py
 │   └── test_recipes.py      # Recipe loading tests (done)
-├── config.py                # Configuration (sheets ID, etc.)
 ├── requirements.txt
 ├── README.md
 └── credentials.json         # Google service account (gitignored)
@@ -261,9 +261,9 @@ This guide will walk you through setting up Google Sheets integration so your me
 
 ### Step 7: Configure the Meal Planner App
 
-1. **Edit config.py**
+1. **Edit app/config.py**
    ```python
-   # Open: meal-planner/config.py
+   # Open: meal-planner/app/config.py
 
    GOOGLE_SHEETS_ID = "1AbC123dEfGhIjKlMnOpQrStUvWxYz"  # Your ID from Step 5
    CREDENTIALS_FILE = "credentials.json"  # Should already be set

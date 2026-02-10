@@ -108,7 +108,7 @@ class RecipeParser:
         """Main entry point - parse recipe from URL."""
         # Check if this is an Instagram URL
         if self._is_instagram_url(url):
-            import config
+            from app import config
             from app.instagram_parser import InstagramParser
             print("Init of instagram_parser")
             instagram_parser = InstagramParser(
