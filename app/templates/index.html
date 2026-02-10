@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meal Planner</title>
+    <title>Meal Planner – Your Weekly Menu Made Easy</title>
 
     <!-- PWA Meta Tags -->
     <meta name="description" content="Weekly meal planning with shopping list generation">
-    <meta name="theme-color" content="#3498db">
+    <meta name="theme-color" content="#059669">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Meals">
@@ -18,7 +18,42 @@
     <!-- Favicon and Icons -->
     <link rel="icon" type="image/png" sizes="192x192" href="/static/icon-192.png">
     <link rel="apple-touch-icon" href="/static/icon-192.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+
     <style>
+        :root {
+            --color-primary: #059669;
+            --color-primary-dark: #047857;
+            --color-primary-light: #d1fae5;
+            --color-accent: #f97316;
+            --color-accent-light: #fed7aa;
+            --color-background: #fafaf9;
+            --color-surface: #ffffff;
+            --color-text: #1c1917;
+            --color-text-light: #57534e;
+            --color-text-muted: #a8a29e;
+            --color-border: #e7e5e4;
+            --color-error: #dc2626;
+            --color-success: #059669;
+            --color-warning: #f59e0b;
+
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -26,1075 +61,1103 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             line-height: 1.6;
-            color: #333;
-            background: #f5f5f5;
-            padding: 20px;
+            color: var(--color-text);
+            background: linear-gradient(135deg, #fafaf9 0%, #f5f5f4 50%, #fef3c7 100%);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        .container {
-            max-width: 1200px;
+        /* Header */
+        .header {
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .header-content {
+            max-width: 1400px;
             margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            color: #7f8c8d;
-            margin-bottom: 30px;
-        }
-
-        button {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.3s;
-            min-height: 44px;
-            min-width: 44px;
-        }
-
-        button:hover {
-            background: #2980b9;
-        }
-
-        button:disabled {
-            background: #bdc3c7;
-            cursor: not-allowed;
-        }
-
-        .section {
-            margin-top: 40px;
-        }
-
-        .section h2 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #3498db;
-        }
-
-        .meal-plan {
-            display: grid;
-            gap: 15px;
-        }
-
-        .day-section {
-            margin-bottom: 25px;
-            border: 1px solid #ecf0f1;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .day-header {
-            background: #3498db;
-            color: white;
-            padding: 12px 15px;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .day-header.over-limit {
-            background: #e74c3c;
-        }
-
-        .meal-card {
-            background: #f8f9fa;
-            padding: 15px;
-            border-left: none;
-            border-bottom: 1px solid #ecf0f1;
-            margin: 0;
-            border-radius: 0;
-        }
-
-        .meal-card:last-child {
-            border-bottom: none;
-        }
-
-        .meal-type {
-            display: inline-block;
-            background: #e8f5e9;
-            color: #27ae60;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-
-        .meal-card .day {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-
-        .meal-card .recipe-name {
-            font-size: 18px;
-            color: #34495e;
-            margin-bottom: 8px;
-        }
-
-        .meal-card .recipe-name a {
-            color: #3498db;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .meal-card .recipe-name a:hover {
-            color: #2980b9;
-            text-decoration: underline;
-        }
-
-        .meal-card .nutrition {
-            font-size: 14px;
-            color: #7f8c8d;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .nutrition-totals {
-            background: #e8f5e9;
-            padding: 15px;
-            border-radius: 4px;
-            margin-top: 15px;
-        }
-
-        .nutrition-totals h3 {
-            color: #27ae60;
-            margin-bottom: 10px;
-        }
-
-        .nutrition-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-        }
-
-        .nutrition-item {
-            background: white;
-            padding: 10px;
-            border-radius: 4px;
-        }
-
-        .nutrition-item .label {
-            font-size: 12px;
-            color: #7f8c8d;
-        }
-
-        .nutrition-item .value {
-            font-size: 20px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .shopping-list {
-            margin-top: 20px;
-        }
-
-        .category-section {
-            margin-bottom: 25px;
-        }
-
-        .category-section h3 {
-            color: #34495e;
-            margin-bottom: 10px;
-            text-transform: capitalize;
-        }
-
-        .shopping-items {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 4px;
-        }
-
-        .shopping-item {
-            padding: 12px 0;
-            border-bottom: 1px solid #ecf0f1;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .shopping-item:last-child {
-            border-bottom: none;
-        }
-
-        .shopping-item input[type="checkbox"] {
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        .shopping-item .item-content {
-            flex: 1;
+            padding: 1.5rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .shopping-item .name {
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .logo-text h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--color-text);
+            line-height: 1;
+        }
+
+        .logo-text p {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            margin-top: 0.125rem;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            border-radius: var(--radius-xl);
+            padding: 3rem;
+            margin-bottom: 3rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h2 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
             font-weight: 500;
-            color: #2c3e50;
-            transition: all 0.3s;
-        }
-
-        .shopping-item .quantity {
-            color: #7f8c8d;
-            margin-left: 12px;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            min-height: 44px;
             white-space: nowrap;
-            transition: all 0.3s;
         }
 
-        .shopping-item.checked .name {
-            text-decoration: line-through;
-            color: #95a5a6;
+        .btn-primary {
+            background: white;
+            color: var(--color-primary);
+            box-shadow: var(--shadow-md);
         }
 
-        .shopping-item.checked .quantity {
-            color: #bdc3c7;
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
-        .recipe-list {
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-accent {
+            background: var(--color-accent);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-accent:hover {
+            background: #ea580c;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--color-border);
+            color: var(--color-text);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-icon {
+            font-size: 1.25rem;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.875rem;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .section-subtitle {
+            color: var(--color-text-muted);
+            font-size: 0.9375rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-border);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-primary-light);
+        }
+
+        /* Grid */
+        .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
+            gap: 1.5rem;
         }
 
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
 
-            .container {
-                padding: 20px;
-            }
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
 
-            h1 {
-                font-size: 24px;
-            }
+        /* Week Calendar */
+        .week-calendar {
+            display: grid;
+            gap: 1rem;
+        }
 
-            .recipe-list {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
+        .day-card {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--color-border);
+            transition: var(--transition);
+        }
 
-            .recipe-card {
-                padding: 16px;
-            }
+        .day-card:hover {
+            box-shadow: var(--shadow-md);
+        }
 
-            button {
-                width: 100%;
-            }
+        .day-header {
+            background: linear-gradient(135deg, var(--color-primary-light) 0%, #d1fae5 100%);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-            .btn-import {
-                font-size: 16px;
-                padding: 12px 20px;
-            }
+        .day-header.over-limit {
+            background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+        }
 
-            /* Shopping list mobile optimization */
-            .shopping-item {
-                padding: 16px 0;
-                gap: 16px;
-            }
+        .day-name {
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: var(--color-text);
+        }
 
-            .shopping-item input[type="checkbox"] {
-                width: 28px;
-                height: 28px;
-            }
+        .day-calories {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+        }
 
-            .shopping-item .name {
-                font-size: 16px;
-            }
+        .calorie-badge {
+            background: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-weight: 500;
+        }
 
-            .shopping-item .quantity {
-                font-size: 15px;
-            }
+        .day-meals {
+            padding: 1rem;
+            display: grid;
+            gap: 0.75rem;
+        }
 
-            .category-section h3 {
-                font-size: 18px;
-                padding: 8px 0;
-            }
+        .meal-slot {
+            background: var(--color-background);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            border: 2px dashed var(--color-border);
+            transition: var(--transition);
+        }
+
+        .meal-slot.has-meal {
+            border-style: solid;
+            border-color: var(--color-primary-light);
+            background: white;
+        }
+
+        .meal-slot:hover {
+            border-color: var(--color-primary);
+        }
+
+        .meal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .meal-type {
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: var(--color-text-muted);
+        }
+
+        .meal-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: var(--radius-sm);
+            min-height: 32px;
+        }
+
+        .meal-content {
+            margin-top: 0.75rem;
+        }
+
+        .meal-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .meal-name a {
+            color: inherit;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .meal-name a:hover {
+            color: var(--color-primary);
+        }
+
+        .meal-nutrition {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8125rem;
+            color: var(--color-text-light);
+        }
+
+        .meal-nutrition span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .empty-slot {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .empty-slot-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.3;
+        }
+
+        .empty-slot-text {
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Recipe List */
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
         }
 
         .recipe-card {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 4px;
-            border: 1px solid #ecf0f1;
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--color-border);
+            transition: var(--transition);
+            cursor: pointer;
         }
 
-        .recipe-card .name {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
+        .recipe-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--color-primary);
         }
 
-        .recipe-card .name a {
-            color: #2c3e50;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .recipe-card .name a:hover {
-            color: #3498db;
-        }
-
-        .recipe-card .tags {
+        .recipe-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-accent-light) 100%);
             display: flex;
-            gap: 5px;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .recipe-content {
+            padding: 1.25rem;
+        }
+
+        .recipe-title {
+            font-weight: 600;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-text);
+        }
+
+        .recipe-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+            margin-bottom: 0.75rem;
+        }
+
+        .recipe-tags {
+            display: flex;
             flex-wrap: wrap;
-            margin-top: 8px;
+            gap: 0.5rem;
         }
 
         .tag {
-            background: #3498db;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 12px;
+            background: var(--color-primary-light);
+            color: var(--color-primary-dark);
+            padding: 0.25rem 0.625rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 500;
         }
 
-        .message {
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
+        /* Shopping List */
+        .shopping-list {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            border: 1px solid var(--color-border);
         }
 
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        .shopping-category {
+            margin-bottom: 1.5rem;
         }
 
-        .message.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--color-border);
         }
 
-        .hidden {
-            display: none;
+        .category-icon {
+            font-size: 1.5rem;
         }
 
-        .btn-edit {
-            background: #2ecc71;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            font-size: 14px;
-            border-radius: 4px;
+        .category-name {
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: var(--color-text);
+        }
+
+        .shopping-items {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .shopping-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--color-background);
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+        .shopping-item:hover {
+            background: var(--color-primary-light);
+        }
+
+        .shopping-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
             cursor: pointer;
-            margin-top: 10px;
-            width: 100%;
-            transition: background 0.3s;
+            accent-color: var(--color-primary);
         }
 
-        .btn-edit:hover {
-            background: #27ae60;
+        .shopping-item.checked {
+            opacity: 0.5;
         }
 
-        /* Modal styles */
+        .shopping-item.checked .item-text {
+            text-decoration: line-through;
+        }
+
+        .item-text {
+            flex: 1;
+            color: var(--color-text);
+        }
+
+        /* Modal */
         .modal {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             z-index: 1000;
+            padding: 1rem;
+            animation: fadeIn 0.2s ease;
         }
 
         .modal.hidden {
             display: none;
         }
 
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
         .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
             max-width: 600px;
+            width: 100%;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow-xl);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .modal-header {
+            padding: 2rem;
+            border-bottom: 1px solid var(--color-border);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #3498db;
         }
 
-        .modal-header h2 {
-            margin: 0;
-            color: #2c3e50;
+        .modal-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--color-text);
         }
 
-        .modal-header button {
-            background: none;
+        .modal-close {
+            background: transparent;
             border: none;
-            font-size: 28px;
-            color: #7f8c8d;
+            font-size: 1.5rem;
+            color: var(--color-text-muted);
             cursor: pointer;
-            padding: 0;
-            width: 30px;
-            height: 30px;
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background: var(--color-background);
+            color: var(--color-text);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        /* Tabs */
+        .tabs {
             display: flex;
-            align-items: center;
-            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--color-border);
         }
 
-        .modal-header button:hover {
-            color: #2c3e50;
-            background: none;
-        }
-
-        #editRecipeForm {
-            display: grid;
-            gap: 15px;
-        }
-
-        #editRecipeForm label {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            color: var(--color-text-muted);
             font-weight: 500;
-            color: #2c3e50;
-        }
-
-        #editRecipeForm input[type="text"],
-        #editRecipeForm input[type="number"],
-        #editRecipeForm select {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        #editRecipeForm input[type="text"]:focus,
-        #editRecipeForm input[type="number"]:focus,
-        #editRecipeForm select:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        .ingredients-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #ecf0f1;
-        }
-
-        .ingredients-section h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-
-        #ingredientsList {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .ingredient-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1.5fr auto;
-            gap: 10px;
-            align-items: end;
-        }
-
-        .ingredient-row input,
-        .ingredient-row select {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .ingredient-row button {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
             cursor: pointer;
-            font-size: 18px;
-            width: 40px;
-            height: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transition: var(--transition);
         }
 
-        .ingredient-row button:hover {
-            background: #c0392b;
+        .tab:hover {
+            color: var(--color-text);
+            background: var(--color-background);
+        }
+
+        .tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--color-text);
+        }
+
+        input[type="text"],
+        input[type="url"],
+        input[type="number"],
+        input[type="file"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: var(--transition);
+            background: var(--color-surface);
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-primary-light);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-hint {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            margin-top: 0.5rem;
         }
 
         .form-actions {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #ecf0f1;
+            gap: 1rem;
+            margin-top: 2rem;
         }
 
-        .form-actions button {
-            flex: 1;
-        }
-
-        .form-actions button[type="button"] {
-            background: #95a5a6;
-        }
-
-        .form-actions button[type="button"]:hover {
-            background: #7f8c8d;
-        }
-
-        .add-ingredient-btn {
-            background: #2ecc71;
-            padding: 8px 16px;
-        }
-
-        .add-ingredient-btn:hover {
-            background: #27ae60;
-        }
-
-        .btn-import {
-            background: #9b59b6;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .btn-import:hover {
-            background: #8e44ad;
-        }
-
-        .import-status {
-            padding: 12px;
-            border-radius: 4px;
-            margin: 15px 0;
-            white-space: pre-line;
-            font-size: 14px;
-        }
-
-        .import-status.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .import-status.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        /* Import tabs styles */
-        .import-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #ecf0f1;
-        }
-
-        .import-tab {
-            background: none;
-            border: none;
-            padding: 12px 20px;
-            font-size: 15px;
-            cursor: pointer;
-            color: #7f8c8d;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-            margin-bottom: -2px;
-        }
-
-        .import-tab:hover {
-            background: #f8f9fa;
-            color: #2c3e50;
-        }
-
-        .import-tab.active {
-            color: #3498db;
-            border-bottom-color: #3498db;
-            font-weight: 600;
-        }
-
-        .import-form textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 14px;
-            resize: vertical;
+        /* Status Messages */
+        .status-message {
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.5rem;
+            font-size: 0.9375rem;
             line-height: 1.5;
         }
 
-        .import-form textarea:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        .status-message.success {
+            background: var(--color-primary-light);
+            color: var(--color-primary-dark);
+            border-left: 4px solid var(--color-primary);
         }
 
-        /* Detailed nutrition styles */
-        .detailed-nutrition {
+        .status-message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid var(--color-error);
+        }
+
+        .status-message.warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid var(--color-warning);
+        }
+
+        .status-message.hidden {
             display: none;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #ddd;
         }
 
-        .detailed-nutrition.visible {
-            display: block;
+        /* Info Box */
+        .info-box {
+            background: linear-gradient(135deg, var(--color-primary-light) 0%, #dbeafe 100%);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--color-primary);
         }
 
-        .nutrition-toggle {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            font-size: 12px;
-            border-radius: 3px;
-            cursor: pointer;
-            margin-top: 5px;
-        }
-
-        .nutrition-toggle:hover {
-            background: #2980b9;
-        }
-
-        .detailed-nutrition-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 8px;
-            margin-top: 10px;
-            font-size: 13px;
-        }
-
-        .detailed-nutrition-item {
-            background: #f8f9fa;
-            padding: 6px;
-            border-radius: 3px;
-        }
-
-        .detailed-nutrition-item .label {
-            font-size: 11px;
-            color: #7f8c8d;
-        }
-
-        .detailed-nutrition-item .value {
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .detailed-totals {
-            display: none;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #ddd;
-        }
-
-        .detailed-totals.visible {
-            display: block;
-        }
-
-        .detailed-totals h4 {
-            color: #27ae60;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-
-        /* Weekly Calendar Styles */
-        .calendar-day {
-            margin-bottom: 20px;
-            border: 1px solid #ecf0f1;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .calendar-day-header {
-            background: #3498db;
-            color: white;
-            padding: 12px 15px;
-            font-weight: bold;
-            font-size: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .calendar-day-header.over-limit {
-            background: #e74c3c;
-        }
-
-        .calendar-day-nutrition {
-            font-size: 14px;
-            font-weight: normal;
-            margin-top: 4px;
-        }
-
-        .calendar-meals {
-            padding: 15px;
-            background: #f8f9fa;
-        }
-
-        .calendar-meal-slot {
-            margin-bottom: 15px;
-            padding: 12px;
-            background: white;
-            border-radius: 4px;
-            border: 2px dashed #bdc3c7;
-        }
-
-        .calendar-meal-slot.has-meal {
-            border: 1px solid #3498db;
-            border-style: solid;
-        }
-
-        .meal-slot-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .meal-slot-type {
+        .info-box-title {
             font-weight: 600;
-            color: #27ae60;
-            text-transform: capitalize;
-        }
-
-        .meal-content {
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 15px;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .meal-info {
-            flex: 1;
+        .info-box-content {
+            font-size: 0.9375rem;
+            color: var(--color-text-light);
+            line-height: 1.6;
         }
 
-        .meal-name {
-            font-size: 16px;
-            font-weight: 500;
-            color: #2c3e50;
-            margin-bottom: 4px;
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header-content {
+                padding: 1rem;
+            }
+
+            .hero {
+                padding: 2rem 1.5rem;
+            }
+
+            .hero h2 {
+                font-size: 1.875rem;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .recipe-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                max-width: 100%;
+                border-radius: var(--radius-lg);
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
         }
 
-        .meal-name a {
-            color: #3498db;
-            text-decoration: none;
+        /* Loading State */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
         }
 
-        .meal-name a:hover {
-            text-decoration: underline;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        .meal-nutrition {
-            font-size: 14px;
-            color: #7f8c8d;
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .meal-actions {
-            display: flex;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 13px;
-            border-radius: 3px;
-            border: none;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .btn-add {
-            background: #2ecc71;
-            color: white;
-            width: 100%;
-            padding: 10px;
-            font-size: 14px;
-        }
-
-        .btn-add:hover {
-            background: #27ae60;
-        }
-
-        .btn-edit {
-            background: #3498db;
-            color: white;
-        }
-
-        .btn-edit:hover {
-            background: #2980b9;
-        }
-
-        .btn-remove {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .btn-remove:hover {
-            background: #c0392b;
-        }
-
-        .empty-slot-message {
-            color: #95a5a6;
-            font-style: italic;
+        /* Empty State */
+        .empty-state {
             text-align: center;
-            padding: 20px;
+            padding: 4rem 2rem;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .empty-state-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-text {
+            color: var(--color-text-muted);
+            margin-bottom: 2rem;
         }
     </style>
 </head>
 <body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🍳</div>
+                <div class="logo-text">
+                    <h1>Meal Planner</h1>
+                    <p>Plan smarter, eat better</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
     <div class="container">
-        <h1>Meal Planner</h1>
-        <p class="subtitle">Plan your meals, track nutrition, and generate shopping lists</p>
-
-        <div id="message" class="message hidden"></div>
-
-        <!-- Weekly Schedule Configuration -->
-        <div class="section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-                <h2 style="margin: 0;">Weekly Schedule</h2>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button onclick="openScheduleConfig()" style="background: #9b59b6; padding: 10px 20px;">
-                        ⚙️ Configure Schedule
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h2>Your Weekly Menu, Simplified</h2>
+                <p>Import recipes from anywhere, plan your week, generate shopping lists automatically, and track nutrition—all in one beautiful app.</p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary" onclick="openImportModal()">
+                        <span class="btn-icon">📥</span>
+                        Import Recipe
                     </button>
-                    <button id="generateBtn" onclick="generatePlan()" style="background: #3498db; padding: 10px 20px;">
-                        🎲 Generate Meal Plan
+                    <button class="btn btn-secondary" onclick="openScheduleConfig()">
+                        <span class="btn-icon">⚙️</span>
+                        Configure Schedule
                     </button>
-                    <button onclick="clearWeek()" style="background: #e74c3c; padding: 10px 20px;">
-                        🗑️ Clear Week
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        {% if current_plan %}
+        <div class="grid grid-3" style="margin-bottom: 3rem;">
+            <div class="card">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 48px; height: 48px; background: var(--color-primary-light); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📋</div>
+                    <div>
+                        <div style="font-size: 0.875rem; color: var(--color-text-muted);">This Week</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-text);">{{ current_plan.meals|length }} Meals</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 48px; height: 48px; background: var(--color-accent-light); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🔥</div>
+                    <div>
+                        <div style="font-size: 0.875rem; color: var(--color-text-muted);">Avg Daily</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-text);">{{ current_plan.avg_daily_calories|int }} cal</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 48px; height: 48px; background: #dbeafe; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🛒</div>
+                    <div>
+                        <div style="font-size: 0.875rem; color: var(--color-text-muted);">Shopping Items</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-text);">{{ current_shopping_list.items|length if current_shopping_list else 0 }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Weekly Plan Section -->
+        <section class="section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Weekly Plan</h2>
+                    <p class="section-subtitle" id="scheduleInfo">Click "Configure Schedule" to set your meals</p>
+                </div>
+                <div style="display: flex; gap: 0.75rem;">
+                    <button id="generateBtn" class="btn btn-accent" onclick="generatePlan()">
+                        <span class="btn-icon">🎲</span>
+                        Generate Plan
+                    </button>
+                    <button class="btn btn-outline" onclick="clearWeek()">
+                        <span class="btn-icon">🗑️</span>
+                        Clear Week
                     </button>
                 </div>
             </div>
 
-            <div id="scheduleInfo" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 4px; font-size: 14px; color: #7f8c8d;">
-                Click "Configure Schedule" to set which meals you need each day and how many servings.
+            <div id="weeklyCalendar" class="week-calendar">
+                <!-- Calendar will be rendered by JavaScript -->
             </div>
+        </section>
 
-            <div id="weeklyCalendar"></div>
-            <div id="nutritionTotals" class="nutrition-totals" style="display: none;"></div>
-        </div>
-
-        <div id="shoppingSection" class="section {% if not current_shopping_list %}hidden{% endif %}">
-            <div id="shoppingList" class="shopping-list"></div>
-        </div>
-
-        <div class="section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="margin: 0;">Available Recipes ({{ recipes|length }})</h2>
-                <button class="btn-import" onclick="openImportModal()">
-                    📥 Import Recipe
+        <!-- Shopping List Section -->
+        {% if current_shopping_list %}
+        <section class="section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Shopping List</h2>
+                    <p class="section-subtitle">{{ current_shopping_list.items|length }} items for this week</p>
+                </div>
+                <button class="btn btn-outline" onclick="uncheckAllShoppingItems()">
+                    Reset Checks
                 </button>
             </div>
-            <div class="recipe-list">
-                {% for recipe in recipes %}
-                <div class="recipe-card" data-recipe-id="{{ recipe.id }}">
-                    <div class="name"><a href="/recipe/{{ recipe.id }}" style="color: #2c3e50; text-decoration: none;">{{ recipe.name }}</a></div>
-                    <div style="font-size: 14px; color: #7f8c8d; margin-top: 5px;">
-                        {{ recipe.total_time_minutes }} min | {{ recipe.calories_per_serving }} cal
+
+            <div class="shopping-list">
+                {% for category, items in current_shopping_list.items_by_category.items() %}
+                <div class="shopping-category">
+                    <div class="category-header">
+                        <span class="category-icon">
+                            {% if category == 'produce' %}🥬
+                            {% elif category == 'meat' %}🥩
+                            {% elif category == 'dairy' %}🥛
+                            {% elif category == 'grains' %}🌾
+                            {% elif category == 'spices' %}🧂
+                            {% else %}📦{% endif %}
+                        </span>
+                        <h3 class="category-name">{{ category|title }}</h3>
                     </div>
-                    <div class="tags">
-                        {% for tag in recipe.tags %}
-                        <span class="tag">{{ tag }}</span>
+                    <div class="shopping-items">
+                        {% for item in items %}
+                        <label class="shopping-item">
+                            <input type="checkbox" onchange="toggleShoppingItem(this)">
+                            <span class="item-text">{{ item.quantity }} {{ item.unit }} {{ item.item }}</span>
+                        </label>
                         {% endfor %}
                     </div>
-                    <button class="btn-edit" onclick="openEditModal('{{ recipe.id }}')">Edit</button>
                 </div>
                 {% endfor %}
             </div>
-        </div>
-    </div>
+        </section>
+        {% endif %}
 
-    <!-- Edit Recipe Modal -->
-    <div id="editModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Edit Recipe</h2>
-                <button type="button" onclick="closeEditModal()">&times;</button>
+        <!-- Recipe Library Section -->
+        <section class="section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Recipe Library</h2>
+                    <p class="section-subtitle">{{ recipes|length }} recipes available</p>
+                </div>
             </div>
-            <form id="editRecipeForm" onsubmit="handleEditFormSubmit(event)">
-                <!-- Hidden ID -->
-                <input type="hidden" id="recipeId">
 
-                <!-- Basic fields -->
-                <label>
-                    Recipe Name:
-                    <input type="text" id="recipeName" required>
-                </label>
-
-                <label>
-                    Servings:
-                    <input type="number" id="servings" min="1" required>
-                </label>
-
-                <label>
-                    Prep Time (minutes):
-                    <input type="number" id="prepTime" min="0" required>
-                </label>
-
-                <label>
-                    Cook Time (minutes):
-                    <input type="number" id="cookTime" min="0" required>
-                </label>
-
-                <label>
-                    Calories per Serving:
-                    <input type="number" id="calories" min="0" required>
-                </label>
-
-                <label>
-                    Protein (g):
-                    <input type="number" id="protein" min="0" step="0.1" required>
-                </label>
-
-                <label>
-                    Carbs (g):
-                    <input type="number" id="carbs" min="0" step="0.1" required>
-                </label>
-
-                <label>
-                    Fat (g):
-                    <input type="number" id="fat" min="0" step="0.1" required>
-                </label>
-
-                <label>
-                    Tags (comma-separated):
-                    <input type="text" id="tags" placeholder="e.g., italian, vegetarian, quick">
-                </label>
-
-                <!-- Dynamic ingredients -->
-                <div class="ingredients-section">
-                    <h3>Ingredients</h3>
-                    <div id="ingredientsList"></div>
-                    <button type="button" class="add-ingredient-btn" onclick="addIngredientRow()">+ Add Ingredient</button>
+            {% if recipes|length == 0 %}
+            <div class="empty-state">
+                <div class="empty-state-icon">🍽️</div>
+                <h3 class="empty-state-title">No recipes yet</h3>
+                <p class="empty-state-text">Import your first recipe from a URL, text, or photo to get started!</p>
+                <button class="btn btn-primary" onclick="openImportModal()">
+                    <span class="btn-icon">📥</span>
+                    Import Your First Recipe
+                </button>
+            </div>
+            {% else %}
+            <div class="recipe-grid">
+                {% for recipe in recipes %}
+                <div class="recipe-card" onclick="window.location.href='/recipe/{{ recipe.id }}'">
+                    <div class="recipe-image">
+                        {% if 'italian' in recipe.tags %}🍝
+                        {% elif 'mexican' in recipe.tags %}🌮
+                        {% elif 'asian' in recipe.tags %}🍜
+                        {% elif 'breakfast' in recipe.tags %}🥞
+                        {% elif 'dessert' in recipe.tags %}🍰
+                        {% elif 'salad' in recipe.tags %}🥗
+                        {% else %}🍲{% endif %}
+                    </div>
+                    <div class="recipe-content">
+                        <h3 class="recipe-title">{{ recipe.name }}</h3>
+                        <div class="recipe-meta">
+                            <span>🍽️ {{ recipe.servings }} servings</span>
+                            {% if recipe.total_time_minutes %}
+                            <span>⏱️ {{ recipe.total_time_minutes }} min</span>
+                            {% endif %}
+                            {% if recipe.calories_per_serving %}
+                            <span>🔥 {{ recipe.calories_per_serving|int }} cal</span>
+                            {% endif %}
+                        </div>
+                        {% if recipe.tags %}
+                        <div class="recipe-tags">
+                            {% for tag in recipe.tags[:3] %}
+                            <span class="tag">{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
-
-                <div class="form-actions">
-                    <button type="submit">Save Changes</button>
-                    <button type="button" onclick="closeEditModal()">Cancel</button>
-                </div>
-            </form>
-        </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </section>
     </div>
 
-    <!-- Import Recipe Modal -->
+    <!-- Import Modal -->
     <div id="importModal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Import Recipe</h2>
-                <button type="button" onclick="closeImportModal()">&times;</button>
+                <h2 class="modal-title">Import Recipe</h2>
+                <button class="modal-close" onclick="closeImportModal()">&times;</button>
             </div>
+            <div class="modal-body">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchImportTab('url')">🔗 From URL</button>
+                    <button class="tab" onclick="switchImportTab('text')">📝 From Text</button>
+                    <button class="tab" onclick="switchImportTab('photo')">📷 From Photo</button>
+                </div>
 
-            <!-- Import Tabs -->
-            <div class="import-tabs">
-                <button class="import-tab active" onclick="switchImportTab('url')">🔗 From URL</button>
-                <button class="import-tab" onclick="switchImportTab('text')">📝 From Text</button>
-                <button class="import-tab" onclick="switchImportTab('photo')">📷 From Photo</button>
+                <!-- URL Import Form -->
+                <form id="importRecipeForm" onsubmit="handleImportFormSubmit(event)">
+                    <div class="form-group">
+                        <label for="recipeUrl">Recipe URL</label>
+                        <input type="url" id="recipeUrl" placeholder="https://example.com/recipe or Instagram URL" required>
+                        <p class="form-hint">Supports recipe websites and Instagram posts</p>
+                    </div>
+
+                    <div id="importStatus" class="status-message hidden"></div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="importBtn" class="btn btn-primary" style="flex: 1;">Import Recipe</button>
+                        <button type="button" class="btn btn-outline" onclick="closeImportModal()">Cancel</button>
+                    </div>
+                </form>
+
+                <!-- Text Import Form -->
+                <form id="importTextForm" class="hidden" onsubmit="handleTextImportFormSubmit(event)">
+                    <div class="form-group">
+                        <label for="recipeText">Recipe Text</label>
+                        <textarea id="recipeText" placeholder="Paste the recipe text here..." rows="8" required></textarea>
+                        <p class="form-hint">Paste Instagram post text, recipe from email, or any recipe text. AI will extract the structured data.</p>
+                    </div>
+
+                    <div id="importTextStatus" class="status-message hidden"></div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="importTextBtn" class="btn btn-primary" style="flex: 1;">Import from Text</button>
+                        <button type="button" class="btn btn-outline" onclick="closeImportModal()">Cancel</button>
+                    </div>
+                </form>
+
+                <!-- Photo Import Form -->
+                <form id="importPhotoForm" class="hidden" onsubmit="handlePhotoImportFormSubmit(event)">
+                    <div class="form-group">
+                        <label for="recipePhoto">Recipe Photo</label>
+                        <input type="file" id="recipePhoto" accept="image/*" capture="environment" required>
+                        <p class="form-hint">Take a photo or upload an image of a recipe card, cookbook page, or handwritten recipe.</p>
+                    </div>
+
+                    <div id="photoPreview" style="display: none; margin-top: 1rem;">
+                        <img id="photoPreviewImg" style="max-width: 100%; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                    </div>
+
+                    <div id="importPhotoStatus" class="status-message hidden"></div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="importPhotoBtn" class="btn btn-primary" style="flex: 1;">Import from Photo</button>
+                        <button type="button" class="btn btn-outline" onclick="closeImportModal()">Cancel</button>
+                    </div>
+                </form>
             </div>
-
-            <!-- URL Import Form -->
-            <form id="importRecipeForm" class="import-form" onsubmit="handleImportFormSubmit(event)">
-                <label>
-                    Recipe URL:
-                    <input type="url" id="recipeUrl" placeholder="https://example.com/recipe or Instagram URL" required>
-                </label>
-                <p style="font-size: 14px; color: #7f8c8d; margin-top: 5px;">
-                    📍 Supports recipe websites and <strong>Instagram posts/reels</strong><br>
-                    ⚠️ If Instagram blocks the URL, use "From Text" tab
-                </p>
-
-                <div id="importStatus" class="import-status hidden"></div>
-
-                <div class="form-actions">
-                    <button type="submit" id="importBtn">Import Recipe</button>
-                    <button type="button" onclick="closeImportModal()">Cancel</button>
-                </div>
-            </form>
-
-            <!-- Text Import Form -->
-            <form id="importTextForm" class="import-form hidden" onsubmit="handleTextImportFormSubmit(event)">
-                <label>
-                    Recipe Text:
-                    <textarea id="recipeText" placeholder="Paste Instagram post text here (caption + comments with recipe)..." rows="12" required></textarea>
-                </label>
-                <p style="font-size: 14px; color: #7f8c8d; margin-top: 5px;">
-                    💡 <strong>Instagram blocked?</strong> Copy the post text from your browser:<br>
-                    1. Visit Instagram post in browser<br>
-                    2. Copy caption + any comments with recipe details<br>
-                    3. Paste here and import!<br>
-                    🌍 Supports English and French recipes
-                </p>
-
-                <div id="importTextStatus" class="import-status hidden"></div>
-
-                <div class="form-actions">
-                    <button type="submit" id="importTextBtn">Import from Text</button>
-                    <button type="button" onclick="closeImportModal()">Cancel</button>
-                </div>
-            </form>
-
-            <!-- Photo Import Form -->
-            <form id="importPhotoForm" class="import-form hidden" onsubmit="handlePhotoImportFormSubmit(event)">
-                <label>
-                    Recipe Photo:
-                    <input type="file" id="recipePhoto" accept="image/*" capture="environment" required style="padding: 10px; border: 2px dashed #3498db; border-radius: 4px; cursor: pointer;">
-                </label>
-                <p style="font-size: 14px; color: #7f8c8d; margin-top: 5px;">
-                    📸 <strong>Import from photo:</strong><br>
-                    • Recipe cards from the store<br>
-                    • Cookbook pages or magazine recipes<br>
-                    • Handwritten family recipes<br>
-                    • Screenshots from social media<br>
-                    📱 Tap "Choose File" to use camera or select from gallery
-                </p>
-
-                <div id="photoPreview" style="margin: 15px 0; display: none;">
-                    <img id="photoPreviewImg" style="max-width: 100%; max-height: 200px; border-radius: 4px; border: 1px solid #ddd;">
-                </div>
-
-                <div id="importPhotoStatus" class="import-status hidden"></div>
-
-                <div class="form-actions">
-                    <button type="submit" id="importPhotoBtn">Import from Photo</button>
-                    <button type="button" onclick="closeImportModal()">Cancel</button>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -1102,1111 +1165,35 @@
     <div id="scheduleModal" class="modal hidden">
         <div class="modal-content" style="max-width: 800px;">
             <div class="modal-header">
-                <h2>Configure Weekly Schedule</h2>
-                <button type="button" onclick="closeScheduleModal()">&times;</button>
+                <h2 class="modal-title">Configure Weekly Schedule</h2>
+                <button class="modal-close" onclick="closeScheduleModal()">&times;</button>
             </div>
-            <p style="color: #7f8c8d; margin-bottom: 20px;">
-                Set which meals you need each day and how many servings for each meal.
-            </p>
-            <div id="scheduleConfigForm" style="display: grid; gap: 15px;"></div>
-            <div class="form-actions">
-                <button onclick="saveScheduleConfig()" style="background: #3498db;">
-                    Save Schedule
-                </button>
-                <button type="button" onclick="closeScheduleModal()">
-                    Cancel
-                </button>
+            <div class="modal-body">
+                <div class="info-box">
+                    <div class="info-box-title">
+                        <span>💡</span>
+                        How it works
+                    </div>
+                    <div class="info-box-content">
+                        Set which meals you need each day and how many servings. This tells the generator what to plan for your week.
+                    </div>
+                </div>
+                <div id="scheduleConfigForm" style="display: grid; gap: 1rem;"></div>
+                <div class="form-actions">
+                    <button onclick="saveScheduleConfig()" class="btn btn-primary" style="flex: 1;">Save Schedule</button>
+                    <button type="button" onclick="closeScheduleModal()" class="btn btn-outline">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        function showMessage(text, type = 'success') {
-            const messageEl = document.getElementById('message');
-            messageEl.textContent = text;
-            messageEl.className = `message ${type}`;
-            messageEl.classList.remove('hidden');
-
-            setTimeout(() => {
-                messageEl.classList.add('hidden');
-            }, 3000);
-        }
-
-
-        async function loadCurrentPlan() {
-            try {
-                const response = await fetch('/current-plan');
-                const data = await response.json();
-
-                if (data.plan) {
-                    // Store plan globally
-                    currentPlanData = data.plan;
-                    // Render the calendar with new plan
-                    renderWeeklyCalendar(data.plan);
-                    displayShoppingList(data.shopping_list);
-                }
-            } catch (error) {
-                console.error('Error loading plan:', error);
-            }
-        }
-
-        function displayPlan(plan) {
-            const planSection = document.getElementById('planSection');
-            const mealPlanEl = document.getElementById('mealPlan');
-            const nutritionTotalsEl = document.getElementById('nutritionTotals');
-
-            planSection.classList.remove('hidden');
-
-            // Group meals by day
-            const mealsByDay = {};
-            plan.meals.forEach(meal => {
-                if (!mealsByDay[meal.day]) {
-                    mealsByDay[meal.day] = [];
-                }
-                mealsByDay[meal.day].push(meal);
-            });
-
-            // Get daily nutrition data
-            const dailyNutrition = plan.daily_nutrition || {};
-            const calorieLimit = plan.daily_calorie_limit;
-
-            // Display grouped meals
-            let mealIndex = 0;
-            mealPlanEl.innerHTML = Object.entries(mealsByDay).map(([day, meals]) => {
-                const dayNutrition = dailyNutrition[day] || {};
-                const dayCalories = Math.round(dayNutrition.calories || 0);
-                const isOverLimit = calorieLimit && dayCalories > calorieLimit;
-                const limitText = calorieLimit ? ` / ${calorieLimit} cal limit` : '';
-                const warningClass = isOverLimit ? ' style="color: #e74c3c;"' : '';
-
-                return `
-                <div class="day-section">
-                    <div class="day-header${isOverLimit ? ' over-limit' : ''}">
-                        ${day}
-                        <div style="font-size: 14px; font-weight: normal; margin-top: 4px;">
-                            ${dayCalories} cal${limitText}
-                            ${isOverLimit ? ' ⚠️ Over limit!' : ''}
-                        </div>
-                    </div>
-                    ${meals.map(meal => {
-                        const currentIndex = mealIndex++;
-                        // Helper to format nutrition value
-                        const formatNutrition = (value, defaultVal = 0) => {
-                            return value !== null && value !== undefined ? Math.round(value) : defaultVal;
-                        };
-
-                        return `
-                        <div class="meal-card">
-                            <div class="meal-type">${meal.meal_type}</div>
-                            <div class="recipe-name"><a href="/recipe/${meal.recipe_id}">${meal.recipe_name}</a></div>
-                            <div class="nutrition">
-                                <span>${Math.round(meal.calories)} cal</span>
-                                <span>${Math.round(meal.protein)}g protein</span>
-                                <span>${Math.round(meal.carbs)}g carbs</span>
-                                <span>${Math.round(meal.fat)}g fat</span>
-                                <span>${meal.total_time} min</span>
-                            </div>
-                            <button class="nutrition-toggle" onclick="toggleDetailedNutrition(${currentIndex})">
-                                Show Detailed Nutrition
-                            </button>
-                            <div class="detailed-nutrition" id="detailed-nutrition-${currentIndex}">
-                                <div class="detailed-nutrition-grid">
-                                    ${meal.saturated_fat !== null && meal.saturated_fat > 0 ? `
-                                    <div class="detailed-nutrition-item">
-                                        <div class="label">Saturated Fat</div>
-                                        <div class="value">${formatNutrition(meal.saturated_fat)}g</div>
-                                    </div>` : ''}
-                                    ${meal.polyunsaturated_fat !== null && meal.polyunsaturated_fat > 0 ? `
-                                    <div class="detailed-nutrition-item">
-                                        <div class="label">Polyunsat. Fat</div>
-                                        <div class="value">${formatNutrition(meal.polyunsaturated_fat)}g</div>
-                                    </div>` : ''}
-                                    ${meal.monounsaturated_fat !== null && meal.monounsaturated_fat > 0 ? `
-                                    <div class="detailed-nutrition-item">
-                                        <div class="label">Monounsat. Fat</div>
-                                        <div class="value">${formatNutrition(meal.monounsaturated_fat)}g</div>
-                                    </div>` : ''}
-                                    ${meal.fiber !== null && meal.fiber > 0 ? `
-                                    <div class="detailed-nutrition-item">
-                                        <div class="label">Fiber</div>
-                                        <div class="value">${formatNutrition(meal.fiber)}g</div>
-                                    </div>` : ''}
-                                    ${meal.sugar !== null && meal.sugar > 0 ? `
-                                    <div class="detailed-nutrition-item">
-                                        <div class="label">Sugar</div>
-                                        <div class="value">${formatNutrition(meal.sugar)}g</div>
-                                    </div>` : ''}
-                                    ${meal.sodium !== null && meal.sodium > 0 ? `
-                                    <div class="detailed-nutrition-item">
-                                        <div class="label">Sodium</div>
-                                        <div class="value">${formatNutrition(meal.sodium)}mg</div>
-                                    </div>` : ''}
-                                    ${meal.potassium !== null && meal.potassium > 0 ? `
-                                    <div class="detailed-nutrition-item">
-                                        <div class="label">Potassium</div>
-                                        <div class="value">${formatNutrition(meal.potassium)}mg</div>
-                                    </div>` : ''}
-                                    ${meal.vitamin_a !== null && meal.vitamin_a > 0 ? `
-                                    <div class="detailed-nutrition-item">
-                                        <div class="label">Vitamin A</div>
-                                        <div class="value">${formatNutrition(meal.vitamin_a)}IU</div>
-                                    </div>` : ''}
-                                    ${meal.vitamin_c !== null && meal.vitamin_c > 0 ? `
-                                    <div class="detailed-nutrition-item">
-                                        <div class="label">Vitamin C</div>
-                                        <div class="value">${formatNutrition(meal.vitamin_c)}mg</div>
-                                    </div>` : ''}
-                                    ${meal.calcium !== null && meal.calcium > 0 ? `
-                                    <div class="detailed-nutrition-item">
-                                        <div class="label">Calcium</div>
-                                        <div class="value">${formatNutrition(meal.calcium)}mg</div>
-                                    </div>` : ''}
-                                    ${meal.iron !== null && meal.iron > 0 ? `
-                                    <div class="detailed-nutrition-item">
-                                        <div class="label">Iron</div>
-                                        <div class="value">${formatNutrition(meal.iron)}mg</div>
-                                    </div>` : ''}
-                                </div>
-                            </div>
-                        </div>
-                        `;
-                    }).join('')}
-                </div>
-            `;
-            }).join('');
-
-            // Display totals
-            nutritionTotalsEl.innerHTML = `
-                <h3>Weekly Nutrition Summary</h3>
-                <div class="nutrition-grid">
-                    <div class="nutrition-item">
-                        <div class="label">Total Calories</div>
-                        <div class="value">${Math.round(plan.totals.calories)}</div>
-                    </div>
-                    <div class="nutrition-item">
-                        <div class="label">Avg Daily Calories</div>
-                        <div class="value">${Math.round(plan.daily_averages.calories)}</div>
-                    </div>
-                    <div class="nutrition-item">
-                        <div class="label">Total Protein</div>
-                        <div class="value">${Math.round(plan.totals.protein)}g</div>
-                    </div>
-                    <div class="nutrition-item">
-                        <div class="label">Avg Daily Protein</div>
-                        <div class="value">${Math.round(plan.daily_averages.protein)}g</div>
-                    </div>
-                </div>
-                <button class="nutrition-toggle" onclick="toggleDetailedTotals()">
-                    Show Detailed Nutrition Totals
-                </button>
-                <div class="detailed-totals" id="detailed-totals">
-                    <h4>Extended Nutrition Totals</h4>
-                    <div class="nutrition-grid">
-                        ${plan.totals.saturated_fat > 0 ? `
-                        <div class="nutrition-item">
-                            <div class="label">Total Saturated Fat</div>
-                            <div class="value">${Math.round(plan.totals.saturated_fat)}g</div>
-                        </div>` : ''}
-                        ${plan.totals.polyunsaturated_fat > 0 ? `
-                        <div class="nutrition-item">
-                            <div class="label">Total Polyunsat. Fat</div>
-                            <div class="value">${Math.round(plan.totals.polyunsaturated_fat)}g</div>
-                        </div>` : ''}
-                        ${plan.totals.monounsaturated_fat > 0 ? `
-                        <div class="nutrition-item">
-                            <div class="label">Total Monounsat. Fat</div>
-                            <div class="value">${Math.round(plan.totals.monounsaturated_fat)}g</div>
-                        </div>` : ''}
-                        ${plan.totals.fiber > 0 ? `
-                        <div class="nutrition-item">
-                            <div class="label">Total Fiber</div>
-                            <div class="value">${Math.round(plan.totals.fiber)}g</div>
-                        </div>` : ''}
-                        ${plan.totals.sugar > 0 ? `
-                        <div class="nutrition-item">
-                            <div class="label">Total Sugar</div>
-                            <div class="value">${Math.round(plan.totals.sugar)}g</div>
-                        </div>` : ''}
-                        ${plan.totals.sodium > 0 ? `
-                        <div class="nutrition-item">
-                            <div class="label">Total Sodium</div>
-                            <div class="value">${Math.round(plan.totals.sodium)}mg</div>
-                        </div>` : ''}
-                        ${plan.totals.potassium > 0 ? `
-                        <div class="nutrition-item">
-                            <div class="label">Total Potassium</div>
-                            <div class="value">${Math.round(plan.totals.potassium)}mg</div>
-                        </div>` : ''}
-                        ${plan.totals.vitamin_a > 0 ? `
-                        <div class="nutrition-item">
-                            <div class="label">Total Vitamin A</div>
-                            <div class="value">${Math.round(plan.totals.vitamin_a)}IU</div>
-                        </div>` : ''}
-                        ${plan.totals.vitamin_c > 0 ? `
-                        <div class="nutrition-item">
-                            <div class="label">Total Vitamin C</div>
-                            <div class="value">${Math.round(plan.totals.vitamin_c)}mg</div>
-                        </div>` : ''}
-                        ${plan.totals.calcium > 0 ? `
-                        <div class="nutrition-item">
-                            <div class="label">Total Calcium</div>
-                            <div class="value">${Math.round(plan.totals.calcium)}mg</div>
-                        </div>` : ''}
-                        ${plan.totals.iron > 0 ? `
-                        <div class="nutrition-item">
-                            <div class="label">Total Iron</div>
-                            <div class="value">${Math.round(plan.totals.iron)}mg</div>
-                        </div>` : ''}
-                    </div>
-                </div>
-            `;
-        }
-
-        function toggleDetailedNutrition(index) {
-            const detailedDiv = document.getElementById(`detailed-nutrition-${index}`);
-            detailedDiv.classList.toggle('visible');
-        }
-
-        function toggleDetailedTotals() {
-            const detailedDiv = document.getElementById('detailed-totals');
-            detailedDiv.classList.toggle('visible');
-        }
-
-        // Shopping list localStorage functions
-        function getShoppingListKey() {
-            // Use a key based on current plan to avoid mixing different plans
-            return 'shoppingList_checked';
-        }
-
-        function loadCheckedItems() {
-            const key = getShoppingListKey();
-            const stored = localStorage.getItem(key);
-            return stored ? JSON.parse(stored) : {};
-        }
-
-        function saveCheckedItems(checkedItems) {
-            const key = getShoppingListKey();
-            localStorage.setItem(key, JSON.stringify(checkedItems));
-        }
-
-        function toggleShoppingItem(category, itemName) {
-            const checkedItems = loadCheckedItems();
-            const itemKey = `${category}:${itemName}`;
-
-            if (checkedItems[itemKey]) {
-                delete checkedItems[itemKey];
-            } else {
-                checkedItems[itemKey] = true;
-            }
-
-            saveCheckedItems(checkedItems);
-
-            // Update UI
-            const checkbox = document.querySelector(`input[data-item-key="${itemKey}"]`);
-            const itemDiv = checkbox.closest('.shopping-item');
-            if (checkbox.checked) {
-                itemDiv.classList.add('checked');
-            } else {
-                itemDiv.classList.remove('checked');
-            }
-
-            // Update counter
-            updateShoppingListCounter();
-        }
-
-        function updateShoppingListCounter() {
-            const total = document.querySelectorAll('.shopping-item input[type="checkbox"]').length;
-            const checked = document.querySelectorAll('.shopping-item input[type="checkbox"]:checked').length;
-            const counterEl = document.getElementById('shoppingListCounter');
-            if (counterEl) {
-                counterEl.textContent = `${checked} / ${total} items`;
-            }
-        }
-
-        function clearAllCheckedItems() {
-            if (confirm('Clear all checked items?')) {
-                const key = getShoppingListKey();
-                localStorage.removeItem(key);
-
-                // Uncheck all and remove checked class
-                document.querySelectorAll('.shopping-item input[type="checkbox"]').forEach(checkbox => {
-                    checkbox.checked = false;
-                    checkbox.closest('.shopping-item').classList.remove('checked');
-                });
-
-                // Update counter
-                updateShoppingListCounter();
-
-                showMessage('All items unchecked', 'info');
-            }
-        }
-
-        function displayShoppingList(shoppingList) {
-            const shoppingSection = document.getElementById('shoppingSection');
-            const shoppingListEl = document.getElementById('shoppingList');
-
-            shoppingSection.classList.remove('hidden');
-
-            // Load checked items from localStorage
-            const checkedItems = loadCheckedItems();
-
-            // Group items by category
-            const byCategory = shoppingList.items_by_category;
-
-            shoppingListEl.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-                    <div>
-                        <h2 style="margin: 0;">Shopping List</h2>
-                        <div id="shoppingListCounter" style="font-size: 14px; color: #7f8c8d; margin-top: 4px;">0 / 0 items</div>
-                    </div>
-                    <button onclick="clearAllCheckedItems()" style="background: #95a5a6; padding: 8px 16px; font-size: 14px;">
-                        Clear Checked
-                    </button>
-                </div>
-                ${Object.entries(byCategory).map(([category, items]) => `
-                <div class="category-section">
-                    <h3>${category}</h3>
-                    <div class="shopping-items">
-                        ${items.map(item => {
-                            const itemKey = `${category}:${item.item}`;
-                            const isChecked = checkedItems[itemKey] || false;
-                            return `
-                            <div class="shopping-item${isChecked ? ' checked' : ''}" onclick="event.target.tagName !== 'INPUT' && this.querySelector('input').click()">
-                                <input
-                                    type="checkbox"
-                                    ${isChecked ? 'checked' : ''}
-                                    data-item-key="${itemKey}"
-                                    onchange="toggleShoppingItem('${category}', '${item.item}')"
-                                    onclick="event.stopPropagation()"
-                                >
-                                <div class="item-content">
-                                    <span class="name">${item.item}</span>
-                                    <span class="quantity">${item.quantity} ${item.unit}</span>
-                                </div>
-                            </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            `).join('')}`;
-
-            // Update counter after rendering
-            updateShoppingListCounter();
-        }
-
-        // Load current plan on page load if it exists
-        {% if current_plan %}
-        window.addEventListener('DOMContentLoaded', () => {
-            loadCurrentPlan();
-        });
-        {% endif %}
-
-        // Recipe editing functions
-        async function openEditModal(recipeId) {
-            try {
-                // Fetch recipe data
-                const response = await fetch(`/recipes/${recipeId}`);
-                if (!response.ok) {
-                    throw new Error('Failed to load recipe');
-                }
-                const recipe = await response.json();
-
-                // Populate form fields
-                document.getElementById('recipeId').value = recipe.id;
-                document.getElementById('recipeName').value = recipe.name;
-                document.getElementById('servings').value = recipe.servings;
-                document.getElementById('prepTime').value = recipe.prep_time_minutes;
-                document.getElementById('cookTime').value = recipe.cook_time_minutes;
-                document.getElementById('calories').value = recipe.calories_per_serving;
-                document.getElementById('protein').value = recipe.protein_per_serving;
-                document.getElementById('carbs').value = recipe.carbs_per_serving;
-                document.getElementById('fat').value = recipe.fat_per_serving;
-                document.getElementById('tags').value = recipe.tags.join(', ');
-
-                // Render ingredients
-                renderIngredients(recipe.ingredients);
-
-                // Show modal
-                document.getElementById('editModal').classList.remove('hidden');
-            } catch (error) {
-                showMessage('Error loading recipe: ' + error.message, 'error');
-            }
-        }
-
-        function closeEditModal() {
-            document.getElementById('editModal').classList.add('hidden');
-            document.getElementById('editRecipeForm').reset();
-            document.getElementById('ingredientsList').innerHTML = '';
-        }
-
-        function renderIngredients(ingredients) {
-            const ingredientsList = document.getElementById('ingredientsList');
-            ingredientsList.innerHTML = '';
-
-            if (ingredients.length === 0) {
-                addIngredientRow();
-                return;
-            }
-
-            ingredients.forEach(ingredient => {
-                const row = createIngredientRow(
-                    ingredient.item || '',
-                    ingredient.quantity || '',
-                    ingredient.unit || '',
-                    ingredient.category || 'pantry'
-                );
-                ingredientsList.appendChild(row);
-            });
-        }
-
-        function createIngredientRow(item = '', quantity = '', unit = '', category = 'pantry') {
-            const row = document.createElement('div');
-            row.className = 'ingredient-row';
-            row.innerHTML = `
-                <input type="text" class="ingredient-item" placeholder="Item name" value="${item}" required>
-                <input type="number" class="ingredient-quantity" placeholder="Qty" value="${quantity}" step="0.01" required>
-                <input type="text" class="ingredient-unit" placeholder="Unit" value="${unit}" required>
-                <select class="ingredient-category" required>
-                    <option value="produce" ${category === 'produce' ? 'selected' : ''}>Produce</option>
-                    <option value="meat" ${category === 'meat' ? 'selected' : ''}>Meat</option>
-                    <option value="dairy" ${category === 'dairy' ? 'selected' : ''}>Dairy</option>
-                    <option value="pantry" ${category === 'pantry' ? 'selected' : ''}>Pantry</option>
-                    <option value="frozen" ${category === 'frozen' ? 'selected' : ''}>Frozen</option>
-                    <option value="bakery" ${category === 'bakery' ? 'selected' : ''}>Bakery</option>
-                </select>
-                <button type="button" onclick="removeIngredientRow(this.parentElement)">&times;</button>
-            `;
-            return row;
-        }
-
-        function addIngredientRow() {
-            const ingredientsList = document.getElementById('ingredientsList');
-            const row = createIngredientRow();
-            ingredientsList.appendChild(row);
-        }
-
-        function removeIngredientRow(element) {
-            const ingredientsList = document.getElementById('ingredientsList');
-            // Prevent removing the last ingredient
-            if (ingredientsList.children.length > 1) {
-                element.remove();
-            } else {
-                showMessage('At least one ingredient is required', 'info');
-            }
-        }
-
-        async function handleEditFormSubmit(event) {
-            event.preventDefault();
-
-            const recipeId = document.getElementById('recipeId').value;
-
-            // Collect form data
-            const formData = {
-                id: recipeId,
-                name: document.getElementById('recipeName').value,
-                servings: parseInt(document.getElementById('servings').value),
-                prep_time_minutes: parseInt(document.getElementById('prepTime').value),
-                cook_time_minutes: parseInt(document.getElementById('cookTime').value),
-                calories_per_serving: parseInt(document.getElementById('calories').value),
-                protein_per_serving: parseFloat(document.getElementById('protein').value),
-                carbs_per_serving: parseFloat(document.getElementById('carbs').value),
-                fat_per_serving: parseFloat(document.getElementById('fat').value),
-                tags: document.getElementById('tags').value
-                    .split(',')
-                    .map(tag => tag.trim())
-                    .filter(tag => tag.length > 0),
-                ingredients: []
-            };
-
-            // Collect ingredients
-            const ingredientRows = document.querySelectorAll('.ingredient-row');
-            ingredientRows.forEach(row => {
-                const item = row.querySelector('.ingredient-item').value;
-                const quantity = parseFloat(row.querySelector('.ingredient-quantity').value);
-                const unit = row.querySelector('.ingredient-unit').value;
-                const category = row.querySelector('.ingredient-category').value;
-
-                if (item && quantity && unit) {
-                    formData.ingredients.push({ item, quantity, unit, category });
-                }
-            });
-
-            // Submit update
-            try {
-                const response = await fetch(`/recipes/${recipeId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    showMessage(data.message || 'Recipe updated successfully!', 'success');
-                    closeEditModal();
-                    // Reload the page to show updated recipe
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                } else {
-                    showMessage(data.message || data.error || 'Error updating recipe', 'error');
-                }
-            } catch (error) {
-                showMessage('Error updating recipe: ' + error.message, 'error');
-            }
-        }
-
-        function openImportModal() {
-            document.getElementById('importModal').classList.remove('hidden');
-            // Reset to URL tab by default
-            switchImportTab('url');
-        }
-
-        function closeImportModal() {
-            document.getElementById('importModal').classList.add('hidden');
-            document.getElementById('importRecipeForm').reset();
-            document.getElementById('importTextForm').reset();
-            document.getElementById('importPhotoForm').reset();
-            document.getElementById('importStatus').classList.add('hidden');
-            document.getElementById('importTextStatus').classList.add('hidden');
-            document.getElementById('importPhotoStatus').classList.add('hidden');
-            document.getElementById('photoPreview').style.display = 'none';
-        }
-
-        function switchImportTab(tab) {
-            // Update tab buttons
-            const tabs = document.querySelectorAll('.import-tab');
-            tabs.forEach(t => {
-                if (t.textContent.includes('URL') && tab === 'url') {
-                    t.classList.add('active');
-                } else if (t.textContent.includes('Text') && tab === 'text') {
-                    t.classList.add('active');
-                } else if (t.textContent.includes('Photo') && tab === 'photo') {
-                    t.classList.add('active');
-                } else {
-                    t.classList.remove('active');
-                }
-            });
-
-            // Update forms
-            const urlForm = document.getElementById('importRecipeForm');
-            const textForm = document.getElementById('importTextForm');
-            const photoForm = document.getElementById('importPhotoForm');
-
-            // Hide all forms
-            urlForm.classList.add('hidden');
-            textForm.classList.add('hidden');
-            photoForm.classList.add('hidden');
-
-            // Show selected form and reset
-            if (tab === 'url') {
-                urlForm.classList.remove('hidden');
-                document.getElementById('recipeUrl').value = '';
-                document.getElementById('importStatus').classList.add('hidden');
-            } else if (tab === 'text') {
-                textForm.classList.remove('hidden');
-                document.getElementById('recipeText').value = '';
-                document.getElementById('importTextStatus').classList.add('hidden');
-            } else if (tab === 'photo') {
-                photoForm.classList.remove('hidden');
-                document.getElementById('recipePhoto').value = '';
-                document.getElementById('importPhotoStatus').classList.add('hidden');
-                document.getElementById('photoPreview').style.display = 'none';
-            }
-        }
-
-        async function handleImportFormSubmit(event) {
-            event.preventDefault();
-
-            const url = document.getElementById('recipeUrl').value;
-            const importBtn = document.getElementById('importBtn');
-            const statusEl = document.getElementById('importStatus');
-
-            // Show loading state
-            importBtn.disabled = true;
-            importBtn.textContent = 'Importing...';
-            statusEl.className = 'import-status';
-            statusEl.textContent = 'Fetching recipe from URL...';
-
-            try {
-                const response = await fetch('/import-recipe', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ url: url })
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    statusEl.className = 'import-status success';
-                    statusEl.textContent = data.message;
-
-                    // Show additional info about imported recipe
-                    if (data.recipe) {
-                        const info = [];
-                        info.push(`✓ ${data.recipe.ingredient_count} ingredients`);
-                        info.push(`✓ ${data.recipe.instruction_count} steps`);
-
-                        // Show AI confidence for Instagram imports
-                        if (data.recipe.ai_confidence) {
-                            info.push(`✓ AI Confidence: ${(data.recipe.ai_confidence * 100).toFixed(0)}%`);
-                        }
-
-                        if (data.recipe.nutrition_generated) {
-                            info.push('✓ Nutrition generated automatically');
-                        } else if (!data.recipe.has_nutrition) {
-                            info.push('⚠ Nutrition information may need to be added manually');
-                        }
-
-                        statusEl.textContent += '\n\n' + info.join('\n');
-                    }
-
-                    // Show warning if present
-                    if (data.warning) {
-                        statusEl.textContent += '\n\n⚠️ ' + data.warning;
-                    }
-
-                    // Reload page after 2 seconds
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
-                } else {
-                    statusEl.className = 'import-status error';
-                    let errorMsg = data.message || data.error || 'Error importing recipe';
-
-                    // Add suggestion if provided
-                    if (data.suggestion) {
-                        errorMsg += '\n\n💡 ' + data.suggestion;
-                    }
-
-                    // Special handling for Instagram errors
-                    if (errorMsg.includes('Instagram') || errorMsg.includes('403')) {
-                        errorMsg += '\n\n➡️ TIP: Switch to the "From Text" tab above and paste the post text directly!';
-                    }
-
-                    // Show confidence warning if present
-                    if (data.warning) {
-                        errorMsg += '\n\n⚠️ ' + data.warning;
-                    }
-
-                    statusEl.textContent = errorMsg;
-                }
-            } catch (error) {
-                statusEl.className = 'import-status error';
-                statusEl.textContent = 'Error importing recipe: ' + error.message;
-            } finally {
-                importBtn.disabled = false;
-                importBtn.textContent = 'Import Recipe';
-            }
-        }
-
-        async function handleTextImportFormSubmit(event) {
-            event.preventDefault();
-
-            const text = document.getElementById('recipeText').value;
-            const importBtn = document.getElementById('importTextBtn');
-            const statusEl = document.getElementById('importTextStatus');
-
-            // Show loading state
-            importBtn.disabled = true;
-            importBtn.textContent = 'Extracting recipe...';
-            statusEl.className = 'import-status';
-            statusEl.textContent = 'Using AI to extract recipe from text...';
-
-            try {
-                const response = await fetch('/import-recipe-text', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        text: text,
-                        language: 'auto'
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    statusEl.className = 'import-status success';
-                    statusEl.textContent = data.message;
-
-                    // Show additional info about imported recipe
-                    if (data.recipe) {
-                        const info = [];
-                        info.push(`✓ ${data.recipe.ingredient_count} ingredients extracted`);
-                        info.push(`✓ ${data.recipe.instruction_count} steps extracted`);
-
-                        if (data.recipe.ai_confidence) {
-                            info.push(`✓ AI Confidence: ${(data.recipe.ai_confidence * 100).toFixed(0)}%`);
-                        }
-
-                        if (data.recipe.nutrition_generated) {
-                            info.push('✓ Nutrition generated automatically');
-                        }
-
-                        statusEl.textContent += '\n\n' + info.join('\n');
-                    }
-
-                    // Show warning if present
-                    if (data.warning) {
-                        statusEl.textContent += '\n\n⚠️ ' + data.warning;
-                    }
-
-                    // Reload page after 2 seconds
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
-                } else {
-                    statusEl.className = 'import-status error';
-                    let errorMsg = data.message || data.error || 'Error importing recipe';
-
-                    // Add suggestion if provided
-                    if (data.suggestion) {
-                        errorMsg += '\n\n💡 ' + data.suggestion;
-                    }
-
-                    statusEl.textContent = errorMsg;
-                }
-            } catch (error) {
-                statusEl.className = 'import-status error';
-                statusEl.textContent = 'Error importing recipe: ' + error.message;
-            } finally {
-                importBtn.disabled = false;
-                importBtn.textContent = 'Import from Text';
-            }
-        }
-
-        // Photo preview on file selection
-        document.addEventListener('DOMContentLoaded', () => {
-            const photoInput = document.getElementById('recipePhoto');
-            if (photoInput) {
-                photoInput.addEventListener('change', (event) => {
-                    const file = event.target.files[0];
-                    if (file && file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            const preview = document.getElementById('photoPreview');
-                            const img = document.getElementById('photoPreviewImg');
-                            img.src = e.target.result;
-                            preview.style.display = 'block';
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-            }
-        });
-
-        async function handlePhotoImportFormSubmit(event) {
-            event.preventDefault();
-
-            const fileInput = document.getElementById('recipePhoto');
-            const file = fileInput.files[0];
-            const importBtn = document.getElementById('importPhotoBtn');
-            const statusEl = document.getElementById('importPhotoStatus');
-
-            if (!file) {
-                statusEl.className = 'import-status error';
-                statusEl.textContent = 'Please select an image file';
-                return;
-            }
-
-            // Show loading state
-            importBtn.disabled = true;
-            importBtn.textContent = 'Analyzing photo...';
-            statusEl.className = 'import-status';
-            statusEl.textContent = 'Using AI to extract recipe from photo... (this may take 10-15 seconds)';
-
-            try {
-                // Create FormData for file upload
-                const formData = new FormData();
-                formData.append('image', file);
-
-                const response = await fetch('/import-recipe-image', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    statusEl.className = 'import-status success';
-                    statusEl.textContent = data.message;
-
-                    // Show additional info about imported recipe
-                    if (data.recipe) {
-                        const info = [];
-                        info.push(`✓ ${data.recipe.ingredient_count} ingredients extracted`);
-                        info.push(`✓ ${data.recipe.instruction_count} steps extracted`);
-
-                        if (data.recipe.ai_confidence) {
-                            info.push(`✓ AI Confidence: ${(data.recipe.ai_confidence * 100).toFixed(0)}%`);
-                        }
-
-                        if (data.recipe.nutrition_generated) {
-                            info.push('✓ Nutrition generated automatically');
-                        }
-
-                        statusEl.textContent += '\n\n' + info.join('\n');
-                    }
-
-                    // Show warning if present
-                    if (data.warning) {
-                        statusEl.textContent += '\n\n⚠️ ' + data.warning;
-                    }
-
-                    // Reload page after 2 seconds
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
-                } else {
-                    statusEl.className = 'import-status error';
-                    let errorMsg = data.message || data.error || 'Error importing recipe';
-
-                    // Add suggestion if provided
-                    if (data.suggestion) {
-                        errorMsg += '\n\n💡 ' + data.suggestion;
-                    }
-
-                    statusEl.textContent = errorMsg;
-                }
-            } catch (error) {
-                statusEl.className = 'import-status error';
-                statusEl.textContent = 'Error importing recipe: ' + error.message;
-            } finally {
-                importBtn.disabled = false;
-                importBtn.textContent = 'Import from Photo';
-            }
-        }
-
-        // ========== Manual Meal Planning Functions ==========
-
+        // Configuration from backend
         const DAYS_OF_WEEK = {{ config.DAYS_OF_WEEK | tojson }};
         const MEAL_SCHEDULE = {{ config.MEAL_SCHEDULE | tojson }};
-
-        // Render weekly calendar
-        // Global variable to store the current plan
         let currentPlanData = {% if current_plan %}{{ current_plan | tojson }}{% else %}null{% endif %};
 
-        function renderWeeklyCalendar(planData = null) {
-            const calendarEl = document.getElementById('weeklyCalendar');
-
-            // Use provided plan or fall back to global
-            const currentPlan = planData || currentPlanData;
-
-            // Get custom schedule to determine which meal slots to show
-            const customSchedule = getCustomSchedule();
-
-            calendarEl.innerHTML = DAYS_OF_WEEK.map(day => {
-                // Get meal slots from custom schedule for this day
-                const mealSlots = customSchedule[day] ? Object.keys(customSchedule[day]) : [];
-                const dayNutrition = currentPlan?.daily_nutrition?.[day] || {};
-                const dayCalories = Math.round(dayNutrition.calories || 0);
-                const calorieLimit = currentPlan?.daily_calorie_limit;
-                const isOverLimit = calorieLimit && dayCalories > calorieLimit;
-                const limitText = calorieLimit ? ` / ${calorieLimit} cal` : '';
-
-                return `
-                    <div class="calendar-day">
-                        <div class="calendar-day-header${isOverLimit ? ' over-limit' : ''}">
-                            <span>${day}</span>
-                            <span class="calendar-day-nutrition">
-                                ${dayCalories} cal${limitText}
-                                ${isOverLimit ? ' ⚠️' : ''}
-                            </span>
-                        </div>
-                        <div class="calendar-meals">
-                            ${mealSlots.map(mealType => renderMealSlot(day, mealType, currentPlan)).join('')}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            // Show nutrition totals if we have a plan
-            if (currentPlan && currentPlan.meals && currentPlan.meals.length > 0) {
-                document.getElementById('nutritionTotals').style.display = 'block';
-            } else {
-                document.getElementById('nutritionTotals').style.display = 'none';
-            }
-        }
-
-        function renderMealSlot(day, mealType, currentPlan) {
-            // Find meal for this slot
-            const meal = currentPlan?.meals?.find(m => m.day === day && m.meal_type === mealType);
-
-            if (meal) {
-                return `
-                    <div class="calendar-meal-slot has-meal">
-                        <div class="meal-slot-header">
-                            <span class="meal-slot-type">${mealType}</span>
-                            <div class="meal-actions">
-                                <button class="btn-small btn-edit" onclick="editMealServings('${day}', '${mealType}', ${meal.portions || 1})">
-                                    Edit (${meal.portions || 1} servings)
-                                </button>
-                                <button class="btn-small btn-remove" onclick="removeMeal('${day}', '${mealType}')">
-                                    ✕
-                                </button>
-                            </div>
-                        </div>
-                        <div class="meal-content">
-                            <div class="meal-info">
-                                <div class="meal-name">
-                                    <a href="/recipe/${meal.recipe_id}">${meal.recipe_name || 'Unnamed Recipe'}</a>
-                                </div>
-                                <div class="meal-nutrition">
-                                    <span>${meal.calories ? Math.round(meal.calories) : 0} cal</span>
-                                    <span>${meal.protein ? Math.round(meal.protein) : 0}g protein</span>
-                                    <span>${meal.carbs ? Math.round(meal.carbs) : 0}g carbs</span>
-                                    <span>${meal.fat ? Math.round(meal.fat) : 0}g fat</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } else {
-                return `
-                    <div class="calendar-meal-slot">
-                        <div class="meal-slot-header">
-                            <span class="meal-slot-type">${mealType}</span>
-                        </div>
-                        <div class="empty-slot-message">
-                            No meal planned
-                        </div>
-                        <button class="btn-add" onclick="openRecipeSelector('${day}', '${mealType}')">
-                            + Add Recipe
-                        </button>
-                    </div>
-                `;
-            }
-        }
-
-        async function clearWeek() {
-            if (!confirm('Clear all meals from your plan?')) return;
-
-            try {
-                const response = await fetch('/manual-plan/clear', {
-                    method: 'POST'
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showMessage('Week cleared!', 'info');
-                    await loadCurrentPlan();
-                }
-            } catch (error) {
-                showMessage('Error clearing week: ' + error.message, 'error');
-            }
-        }
-
-        function openRecipeSelector(day, mealType) {
-            // For now, use a simple prompt. We'll add a proper modal later.
-            const recipes = {{ recipes | tojson }};
-
-            // Build recipe list
-            let recipeList = 'Available Recipes:\n\n';
-            recipes.forEach((recipe, index) => {
-                recipeList += `${index + 1}. ${recipe.name} (${recipe.calories_per_serving} cal)\n`;
-            });
-            recipeList += '\nEnter recipe number:';
-
-            const selection = prompt(recipeList);
-            if (!selection) return;
-
-            const index = parseInt(selection) - 1;
-            if (index < 0 || index >= recipes.length) {
-                alert('Invalid selection');
-                return;
-            }
-
-            const recipe = recipes[index];
-            const servings = prompt(`How many servings of ${recipe.name}?`, '{{ household_portions }}');
-            if (!servings) return;
-
-            addMealToPlan(day, mealType, recipe.id, parseFloat(servings));
-        }
-
-        async function addMealToPlan(day, mealType, recipeId, servings) {
-            try {
-                const response = await fetch('/manual-plan/add-meal', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({day, meal_type: mealType, recipe_id: recipeId, servings})
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showMessage(data.message, 'success');
-                    await loadCurrentPlan();
-                } else {
-                    showMessage(data.error || 'Error adding meal', 'error');
-                }
-            } catch (error) {
-                showMessage('Error adding meal: ' + error.message, 'error');
-            }
-        }
-
-        async function removeMeal(day, mealType) {
-            if (!confirm(`Remove ${mealType} from ${day}?`)) return;
-
-            try {
-                const response = await fetch('/manual-plan/remove-meal', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({day, meal_type: mealType})
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showMessage(data.message, 'info');
-                    await loadCurrentPlan();
-                } else {
-                    showMessage(data.error || 'Error removing meal', 'error');
-                }
-            } catch (error) {
-                showMessage('Error removing meal: ' + error.message, 'error');
-            }
-        }
-
-        async function editMealServings(day, mealType, currentServings) {
-            const newServings = prompt(`Edit servings for ${mealType}:`, currentServings);
-            if (!newServings || newServings === currentServings.toString()) return;
-
-            try {
-                const response = await fetch('/manual-plan/update-servings', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({day, meal_type: mealType, servings: parseFloat(newServings)})
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showMessage(data.message, 'success');
-                    await loadCurrentPlan();
-                } else {
-                    showMessage(data.error || 'Error updating servings', 'error');
-                }
-            } catch (error) {
-                showMessage('Error updating servings: ' + error.message, 'error');
-            }
-        }
-
-        // Update loadCurrentPlan to also render calendar
-        const originalLoadCurrentPlan = loadCurrentPlan;
-        loadCurrentPlan = async function() {
-            await originalLoadCurrentPlan();
-            renderWeeklyCalendar();
-        };
-
-        // ========== Schedule Configuration Functions ==========
-
+        // Schedule management functions
         function getCustomSchedule() {
             const stored = localStorage.getItem('customSchedule');
             if (stored) {
@@ -2235,25 +1222,17 @@
             let totalMeals = 0;
             let scheduleText = [];
 
-            Object.keys(schedule).forEach(day => {
-                const dayMeals = schedule[day];
-                const mealCount = Object.keys(dayMeals).length;
+            Object.entries(schedule).forEach(([day, meals]) => {
+                const mealCount = Object.keys(meals).length;
                 if (mealCount > 0) {
                     totalMeals += mealCount;
-                    const mealDetails = Object.entries(dayMeals)
-                        .map(([type, servings]) => `${type} (${servings} servings)`)
-                        .join(', ');
-                    scheduleText.push(`<strong>${day}</strong>: ${mealDetails}`);
                 }
             });
 
             if (totalMeals > 0) {
-                infoEl.innerHTML = `
-                    <strong>Current Schedule (${totalMeals} meals/week):</strong><br>
-                    ${scheduleText.join('<br>')}
-                `;
+                infoEl.innerHTML = `Configured for ${totalMeals} meals across the week`;
             } else {
-                infoEl.innerHTML = 'Click "Configure Schedule" to set which meals you need each day and how many servings.';
+                infoEl.innerHTML = 'Click "Configure Schedule" to set your meals';
             }
         }
 
@@ -2262,33 +1241,30 @@
             const formEl = document.getElementById('scheduleConfigForm');
 
             formEl.innerHTML = DAYS_OF_WEEK.map(day => `
-                <div style="border: 1px solid #ecf0f1; padding: 15px; border-radius: 4px;">
-                    <h3 style="margin-bottom: 10px;">${day}</h3>
-                    <div style="display: grid; gap: 10px;">
+                <div class="card">
+                    <h3 style="font-weight: 600; margin-bottom: 1rem; color: var(--color-text);">${day}</h3>
+                    <div style="display: grid; gap: 0.75rem;">
                         ${['breakfast', 'lunch', 'dinner', 'snack'].map(mealType => {
                             const servings = schedule[day]?.[mealType] || '';
                             const isEnabled = servings !== '';
                             return `
-                                <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
                                     <input
                                         type="checkbox"
                                         id="enable_${day}_${mealType}"
                                         ${isEnabled ? 'checked' : ''}
                                         onchange="toggleMealSlot('${day}', '${mealType}')"
-                                    >
-                                    <label for="enable_${day}_${mealType}" style="flex: 1; text-transform: capitalize;">
-                                        ${mealType}
-                                    </label>
+                                        style="width: 20px; height: 20px; cursor: pointer;">
+                                    <label for="enable_${day}_${mealType}" style="flex: 1; text-transform: capitalize; margin: 0; cursor: pointer;">${mealType}</label>
                                     <input
                                         type="number"
                                         id="servings_${day}_${mealType}"
-                                        placeholder="Servings"
                                         value="${servings}"
                                         min="0.5"
                                         step="0.5"
-                                        style="width: 100px;"
+                                        placeholder="servings"
                                         ${!isEnabled ? 'disabled' : ''}
-                                    >
+                                        style="width: 100px;">
                                 </div>
                             `;
                         }).join('')}
@@ -2333,16 +1309,16 @@
 
             saveCustomSchedule(schedule);
             closeScheduleModal();
-            showMessage('Schedule saved! Click "Generate Meal Plan" to create a plan.', 'success');
+            showMessage('Schedule saved! Click "Generate Plan" to create your meal plan.', 'success');
         }
 
-        // Update generatePlan to use custom schedule
+        // Generate meal plan
         async function generatePlan() {
             const btn = document.getElementById('generateBtn');
             if (!btn) return;
 
             btn.disabled = true;
-            btn.textContent = 'Generating...';
+            btn.innerHTML = '<span class="loading"></span> Generating...';
 
             try {
                 const schedule = getCustomSchedule();
@@ -2369,29 +1345,504 @@
                 showMessage('Error generating plan: ' + error.message, 'error');
             } finally {
                 btn.disabled = false;
-                btn.textContent = '🎲 Generate Meal Plan';
+                btn.innerHTML = '<span class="btn-icon">🎲</span> Generate Plan';
             }
         }
 
-        // Initial render
-        window.addEventListener('DOMContentLoaded', () => {
+        // Clear week
+        async function clearWeek() {
+            if (!confirm('Clear all meals for this week?')) return;
+
+            try {
+                await fetch('/manual-plan/clear', { method: 'POST' });
+                showMessage('Week cleared', 'success');
+                window.location.reload();
+            } catch (error) {
+                showMessage('Error clearing week: ' + error.message, 'error');
+            }
+        }
+
+        // Load current plan
+        async function loadCurrentPlan() {
+            try {
+                const response = await fetch('/current-plan');
+                const data = await response.json();
+
+                if (data.plan) {
+                    currentPlanData = data.plan;
+                    renderWeeklyCalendar(data.plan);
+                }
+            } catch (error) {
+                console.error('Error loading plan:', error);
+            }
+        }
+
+        // Render weekly calendar
+        function renderWeeklyCalendar(planData = null) {
+            const calendarEl = document.getElementById('weeklyCalendar');
+            const currentPlan = planData || currentPlanData;
+            const customSchedule = getCustomSchedule();
+
+            calendarEl.innerHTML = DAYS_OF_WEEK.map(day => {
+                const mealSlots = customSchedule[day] ? Object.keys(customSchedule[day]) : [];
+                const dayNutrition = currentPlan?.daily_nutrition?.[day] || {};
+                const dayCalories = Math.round(dayNutrition.calories || 0);
+                const calorieLimit = currentPlan?.daily_calorie_limit;
+                const isOverLimit = calorieLimit && dayCalories > calorieLimit;
+                const limitText = calorieLimit ? ` / ${calorieLimit}` : '';
+
+                return `
+                    <div class="day-card">
+                        <div class="day-header ${isOverLimit ? 'over-limit' : ''}">
+                            <div class="day-name">${day}</div>
+                            <div class="day-calories">
+                                <span class="calorie-badge">${dayCalories}${limitText} cal</span>
+                                ${isOverLimit ? '⚠️' : ''}
+                            </div>
+                        </div>
+                        <div class="day-meals">
+                            ${mealSlots.map(mealType => renderMealSlot(day, mealType, currentPlan)).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderMealSlot(day, mealType, currentPlan) {
+            const meal = currentPlan?.meals?.find(m => m.day === day && m.meal_type === mealType);
+
+            if (meal) {
+                return `
+                    <div class="meal-slot has-meal">
+                        <div class="meal-header">
+                            <div class="meal-type">${mealType}</div>
+                            <div class="meal-actions">
+                                <button class="btn btn-small btn-outline" onclick="editMealServings('${day}', '${mealType}', ${meal.portions || 1})">
+                                    Edit
+                                </button>
+                                <button class="btn btn-small btn-outline" onclick="removeMeal('${day}', '${mealType}')" style="color: var(--color-error);">
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+                        <div class="meal-content">
+                            <div class="meal-name">
+                                <a href="/recipe/${meal.recipe_id}">${meal.recipe_name || 'Unnamed Recipe'}</a>
+                            </div>
+                            <div class="meal-nutrition">
+                                <span>🔥 ${meal.calories ? Math.round(meal.calories) : 0} cal</span>
+                                <span>🍗 ${meal.protein ? Math.round(meal.protein) : 0}g protein</span>
+                                <span>🍽️ ${meal.portions || 1} servings</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="meal-slot">
+                        <div class="meal-header">
+                            <div class="meal-type">${mealType}</div>
+                        </div>
+                        <div class="empty-slot">
+                            <div class="empty-slot-icon">🍽️</div>
+                            <div class="empty-slot-text">No meal planned</div>
+                            <button class="btn btn-small btn-primary" onclick="openRecipeSelector('${day}', '${mealType}')">
+                                Add Recipe
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Meal management functions
+        async function addMeal(day, mealType, recipeId, servings) {
+            try {
+                const response = await fetch('/manual-plan/add-meal', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ day, meal_type: mealType, recipe_id: recipeId, servings })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('Meal added!', 'success');
+                    await loadCurrentPlan();
+                } else {
+                    showMessage('Error: ' + (data.error || 'Failed to add meal'), 'error');
+                }
+            } catch (error) {
+                showMessage('Error adding meal: ' + error.message, 'error');
+            }
+        }
+
+        async function removeMeal(day, mealType) {
+            if (!confirm('Remove this meal?')) return;
+
+            try {
+                const response = await fetch('/manual-plan/remove-meal', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ day, meal_type: mealType })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('Meal removed', 'success');
+                    await loadCurrentPlan();
+                } else {
+                    showMessage('Error: ' + (data.error || 'Failed to remove meal'), 'error');
+                }
+            } catch (error) {
+                showMessage('Error removing meal: ' + error.message, 'error');
+            }
+        }
+
+        async function editMealServings(day, mealType, currentServings) {
+            const newServings = prompt(`Enter new servings for ${mealType}:`, currentServings);
+            if (!newServings || isNaN(newServings)) return;
+
+            try {
+                const response = await fetch('/manual-plan/update-servings', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ day, meal_type: mealType, servings: parseFloat(newServings) })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('Servings updated', 'success');
+                    await loadCurrentPlan();
+                } else {
+                    showMessage('Error: ' + (data.error || 'Failed to update servings'), 'error');
+                }
+            } catch (error) {
+                showMessage('Error updating servings: ' + error.message, 'error');
+            }
+        }
+
+        async function openRecipeSelector(day, mealType) {
+            const recipes = {{ recipes | tojson }};
+            if (recipes.length === 0) {
+                alert('No recipes available. Import a recipe first!');
+                return;
+            }
+
+            const recipeId = prompt(`Enter recipe ID or name for ${day} ${mealType}:\n\n` +
+                recipes.map(r => `- ${r.id}: ${r.name}`).join('\n'));
+
+            if (!recipeId) return;
+
+            const recipe = recipes.find(r => r.id === recipeId || r.name.toLowerCase().includes(recipeId.toLowerCase()));
+            if (!recipe) {
+                alert('Recipe not found');
+                return;
+            }
+
+            const servings = prompt('How many servings?', {{ household_portions }});
+            if (!servings || isNaN(servings)) return;
+
+            await addMeal(day, mealType, recipe.id, parseFloat(servings));
+        }
+
+        // Shopping list functions
+        function toggleShoppingItem(checkbox) {
+            const item = checkbox.closest('.shopping-item');
+            if (checkbox.checked) {
+                item.classList.add('checked');
+            } else {
+                item.classList.remove('checked');
+            }
+            saveShoppingListState();
+        }
+
+        function saveShoppingListState() {
+            const checkboxes = document.querySelectorAll('.shopping-item input[type="checkbox"]');
+            const state = Array.from(checkboxes).map(cb => cb.checked);
+            localStorage.setItem('shoppingListState', JSON.stringify(state));
+        }
+
+        function loadShoppingListState() {
+            const stateStr = localStorage.getItem('shoppingListState');
+            if (!stateStr) return;
+
+            try {
+                const state = JSON.parse(stateStr);
+                const checkboxes = document.querySelectorAll('.shopping-item input[type="checkbox"]');
+                checkboxes.forEach((cb, i) => {
+                    if (state[i]) {
+                        cb.checked = true;
+                        cb.closest('.shopping-item').classList.add('checked');
+                    }
+                });
+            } catch (e) {
+                console.error('Error loading shopping list state:', e);
+            }
+        }
+
+        function uncheckAllShoppingItems() {
+            const checkboxes = document.querySelectorAll('.shopping-item input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+                cb.closest('.shopping-item').classList.remove('checked');
+            });
+            saveShoppingListState();
+        }
+
+        // Import modal functions
+        function openImportModal() {
+            document.getElementById('importModal').classList.remove('hidden');
+            switchImportTab('url');
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').classList.add('hidden');
+            document.getElementById('importRecipeForm').reset();
+            document.getElementById('importTextForm').reset();
+            document.getElementById('importPhotoForm').reset();
+            document.getElementById('importStatus').classList.add('hidden');
+            document.getElementById('importTextStatus').classList.add('hidden');
+            document.getElementById('importPhotoStatus').classList.add('hidden');
+            document.getElementById('photoPreview').style.display = 'none';
+        }
+
+        function switchImportTab(tab) {
+            // Update tab buttons
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => {
+                if (t.textContent.includes('URL') && tab === 'url') {
+                    t.classList.add('active');
+                } else if (t.textContent.includes('Text') && tab === 'text') {
+                    t.classList.add('active');
+                } else if (t.textContent.includes('Photo') && tab === 'photo') {
+                    t.classList.add('active');
+                } else {
+                    t.classList.remove('active');
+                }
+            });
+
+            // Update forms
+            const urlForm = document.getElementById('importRecipeForm');
+            const textForm = document.getElementById('importTextForm');
+            const photoForm = document.getElementById('importPhotoForm');
+
+            urlForm.classList.add('hidden');
+            textForm.classList.add('hidden');
+            photoForm.classList.add('hidden');
+
+            if (tab === 'url') {
+                urlForm.classList.remove('hidden');
+            } else if (tab === 'text') {
+                textForm.classList.remove('hidden');
+            } else if (tab === 'photo') {
+                photoForm.classList.remove('hidden');
+            }
+        }
+
+        // Photo preview
+        document.addEventListener('DOMContentLoaded', () => {
+            const photoInput = document.getElementById('recipePhoto');
+            if (photoInput) {
+                photoInput.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
+                    if (file && file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const preview = document.getElementById('photoPreview');
+                            const img = document.getElementById('photoPreviewImg');
+                            img.src = e.target.result;
+                            preview.style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // Initialize
             updateScheduleInfo();
             renderWeeklyCalendar();
-            {% if current_plan %}
-            loadCurrentPlan();
-            {% endif %}
+            loadShoppingListState();
 
             // Register service worker for PWA
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/static/service-worker.js')
-                    .then((registration) => {
-                        console.log('Service Worker registered:', registration.scope);
-                    })
-                    .catch((error) => {
-                        console.log('Service Worker registration failed:', error);
-                    });
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed:', err));
             }
         });
+
+        // Import form handlers
+        async function handleImportFormSubmit(event) {
+            event.preventDefault();
+            const url = document.getElementById('recipeUrl').value;
+            const importBtn = document.getElementById('importBtn');
+            const statusEl = document.getElementById('importStatus');
+
+            importBtn.disabled = true;
+            importBtn.innerHTML = '<span class="loading"></span> Importing...';
+            statusEl.className = 'status-message';
+            statusEl.textContent = 'Importing recipe...';
+            statusEl.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/import-recipe', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    statusEl.className = 'status-message success';
+                    statusEl.textContent = data.message;
+                    setTimeout(() => window.location.reload(), 2000);
+                } else {
+                    statusEl.className = 'status-message error';
+                    statusEl.textContent = data.message || data.error || 'Error importing recipe';
+                }
+            } catch (error) {
+                statusEl.className = 'status-message error';
+                statusEl.textContent = 'Error: ' + error.message;
+            } finally {
+                importBtn.disabled = false;
+                importBtn.innerHTML = 'Import Recipe';
+            }
+        }
+
+        async function handleTextImportFormSubmit(event) {
+            event.preventDefault();
+            const text = document.getElementById('recipeText').value;
+            const importBtn = document.getElementById('importTextBtn');
+            const statusEl = document.getElementById('importTextStatus');
+
+            importBtn.disabled = true;
+            importBtn.innerHTML = '<span class="loading"></span> Extracting...';
+            statusEl.className = 'status-message';
+            statusEl.textContent = 'Using AI to extract recipe...';
+            statusEl.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/import-recipe-text', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ text, language: 'auto' })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    statusEl.className = 'status-message success';
+                    statusEl.textContent = data.message;
+                    setTimeout(() => window.location.reload(), 2000);
+                } else {
+                    statusEl.className = 'status-message error';
+                    statusEl.textContent = data.message || data.error || 'Error importing recipe';
+                }
+            } catch (error) {
+                statusEl.className = 'status-message error';
+                statusEl.textContent = 'Error: ' + error.message;
+            } finally {
+                importBtn.disabled = false;
+                importBtn.innerHTML = 'Import from Text';
+            }
+        }
+
+        async function handlePhotoImportFormSubmit(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('recipePhoto');
+            const file = fileInput.files[0];
+            const importBtn = document.getElementById('importPhotoBtn');
+            const statusEl = document.getElementById('importPhotoStatus');
+
+            if (!file) {
+                statusEl.className = 'status-message error';
+                statusEl.textContent = 'Please select an image file';
+                statusEl.classList.remove('hidden');
+                return;
+            }
+
+            importBtn.disabled = true;
+            importBtn.innerHTML = '<span class="loading"></span> Analyzing...';
+            statusEl.className = 'status-message';
+            statusEl.textContent = 'Using AI to extract recipe from photo... (10-15 seconds)';
+            statusEl.classList.remove('hidden');
+
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const response = await fetch('/import-recipe-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    statusEl.className = 'status-message success';
+                    statusEl.textContent = data.message;
+                    setTimeout(() => window.location.reload(), 2000);
+                } else {
+                    statusEl.className = 'status-message error';
+                    statusEl.textContent = data.message || data.error || 'Error importing recipe';
+                }
+            } catch (error) {
+                statusEl.className = 'status-message error';
+                statusEl.textContent = 'Error: ' + error.message;
+            } finally {
+                importBtn.disabled = false;
+                importBtn.innerHTML = 'Import from Photo';
+            }
+        }
+
+        // Show message function
+        function showMessage(message, type = 'success') {
+            // Create temporary message
+            const messageEl = document.createElement('div');
+            messageEl.className = `status-message ${type}`;
+            messageEl.textContent = message;
+            messageEl.style.position = 'fixed';
+            messageEl.style.top = '2rem';
+            messageEl.style.right = '2rem';
+            messageEl.style.zIndex = '9999';
+            messageEl.style.minWidth = '300px';
+            messageEl.style.animation = 'slideInRight 0.3s ease';
+
+            document.body.appendChild(messageEl);
+
+            setTimeout(() => {
+                messageEl.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => messageEl.remove(), 300);
+            }, 3000);
+        }
     </script>
+
+    <style>
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    </style>
 </body>
 </html>
