@@ -87,8 +87,9 @@ jobs:
             
             # Try to get status from the first deployment in the list
             # We use try/catch in jq to avoid script failure on missing keys
-            STATUS=$(echo "$RAW_STATUS" | jq -r '.deployments[0].status // .deployments.edges[0].node.status // "UNKNOWN"' 2>/dev/null)
-            DEPLOYMENT_ID=$(echo "$RAW_STATUS" | jq -r '.deployments[0].id // .deployments.edges[0].node.id // "UNKNOWN"' 2>/dev/null)
+            # We also try a recursive search as a fallback since the structure can vary
+            STATUS=$(echo "$RAW_STATUS" | jq -r '(.deployments[0].status // .deployments.edges[0].node.status // (.. | .latestDeployment? | select(. != null) | .status) // "UNKNOWN")' 2>/dev/null | head -n 1)
+            DEPLOYMENT_ID=$(echo "$RAW_STATUS" | jq -r '(.deployments[0].id // .deployments.edges[0].node.id // (.. | .latestDeployment? | select(. != null) | .id) // "UNKNOWN")' 2>/dev/null | head -n 1)
             
             echo "Attempt $ATTEMPT: Status: $STATUS (ID: $DEPLOYMENT_ID)"
             
