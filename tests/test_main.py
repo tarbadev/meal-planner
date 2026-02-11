@@ -1194,3 +1194,290 @@ class TestShareRecipe:
         assert response.location.endswith('/')
         assert 'import_url' not in response.location
         assert 'import_text' not in response.location
+
+
+class TestRegenerateMeal:
+    """Test the /manual-plan/regenerate-meal endpoint."""
+
+    def test_regenerate_meal_success(self, client, monkeypatch):
+        """Test successful meal regeneration."""
+        from unittest.mock import patch
+
+        from app import main
+
+        main.manual_plan = {
+            "Monday": {
+                "Dinner": {
+                    "recipe_id": "pasta-bolognese",
+                    "servings": 2
+                }
+            }
+        }
+
+        with patch('random.choice') as mock_choice:
+            mock_choice.return_value = create_test_recipe(
+                recipe_id="chicken-stir-fry",
+                name="Chicken Stir Fry",
+                tags=["dinner"]
+            )
+
+            response = client.post(
+                '/manual-plan/regenerate-meal',
+                data=json.dumps({
+                    "day": "Monday",
+                    "meal_type": "Dinner"
+                }),
+                content_type='application/json'
+            )
+
+            assert response.status_code == 200
+            data = json.loads(response.data)
+            assert data['success'] is True
+            assert 'Regenerated Monday Dinner' in data['message']
+            assert data['recipe_name'] == 'Chicken Stir Fry'
+            assert main.manual_plan["Monday"]["Dinner"]["recipe_id"] == "chicken-stir-fry"
+            assert main.manual_plan["Monday"]["Dinner"]["servings"] == 2
+
+    def test_regenerate_meal_maintains_servings(self, client, monkeypatch):
+        """Test that regeneration maintains the original serving size."""
+        from app import main
+
+        main.manual_plan = {
+            "Tuesday": {
+                "Lunch": {
+                    "recipe_id": "pasta-bolognese",
+                    "servings": 3
+                }
+            }
+        }
+
+        response = client.post(
+            '/manual-plan/regenerate-meal',
+            data=json.dumps({
+                "day": "Tuesday",
+                "meal_type": "Lunch"
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        assert main.manual_plan["Tuesday"]["Lunch"]["servings"] == 3
+
+    def test_regenerate_meal_excludes_current_recipe(self, client, tmp_path, monkeypatch):
+        """Test that regeneration excludes the current recipe."""
+        from app import config, main
+        from app.recipes import load_recipes
+
+        main.manual_plan = {
+            "Wednesday": {
+                "Dinner": {
+                    "recipe_id": "pasta-bolognese",
+                    "servings": 2
+                }
+            }
+        }
+
+        response = client.post(
+            '/manual-plan/regenerate-meal',
+            data=json.dumps({
+                "day": "Wednesday",
+                "meal_type": "Dinner"
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        new_recipe_id = main.manual_plan["Wednesday"]["Dinner"]["recipe_id"]
+        assert new_recipe_id != "pasta-bolognese"
+
+    def test_regenerate_meal_prefers_matching_tags(self, client, tmp_path, monkeypatch):
+        """Test that regeneration prefers recipes with matching meal type tags."""
+        from unittest.mock import patch
+
+        from app import main
+
+        main.manual_plan = {
+            "Thursday": {
+                "Dinner": {
+                    "recipe_id": "pasta-bolognese",
+                    "servings": 2
+                }
+            }
+        }
+
+        dinner_recipe = create_test_recipe(
+            recipe_id="chicken-stir-fry",
+            name="Chicken Stir Fry",
+            tags=["dinner", "quick"]
+        )
+        breakfast_recipe = create_test_recipe(
+            recipe_id="pancakes",
+            name="Pancakes",
+            tags=["breakfast"]
+        )
+
+        with patch('app.main.load_recipes') as mock_load:
+            mock_load.return_value = [
+                create_test_recipe(
+                    recipe_id="pasta-bolognese",
+                    name="Pasta Bolognese",
+                    tags=["dinner"]
+                ),
+                dinner_recipe,
+                breakfast_recipe
+            ]
+
+            with patch('random.choice') as mock_choice:
+                mock_choice.return_value = dinner_recipe
+
+                response = client.post(
+                    '/manual-plan/regenerate-meal',
+                    data=json.dumps({
+                        "day": "Thursday",
+                        "meal_type": "Dinner"
+                    }),
+                    content_type='application/json'
+                )
+
+                assert response.status_code == 200
+                matching_recipes_arg = mock_choice.call_args[0][0]
+                assert any(r.id == "chicken-stir-fry" for r in matching_recipes_arg)
+                assert not any(r.id == "pancakes" for r in matching_recipes_arg)
+
+    def test_regenerate_meal_missing_day(self, client):
+        """Test that missing day returns error."""
+        response = client.post(
+            '/manual-plan/regenerate-meal',
+            data=json.dumps({
+                "meal_type": "Dinner"
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+        assert 'Missing day or meal_type' in data['error']
+
+    def test_regenerate_meal_missing_meal_type(self, client):
+        """Test that missing meal_type returns error."""
+        response = client.post(
+            '/manual-plan/regenerate-meal',
+            data=json.dumps({
+                "day": "Monday"
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+        assert 'Missing day or meal_type' in data['error']
+
+    def test_regenerate_meal_not_in_plan(self, client):
+        """Test that regenerating a meal not in plan returns error."""
+        from app import main
+
+        main.manual_plan = {}
+
+        response = client.post(
+            '/manual-plan/regenerate-meal',
+            data=json.dumps({
+                "day": "Monday",
+                "meal_type": "Dinner"
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 404
+        data = json.loads(response.data)
+        assert 'error' in data
+        assert 'Meal not found in plan' in data['error']
+
+    def test_regenerate_meal_no_other_recipes(self, client, tmp_path, monkeypatch):
+        """Test that regenerating when only one recipe exists returns error."""
+        from app import config, main
+        from app.recipes import save_recipes
+
+        recipes_file = tmp_path / "single_recipe.json"
+        single_recipe = [
+            create_test_recipe(
+                recipe_id="only-recipe",
+                name="Only Recipe",
+                tags=["dinner"]
+            )
+        ]
+        save_recipes(recipes_file, single_recipe)
+        monkeypatch.setattr(config, 'RECIPES_FILE', str(recipes_file))
+
+        main.manual_plan = {
+            "Friday": {
+                "Dinner": {
+                    "recipe_id": "only-recipe",
+                    "servings": 2
+                }
+            }
+        }
+
+        response = client.post(
+            '/manual-plan/regenerate-meal',
+            data=json.dumps({
+                "day": "Friday",
+                "meal_type": "Dinner"
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+        assert 'No other recipes available' in data['error']
+
+    def test_regenerate_meal_invalid_json(self, client):
+        """Test that invalid JSON returns error."""
+        response = client.post(
+            '/manual-plan/regenerate-meal',
+            data='not valid json',
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+        assert 'Invalid JSON' in data['error']
+
+    def test_regenerate_meal_fallback_to_any_recipe(self, client, tmp_path, monkeypatch):
+        """Test that regeneration falls back to any recipe when no matching tags."""
+        from unittest.mock import patch
+
+        from app import main
+
+        main.manual_plan = {
+            "Saturday": {
+                "Snack": {
+                    "recipe_id": "pasta-bolognese",
+                    "servings": 1
+                }
+            }
+        }
+
+        with patch('random.choice') as mock_choice:
+            mock_choice.return_value = create_test_recipe(
+                recipe_id="chicken-stir-fry",
+                name="Chicken Stir Fry",
+                tags=["dinner", "lunch"]
+            )
+
+            response = client.post(
+                '/manual-plan/regenerate-meal',
+                data=json.dumps({
+                    "day": "Saturday",
+                    "meal_type": "Snack"
+                }),
+                content_type='application/json'
+            )
+
+            assert response.status_code == 200
+            data = json.loads(response.data)
+            assert data['success'] is True
+            assert main.manual_plan["Saturday"]["Snack"]["recipe_id"] == "chicken-stir-fry"

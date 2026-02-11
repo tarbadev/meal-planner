@@ -1,11 +1,11 @@
 # Meal Planner Pro - Feature Specification
 
 ## Progress Summary
-**Total Features Implemented: 31 / 150+ (21%)**
+**Total Features Implemented: 32 / 150+ (21%)**
 
 ### Implementation Status by Category:
 - Recipe Management: 12/20 features (60%)
-- Meal Planning: 7/15 features (47%)
+- Meal Planning: 8/15 features (53%)
 - Shopping List: 3/12 features (25%)
 - UI/UX: 4/8 features (50%)
 - Export & Integration: 1/5 features (20%)
@@ -107,7 +107,7 @@
   - ✅ Manual meal addition
   - ✅ Remove individual meals
   - ✅ Update servings per meal
-  - ⬜ Regenerate specific meals
+  - ✅ Regenerate specific meals
   - ⬜ Copy meals between days
   - ⬜ Reorder meals
 

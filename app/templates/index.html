@@ -1527,6 +1527,9 @@
                                 <button class="btn btn-small btn-outline" onclick="editMealServings('${day}', '${mealType}', ${meal.portions || 1})">
                                     Edit
                                 </button>
+                                <button class="btn btn-small btn-outline" onclick="regenerateMeal('${day}', '${mealType}')" title="Regenerate with a different recipe">
+                                    🔄
+                                </button>
                                 <button class="btn btn-small btn-outline" onclick="removeMeal('${day}', '${mealType}')" style="color: var(--color-error);">
                                     ✕
                                 </button>
@@ -1628,6 +1631,29 @@
                 }
             } catch (error) {
                 showMessage('Error updating servings: ' + error.message, 'error');
+            }
+        }
+
+        async function regenerateMeal(day, mealType) {
+            if (!confirm(`Regenerate ${mealType} with a different recipe?`)) return;
+
+            try {
+                const response = await fetch('/manual-plan/regenerate-meal', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ day, meal_type: mealType })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(`Regenerated with: ${data.recipe_name}`, 'success');
+                    await loadCurrentPlan();
+                } else {
+                    showMessage('Error: ' + (data.error || 'Failed to regenerate meal'), 'error');
+                }
+            } catch (error) {
+                showMessage('Error regenerating meal: ' + error.message, 'error');
             }
         }
 

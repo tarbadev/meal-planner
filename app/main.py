@@ -1265,6 +1265,56 @@ def update_meal_servings():
     })
 
 
+@app.route("/manual-plan/regenerate-meal", methods=["POST"])
+def regenerate_meal():
+    """Regenerate a specific meal with a new random recipe."""
+    global manual_plan, current_plan, current_shopping_list
+    import random
+
+    try:
+        data = request.get_json()
+    except Exception:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    day = data.get("day")
+    meal_type = data.get("meal_type")
+
+    if not day or not meal_type:
+        return jsonify({"error": "Missing day or meal_type"}), 400
+
+    if day not in manual_plan or meal_type not in manual_plan[day]:
+        return jsonify({"error": "Meal not found in plan"}), 404
+
+    current_servings = manual_plan[day][meal_type]["servings"]
+    current_recipe_id = manual_plan[day][meal_type]["recipe_id"]
+
+    recipes_file = Path(config.RECIPES_FILE)
+    recipes = load_recipes(recipes_file)
+    available_recipes = [r for r in recipes if r.id != current_recipe_id]
+
+    if not available_recipes:
+        return jsonify({"error": "No other recipes available"}), 400
+
+    matching_recipes = [r for r in available_recipes if meal_type.lower() in [t.lower() for t in r.tags]]
+    if matching_recipes:
+        new_recipe = random.choice(matching_recipes)
+    else:
+        new_recipe = random.choice(available_recipes)
+
+    manual_plan[day][meal_type] = {
+        "recipe_id": new_recipe.id,
+        "servings": current_servings
+    }
+
+    _regenerate_from_manual_plan(recipes)
+
+    return jsonify({
+        "success": True,
+        "message": f"Regenerated {day} {meal_type}",
+        "recipe_name": new_recipe.name
+    })
+
+
 @app.route("/manual-plan/clear", methods=["POST"])
 def clear_manual_plan():
     """Clear the entire manual meal plan."""
