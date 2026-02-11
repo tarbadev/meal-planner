@@ -342,7 +342,7 @@ class IngredientParser:
                     idx = clean_text.lower().find(prep_word)
                     if idx > 0:  # Not at the very start
                         item = clean_text[:idx].strip()
-                        notes = clean_text[idx:].strip()
+                        notes = clean_text[idx:].strip().rstrip(')')
                         break
 
         # Clean up item name

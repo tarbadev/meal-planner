@@ -846,16 +846,17 @@
           "category": "produce"
         },
         {
-          "item": "Tbsp. Avocado Oil",
+          "item": "Avocado Oil",
           "quantity": 1.0,
           "unit": "tbsp",
           "category": "produce"
         },
         {
-          "item": "Tsp. Lawry's Seasoned Salt season to taste",
+          "item": "Lawry's Seasoned Salt",
           "quantity": 2.0,
           "unit": "tsp",
-          "category": "pantry"
+          "category": "pantry",
+          "notes": "season to taste"
         }
       ],
       "instructions": [
@@ -1101,77 +1102,6 @@
       ],
       "source_url": "https://www.twopeasandtheirpod.com/buttermilk-banana-bread/",
       "image_url": "https://www.twopeasandtheirpod.com/wp-content/uploads/2018/02/Buttermilk-Banana-Bread-2.jpg"
-    },
-    {
-      "id": "homemade-french-fries-in-air-fry-range-2",
-      "name": "Homemade French Fries in Air Fry Range",
-      "servings": 4,
-      "prep_time_minutes": 45,
-      "cook_time_minutes": 20,
-      "nutrition_per_serving": {
-        "calories": 153,
-        "protein": 3.0,
-        "carbs": 26.0,
-        "fat": 5.0,
-        "saturated_fat": 1.0,
-        "polyunsaturated_fat": 4.0,
-        "monounsaturated_fat": null,
-        "sodium": 782.0,
-        "potassium": null,
-        "fiber": 2.0,
-        "sugar": 1.0,
-        "vitamin_a": null,
-        "vitamin_c": null,
-        "calcium": null,
-        "iron": null
-      },
-      "tags": [
-        "baking",
-        "vegetarian",
-        "vegan"
-      ],
-      "ingredients": [
-        {
-          "item": "Russet Potatoes",
-          "quantity": 1.0,
-          "unit": "serving",
-          "category": "produce"
-        },
-        {
-          "item": "Tbsp. Avocado Oil",
-          "quantity": 1.0,
-          "unit": "tbsp",
-          "category": "produce"
-        },
-        {
-          "item": "Tsp. Lawry's Seasoned Salt season to taste",
-          "quantity": 2.0,
-          "unit": "tsp",
-          "category": "pantry"
-        }
-      ],
-      "instructions": [
-        "Select Air Fry and set the cooking temperature to 400\u00b0F.",
-        "Wash the potatoes. Peel if you prefer no skins. I recommend leaving them on.",
-        "Cut the ends off of the potato and slice the potatoes into 1/2 in. slices lengthwise.",
-        "Now cut each slice into even strips that are around 1/2 inch thick.",
-        "Place the sliced potatoes in a bowl of cold water.",
-        "Agitate the potatoes in the water with your hands until the water becomes cloudy.",
-        "Pour out the water and refill the bowl with cold water again.",
-        "Allow the potatoes to soak for 15-30 minutes. (the longer the better)",
-        "Drain the water and place the potatoes on a paper towel-lined baking sheet.",
-        "Pat with paper towels to remove excess water. Allow the potatoes to air dry for a minimum of 15 minutes.",
-        "Return the dry potatoes to the mixing bowl and drizzle oven avocado oil.",
-        "Toss the potatoes to coat them lightly in oil.",
-        "Season the potatoes and toss again to coat evenly.",
-        "Dump the oiled and seasoned potatoes onto the Frigidaire ReadyCook Air FryTray.",
-        "Spread the potatoes out into one layer.",
-        "Place the air fry tray into the Frigidaire Air Fry Oven with a prepared drip tray two rack spaces below the air fry tray to prevent any crumbs or drips from falling onto the bottom of the oven.",
-        "Air fry French Fries for 20 minutes turning with a spatula halfway through the cooking cycle.",
-        "For extra crispy fries turn the air frying temperature up to 500\u00b0 for an additional 5 minutes or until the fries reach the desired crispness."
-      ],
-      "source_url": "https://www.hollishomestead.com/homemade-french-fries-in-air-fry-range/#recipe",
-      "image_url": "https://www.hollishomestead.com/wp-content/uploads/2022/01/Air-Fried-Crunchwrap-Supreme-87.jpg"
     }
   ]
 }
