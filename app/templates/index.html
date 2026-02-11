@@ -308,6 +308,137 @@
         .week-calendar {
             display: grid;
             gap: 1rem;
+            position: relative;
+        }
+
+        /* Landscape mode: Show all days in a grid */
+        @media (min-width: 768px) and (orientation: landscape), (min-width: 1024px) {
+            .week-calendar {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .calendar-nav {
+                display: none;
+            }
+
+            .day-card {
+                display: block !important;
+            }
+        }
+
+        /* Portrait mode: Show one day at a time */
+        @media (max-width: 767px), (max-width: 1023px) and (orientation: portrait) {
+            .week-calendar {
+                grid-template-columns: 1fr;
+                overflow: hidden;
+            }
+
+            .day-card {
+                display: none;
+            }
+
+            .day-card.active {
+                display: block;
+                animation: slideIn 0.3s ease-out;
+            }
+
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+        }
+
+        /* Calendar Navigation Controls */
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            margin-bottom: 1rem;
+            border: 1px solid var(--color-border);
+        }
+
+        .calendar-nav-btn {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.25rem;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .calendar-nav-btn:hover:not(:disabled) {
+            background: var(--color-primary-dark);
+            transform: scale(1.05);
+        }
+
+        .calendar-nav-btn:disabled {
+            background: var(--color-border);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .calendar-nav-center {
+            flex: 1;
+            text-align: center;
+            padding: 0 1rem;
+        }
+
+        .calendar-current-day {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 0.25rem;
+        }
+
+        .calendar-day-progress {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-border);
+            transition: var(--transition);
+        }
+
+        .progress-dot.active {
+            background: var(--color-primary);
+            width: 10px;
+            height: 10px;
+        }
+
+        .swipe-hint {
+            text-align: center;
+            color: var(--color-text-light);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            opacity: 0;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
         }
 
         .day-card {
@@ -1009,6 +1140,21 @@
                 </div>
             </div>
 
+            <!-- Mobile/Portrait Navigation -->
+            <div id="calendarNav" class="calendar-nav" style="display: none;">
+                <button id="prevDayBtn" class="calendar-nav-btn" onclick="navigateDay(-1)">
+                    ‹
+                </button>
+                <div class="calendar-nav-center">
+                    <div id="currentDayName" class="calendar-current-day"></div>
+                    <div id="dayProgress" class="calendar-day-progress"></div>
+                </div>
+                <button id="nextDayBtn" class="calendar-nav-btn" onclick="navigateDay(1)">
+                    ›
+                </button>
+            </div>
+            <div id="swipeHint" class="swipe-hint">Swipe left or right to navigate days</div>
+
             <div id="weeklyCalendar" class="week-calendar">
                 <!-- Calendar will be rendered by JavaScript -->
             </div>
@@ -1484,13 +1630,64 @@
             }
         }
 
+        // Current day index for portrait mode navigation
+        let currentDayIndex = 0;
+
+        // Detect if we're in portrait/mobile mode
+        function isPortraitMode() {
+            return window.matchMedia('(max-width: 767px), (max-width: 1023px) and (orientation: portrait)').matches;
+        }
+
+        // Navigate between days in portrait mode
+        function navigateDay(direction) {
+            currentDayIndex = Math.max(0, Math.min(DAYS_OF_WEEK.length - 1, currentDayIndex + direction));
+            updateDayView();
+        }
+
+        // Update the visible day and navigation controls
+        function updateDayView() {
+            if (!isPortraitMode()) return;
+
+            const dayCards = document.querySelectorAll('.day-card');
+            dayCards.forEach((card, index) => {
+                card.classList.toggle('active', index === currentDayIndex);
+            });
+
+            const currentDay = DAYS_OF_WEEK[currentDayIndex];
+            document.getElementById('currentDayName').textContent = currentDay;
+            document.getElementById('prevDayBtn').disabled = currentDayIndex === 0;
+            document.getElementById('nextDayBtn').disabled = currentDayIndex === DAYS_OF_WEEK.length - 1;
+
+            const progressEl = document.getElementById('dayProgress');
+            progressEl.innerHTML = DAYS_OF_WEEK.map((_, i) =>
+                `<span class="progress-dot ${i === currentDayIndex ? 'active' : ''}"></span>`
+            ).join('');
+        }
+
+        // Setup swipe gesture detection
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    navigateDay(1);
+                } else {
+                    navigateDay(-1);
+                }
+            }
+        }
+
         // Render weekly calendar
         function renderWeeklyCalendar(planData = null) {
             const calendarEl = document.getElementById('weeklyCalendar');
             const currentPlan = planData || currentPlanData;
             const customSchedule = getCustomSchedule();
 
-            calendarEl.innerHTML = DAYS_OF_WEEK.map(day => {
+            calendarEl.innerHTML = DAYS_OF_WEEK.map((day, index) => {
                 const mealSlots = customSchedule[day] ? Object.keys(customSchedule[day]) : [];
                 const dayNutrition = currentPlan?.daily_nutrition?.[day] || {};
                 const dayCalories = Math.round(dayNutrition.calories || 0);
@@ -1499,7 +1696,7 @@
                 const limitText = calorieLimit ? ` / ${calorieLimit}` : '';
 
                 return `
-                    <div class="day-card">
+                    <div class="day-card ${isPortraitMode() && index === currentDayIndex ? 'active' : ''}">
                         <div class="day-header ${isOverLimit ? 'over-limit' : ''}">
                             <div class="day-name">${day}</div>
                             <div class="day-calories">
@@ -1513,6 +1710,31 @@
                     </div>
                 `;
             }).join('');
+
+            updateResponsiveUI();
+        }
+
+        // Update UI based on orientation/screen size
+        function updateResponsiveUI() {
+            const navEl = document.getElementById('calendarNav');
+            const hintEl = document.getElementById('swipeHint');
+            const inPortrait = isPortraitMode();
+
+            navEl.style.display = inPortrait ? 'flex' : 'none';
+
+            if (inPortrait) {
+                updateDayView();
+                if (!localStorage.getItem('swipeHintShown')) {
+                    hintEl.style.display = 'block';
+                    setTimeout(() => {
+                        localStorage.setItem('swipeHintShown', 'true');
+                    }, 3000);
+                } else {
+                    hintEl.style.display = 'none';
+                }
+            } else {
+                hintEl.style.display = 'none';
+            }
         }
 
         function renderMealSlot(day, mealType, currentPlan) {
@@ -1835,6 +2057,33 @@
 
             // Handle share target query parameters
             handleShareTargetParams();
+
+            // Setup touch gestures for swipe navigation
+            const calendarEl = document.getElementById('weeklyCalendar');
+            calendarEl.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+
+            calendarEl.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, { passive: true });
+
+            // Handle keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (!isPortraitMode()) return;
+                if (e.key === 'ArrowLeft') {
+                    navigateDay(-1);
+                } else if (e.key === 'ArrowRight') {
+                    navigateDay(1);
+                }
+            });
+
+            // Update responsive UI on resize/orientation change
+            window.addEventListener('resize', updateResponsiveUI);
+            window.addEventListener('orientationchange', () => {
+                setTimeout(updateResponsiveUI, 100);
+            });
         });
 
         // Import form handlers
