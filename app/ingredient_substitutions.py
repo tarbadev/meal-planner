@@ -1,7 +1,5 @@
 """Ingredient substitution suggestions for meal planning flexibility."""
 
-from typing import Optional
-
 
 # Comprehensive ingredient substitution database
 SUBSTITUTIONS = {
@@ -160,7 +158,7 @@ SUBSTITUTIONS = {
 }
 
 
-def get_substitutions(ingredient: str) -> Optional[list[dict]]:
+def get_substitutions(ingredient: str) -> list[dict] | None:
     """
     Get substitution suggestions for an ingredient.
 
