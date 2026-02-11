@@ -1,14 +1,15 @@
 # Meal Planner Pro - Feature Specification
 
 ## Progress Summary
-**Total Features Implemented: 27 / 150+ (18%)**
+**Total Features Implemented: 29 / 150+ (19%)**
 
 ### Implementation Status by Category:
-- Recipe Management: 8/20 features (40%)
-- Meal Planning: 6/15 features (40%)
+- Recipe Management: 10/20 features (50%)
+- Meal Planning: 7/15 features (47%)
 - Shopping List: 3/12 features (25%)
-- UI/UX: 3/8 features (38%)
-- Other Categories: 7/95+ features (7%)
+- UI/UX: 4/8 features (50%)
+- Export & Integration: 1/5 features (20%)
+- Other Categories: 4/90+ features (4%)
 
 ## Core Features
 
@@ -40,7 +41,7 @@
   - ✅ Import from URL (Schema.org, WPRM, HTML patterns)
   - ✅ Import from text (AI-powered with GPT)
   - ✅ Import from photo (GPT-4 Vision for recipe cards, cookbooks, magazines)
-  - ✅ Import from Instagram posts
+  - ✅ Import from Instagram posts (text-based with AI extraction)
   - ⬜ Import from video (YouTube cooking videos with AI extraction)
   - ⬜ Import from voice notes
   - ⬜ Share to app from browser/other apps
@@ -62,13 +63,15 @@
     - ⬜ By available ingredients
 
 - **Recipe Details**
-  - ✅ Ingredient parser with notes
+  - ✅ Ingredient parser with notes and categorization
   - ✅ Source URL tracking
   - ✅ Nutrition information (15 fields via USDA API)
-  - ⬜ Prep and cook time
-  - ⬜ Servings with scaling
-  - ⬜ Step-by-step instructions
-  - ✅ Recipe images extraction and display
+  - ✅ Prep and cook time tracking
+  - ✅ Servings configuration
+  - ✅ Step-by-step instructions display
+  - ✅ Recipe images extraction and display (both card and detail page)
+  - ✅ Recipe editing (via API)
+  - ⬜ Servings scaling calculator
   - ⬜ User reviews and comments
   - ⬜ Tips and modifications
   - ⬜ Equipment needed
@@ -76,14 +79,14 @@
 
 ### 3. Meal Planning
 - **Flexible Planning**
-  - Configurable meal schedule per user/home
-    - Select which meals (breakfast, lunch, dinner, snacks)
-    - Set portions per meal per family member
-    - Choose which days to plan
-    - Skip days (eating out, traveling, etc.)
-  - Default settings to reduce repetitive configuration
-  - Multi-week planning support
-  - Quick plan regeneration with different recipes
+  - ✅ Configurable meal schedule per home
+    - ✅ Select which meals (breakfast, lunch, dinner, snacks)
+    - ✅ Set portions per meal
+    - ✅ Choose which days to plan
+    - ⬜ Skip days (eating out, traveling, etc.)
+  - ✅ Default settings to reduce repetitive configuration
+  - ⬜ Multi-week planning support
+  - ✅ Quick plan regeneration with different recipes
 
 - **Smart Planning**
   - AI-powered meal suggestions based on:
@@ -99,28 +102,31 @@
   - Quick meal suggestions for busy days
 
 - **Plan Customization**
-  - Edit generated plan
-  - Swap individual meals
-  - Regenerate specific meals
-  - Manual meal selection
-  - Copy meals between days
-  - Reorder meals
+  - ✅ Edit generated plan
+  - ✅ Swap individual meals
+  - ✅ Manual meal addition
+  - ✅ Remove individual meals
+  - ✅ Update servings per meal
+  - ⬜ Regenerate specific meals
+  - ⬜ Copy meals between days
+  - ⬜ Reorder meals
 
 - **Nutrition Management**
-  - Set daily calorie limits per home
-  - Override calorie limit for specific days
-  - View weekly/daily nutrition totals
-  - Nutrition goal tracking per user
-  - Macro balance visualization
+  - ✅ Set daily calorie limits per home
+  - ✅ View daily nutrition totals (calories, protein, carbs, fat, and 11 other nutrients)
+  - ⬜ Override calorie limit for specific days
+  - ⬜ View weekly nutrition summaries
+  - ⬜ Nutrition goal tracking per user
+  - ⬜ Macro balance visualization
 
 ### 4. Shopping List
 - **List Management**
-  - Automatic generation from meal plan
-  - Check off items while shopping
-  - Editable quantities and items
-  - Add custom items
-  - Organize by store section/category
-  - Multiple lists (different stores, backup items)
+  - ✅ Automatic generation from meal plan
+  - ✅ Check off items while shopping (frontend UI)
+  - ✅ Organize by store section/category (produce, meat, dairy, grains, pantry, spices)
+  - ⬜ Editable quantities and items
+  - ⬜ Add custom items
+  - ⬜ Multiple lists (different stores, backup items)
 
 - **Smart Features**
   - Consolidate recurring items across weeks
@@ -227,11 +233,12 @@
 
 ### 11. Export & Sharing
 - **Export Options**
-  - Meal plans to PDF/email
-  - Shopping lists to various formats
-  - Recipe cards for printing
-  - Calendar events (sync to Google/Apple Calendar)
-  - Nutrition reports
+  - ✅ Export to Google Sheets (meal plan and shopping list)
+  - ⬜ Meal plans to PDF/email
+  - ⬜ Shopping lists to various formats
+  - ⬜ Recipe cards for printing
+  - ⬜ Calendar events (sync to Google/Apple Calendar)
+  - ⬜ Nutrition reports
 
 - **Sharing**
   - Share individual recipes
@@ -242,14 +249,14 @@
 ## UX & Accessibility
 
 ### User Experience
-- Simple, intuitive interface
-- Minimal steps to accomplish tasks
-- Smart defaults to reduce configuration
-- Progressive disclosure (advanced features hidden until needed)
-- Consistent design language
-- Fast load times and smooth animations
-- Gesture support
-- Undo/redo support
+- ✅ Simple, intuitive interface with modern design
+- ✅ Minimal steps to accomplish tasks
+- ✅ Smart defaults to reduce configuration
+- ✅ Responsive mobile-first design
+- ⬜ Progressive disclosure (advanced features hidden until needed)
+- ⬜ Fast load times and smooth animations
+- ⬜ Gesture support
+- ⬜ Undo/redo support
 
 ### Accessibility
 - Screen reader support
