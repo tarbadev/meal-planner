@@ -945,6 +945,10 @@
                         <span class="btn-icon">📥</span>
                         Import Recipe
                     </button>
+                    <button class="btn btn-primary" onclick="openCreateRecipeModal()">
+                        <span class="btn-icon">➕</span>
+                        Create Recipe
+                    </button>
                     <button class="btn btn-secondary" onclick="openScheduleConfig()">
                         <span class="btn-icon">⚙️</span>
                         Configure Schedule
@@ -1206,6 +1210,86 @@
                     <button onclick="saveScheduleConfig()" class="btn btn-primary" style="flex: 1;">Save Schedule</button>
                     <button type="button" onclick="closeScheduleModal()" class="btn btn-outline">Cancel</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Recipe Modal -->
+    <div id="createRecipeModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Create Recipe</h2>
+                <button class="modal-close" onclick="closeCreateRecipeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="createRecipeForm" onsubmit="handleCreateRecipeSubmit(event)">
+                    <div class="form-group">
+                        <label for="recipeName">Recipe Name *</label>
+                        <input type="text" id="recipeName" required placeholder="e.g., Chicken Stir Fry">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="recipeServings">Servings *</label>
+                            <input type="number" id="recipeServings" required min="1" step="0.5" value="4">
+                        </div>
+                        <div class="form-group">
+                            <label for="recipePrepTime">Prep Time (min)</label>
+                            <input type="number" id="recipePrepTime" min="0" value="15">
+                        </div>
+                        <div class="form-group">
+                            <label for="recipeCookTime">Cook Time (min)</label>
+                            <input type="number" id="recipeCookTime" min="0" value="30">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recipeIngredients">Ingredients *</label>
+                        <div id="ingredientsList" style="display: grid; gap: 0.5rem; margin-bottom: 0.75rem;">
+                            <input type="text" class="ingredient-input" placeholder="e.g., 2 cups chicken breast, diced" required>
+                        </div>
+                        <button type="button" class="btn btn-outline btn-small" onclick="addIngredientField()">
+                            + Add Ingredient
+                        </button>
+                        <p class="form-hint">Add one ingredient per line</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recipeInstructions">Instructions *</label>
+                        <div id="instructionsList" style="display: grid; gap: 0.5rem; margin-bottom: 0.75rem;">
+                            <textarea class="instruction-input" rows="2" placeholder="Step 1: Heat oil in a pan..." required></textarea>
+                        </div>
+                        <button type="button" class="btn btn-outline btn-small" onclick="addInstructionField()">
+                            + Add Step
+                        </button>
+                        <p class="form-hint">Add one step per box</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recipeTags">Tags (comma-separated)</label>
+                        <input type="text" id="recipeTags" placeholder="e.g., dinner, asian, quick">
+                        <p class="form-hint">Optional: Add tags to help organize and find this recipe</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recipeSourceUrl">Source URL</label>
+                        <input type="url" id="recipeSourceUrl" placeholder="https://example.com/recipe">
+                        <p class="form-hint">Optional: Link to the original recipe</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recipeImageUrl">Image URL</label>
+                        <input type="url" id="recipeImageUrl" placeholder="https://example.com/image.jpg">
+                        <p class="form-hint">Optional: Link to an image of the dish</p>
+                    </div>
+
+                    <div id="createRecipeStatus" class="status-message hidden"></div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="createRecipeBtn" class="btn btn-primary" style="flex: 1;">Create Recipe</button>
+                        <button type="button" class="btn btn-outline" onclick="closeCreateRecipeModal()">Cancel</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -1665,6 +1749,33 @@
             }
         }
 
+        // Handle share target query parameters from PWA share
+        function handleShareTargetParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const importUrl = urlParams.get('import_url');
+            const importText = urlParams.get('import_text');
+
+            if (importUrl) {
+                // Auto-open import modal with URL pre-filled
+                openImportModal();
+                switchImportTab('url');
+                document.getElementById('recipeUrl').value = decodeURIComponent(importUrl);
+                showMessage('Recipe URL shared to Meal Planner! Click "Import Recipe" to continue.', 'success');
+
+                // Clean up URL without page reload
+                window.history.replaceState({}, document.title, '/');
+            } else if (importText) {
+                // Auto-open import modal with text pre-filled
+                openImportModal();
+                switchImportTab('text');
+                document.getElementById('recipeText').value = decodeURIComponent(importText);
+                showMessage('Recipe text shared to Meal Planner! Click "Import from Text" to continue.', 'success');
+
+                // Clean up URL without page reload
+                window.history.replaceState({}, document.title, '/');
+            }
+        }
+
         // Photo preview
         document.addEventListener('DOMContentLoaded', () => {
             const photoInput = document.getElementById('recipePhoto');
@@ -1695,6 +1806,9 @@
                     .then(reg => console.log('Service Worker registered'))
                     .catch(err => console.log('Service Worker registration failed:', err));
             }
+
+            // Handle share target query parameters
+            handleShareTargetParams();
         });
 
         // Import form handlers
@@ -1841,6 +1955,131 @@
                 messageEl.style.animation = 'slideOutRight 0.3s ease';
                 setTimeout(() => messageEl.remove(), 300);
             }, 3000);
+        }
+
+        // Create Recipe modal functions
+        function openCreateRecipeModal() {
+            document.getElementById('createRecipeModal').classList.remove('hidden');
+            // Reset form to initial state with 1 ingredient and 1 instruction
+            document.getElementById('createRecipeForm').reset();
+            document.getElementById('ingredientsList').innerHTML = '<input type="text" class="ingredient-input" placeholder="e.g., 2 cups chicken breast, diced" required>';
+            document.getElementById('instructionsList').innerHTML = '<textarea class="instruction-input" rows="2" placeholder="Step 1: Heat oil in a pan..." required></textarea>';
+            document.getElementById('createRecipeStatus').classList.add('hidden');
+        }
+
+        function closeCreateRecipeModal() {
+            document.getElementById('createRecipeModal').classList.add('hidden');
+        }
+
+        function addIngredientField() {
+            const list = document.getElementById('ingredientsList');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'ingredient-input';
+            input.placeholder = 'e.g., 1 cup water';
+            list.appendChild(input);
+        }
+
+        function addInstructionField() {
+            const list = document.getElementById('instructionsList');
+            const textarea = document.createElement('textarea');
+            textarea.className = 'instruction-input';
+            textarea.rows = 2;
+            textarea.placeholder = `Step ${list.children.length + 1}: ...`;
+            list.appendChild(textarea);
+        }
+
+        async function handleCreateRecipeSubmit(event) {
+            event.preventDefault();
+
+            const createBtn = document.getElementById('createRecipeBtn');
+            const statusEl = document.getElementById('createRecipeStatus');
+
+            // Gather form data
+            const name = document.getElementById('recipeName').value.trim();
+            const servings = parseFloat(document.getElementById('recipeServings').value);
+            const prepTime = parseInt(document.getElementById('recipePrepTime').value) || 0;
+            const cookTime = parseInt(document.getElementById('recipeCookTime').value) || 0;
+            const tagsStr = document.getElementById('recipeTags').value.trim();
+            const sourceUrl = document.getElementById('recipeSourceUrl').value.trim();
+            const imageUrl = document.getElementById('recipeImageUrl').value.trim();
+
+            // Gather ingredients (filter out empty ones)
+            const ingredientInputs = document.querySelectorAll('.ingredient-input');
+            const ingredients = Array.from(ingredientInputs)
+                .map(input => input.value.trim())
+                .filter(val => val.length > 0);
+
+            // Gather instructions (filter out empty ones)
+            const instructionInputs = document.querySelectorAll('.instruction-input');
+            const instructions = Array.from(instructionInputs)
+                .map(textarea => textarea.value.trim())
+                .filter(val => val.length > 0);
+
+            // Validate
+            if (ingredients.length === 0) {
+                statusEl.className = 'status-message error';
+                statusEl.textContent = 'At least one ingredient is required';
+                statusEl.classList.remove('hidden');
+                return;
+            }
+
+            if (instructions.length === 0) {
+                statusEl.className = 'status-message error';
+                statusEl.textContent = 'At least one instruction step is required';
+                statusEl.classList.remove('hidden');
+                return;
+            }
+
+            // Parse tags
+            const tags = tagsStr.length > 0
+                ? tagsStr.split(',').map(t => t.trim()).filter(t => t.length > 0)
+                : ['manual-entry'];
+
+            // Build request body
+            const recipeData = {
+                name,
+                servings,
+                prep_time_minutes: prepTime,
+                cook_time_minutes: cookTime,
+                ingredients,
+                instructions,
+                tags,
+                source_url: sourceUrl || null,
+                image_url: imageUrl || null
+            };
+
+            // Submit
+            createBtn.disabled = true;
+            createBtn.innerHTML = '<span class="loading"></span> Creating...';
+            statusEl.className = 'status-message';
+            statusEl.textContent = 'Creating recipe...';
+            statusEl.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/recipes', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(recipeData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    statusEl.className = 'status-message success';
+                    statusEl.textContent = data.message;
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    statusEl.className = 'status-message error';
+                    statusEl.textContent = data.message || data.error || 'Error creating recipe';
+                }
+            } catch (error) {
+                statusEl.className = 'status-message error';
+                statusEl.textContent = 'Error: ' + error.message;
+            } finally {
+                createBtn.disabled = false;
+                createBtn.innerHTML = 'Create Recipe';
+            }
         }
     </script>
 

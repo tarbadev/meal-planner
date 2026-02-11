@@ -746,3 +746,451 @@ class TestImportRecipe:
             assert "baking" in imported_recipe.tags
             # Should have inferred vegetarian tag (no meat)
             assert "vegetarian" in imported_recipe.tags
+
+
+class TestCreateRecipe:
+    def test_create_recipe_success(self, client, monkeypatch):
+        """Test successful manual recipe creation."""
+        from app import config
+        from app.recipes import load_recipes
+
+        recipe_data = {
+            "name": "My Custom Recipe",
+            "servings": 4,
+            "prep_time_minutes": 15,
+            "cook_time_minutes": 30,
+            "ingredients": [
+                "2 cups flour",
+                "1 tsp salt",
+                "3 eggs"
+            ],
+            "instructions": [
+                "Mix dry ingredients",
+                "Add eggs",
+                "Bake at 350F for 30 minutes"
+            ],
+            "tags": ["dinner", "easy"],
+            "source_url": "https://example.com/recipe",
+            "image_url": "https://example.com/image.jpg"
+        }
+
+        response = client.post(
+            '/recipes',
+            data=json.dumps(recipe_data),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['success'] is True
+        assert 'My Custom Recipe' in data['message']
+        assert data['recipe']['id'] == 'my-custom-recipe'
+        assert data['recipe']['name'] == 'My Custom Recipe'
+        assert data['recipe']['servings'] == 4
+        assert data['recipe']['ingredient_count'] == 3
+        assert data['recipe']['instruction_count'] == 3
+
+        # Verify recipe was saved to file
+        recipes = load_recipes(config.RECIPES_FILE)
+        created_recipe = [r for r in recipes if r.name == "My Custom Recipe"][0]
+        assert created_recipe.id == 'my-custom-recipe'
+        assert created_recipe.servings == 4
+        assert created_recipe.prep_time_minutes == 15
+        assert created_recipe.cook_time_minutes == 30
+        assert len(created_recipe.ingredients) == 3
+        assert len(created_recipe.instructions) == 3
+        assert "dinner" in created_recipe.tags
+        assert "easy" in created_recipe.tags
+        assert created_recipe.source_url == "https://example.com/recipe"
+        assert created_recipe.image_url == "https://example.com/image.jpg"
+
+    def test_create_recipe_minimal_fields(self, client, monkeypatch):
+        """Test creating recipe with only required fields."""
+        from app import config
+        from app.recipes import load_recipes
+
+        recipe_data = {
+            "name": "Minimal Recipe",
+            "servings": 2,
+            "ingredients": ["ingredient 1"],
+            "instructions": ["step 1"]
+        }
+
+        response = client.post(
+            '/recipes',
+            data=json.dumps(recipe_data),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['success'] is True
+
+        # Verify defaults were applied
+        recipes = load_recipes(config.RECIPES_FILE)
+        created_recipe = [r for r in recipes if r.name == "Minimal Recipe"][0]
+        assert created_recipe.prep_time_minutes == 0
+        assert created_recipe.cook_time_minutes == 0
+        assert "manual-entry" in created_recipe.tags
+
+    def test_create_recipe_missing_name(self, client):
+        """Test that missing name returns error."""
+        recipe_data = {
+            "servings": 4,
+            "ingredients": ["ingredient 1"],
+            "instructions": ["step 1"]
+        }
+
+        response = client.post(
+            '/recipes',
+            data=json.dumps(recipe_data),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'Validation error' in data['error']
+        assert 'name' in data['message'].lower()
+
+    def test_create_recipe_missing_servings(self, client):
+        """Test that missing servings returns error."""
+        recipe_data = {
+            "name": "Test Recipe",
+            "ingredients": ["ingredient 1"],
+            "instructions": ["step 1"]
+        }
+
+        response = client.post(
+            '/recipes',
+            data=json.dumps(recipe_data),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'Validation error' in data['error']
+
+    def test_create_recipe_missing_ingredients(self, client):
+        """Test that missing ingredients returns error."""
+        recipe_data = {
+            "name": "Test Recipe",
+            "servings": 4,
+            "instructions": ["step 1"]
+        }
+
+        response = client.post(
+            '/recipes',
+            data=json.dumps(recipe_data),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'Validation error' in data['error']
+        assert 'ingredients' in data['message'].lower()
+
+    def test_create_recipe_empty_ingredients_list(self, client):
+        """Test that empty ingredients list returns error."""
+        recipe_data = {
+            "name": "Test Recipe",
+            "servings": 4,
+            "ingredients": [],
+            "instructions": ["step 1"]
+        }
+
+        response = client.post(
+            '/recipes',
+            data=json.dumps(recipe_data),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'Validation error' in data['error']
+        assert 'ingredient' in data['message'].lower()
+
+    def test_create_recipe_missing_instructions(self, client):
+        """Test that missing instructions returns error."""
+        recipe_data = {
+            "name": "Test Recipe",
+            "servings": 4,
+            "ingredients": ["ingredient 1"]
+        }
+
+        response = client.post(
+            '/recipes',
+            data=json.dumps(recipe_data),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'Validation error' in data['error']
+        assert 'instructions' in data['message'].lower()
+
+    def test_create_recipe_empty_instructions_list(self, client):
+        """Test that empty instructions list returns error."""
+        recipe_data = {
+            "name": "Test Recipe",
+            "servings": 4,
+            "ingredients": ["ingredient 1"],
+            "instructions": []
+        }
+
+        response = client.post(
+            '/recipes',
+            data=json.dumps(recipe_data),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'Validation error' in data['error']
+        assert 'instruction' in data['message'].lower()
+
+    def test_create_recipe_invalid_servings(self, client):
+        """Test that invalid servings returns error."""
+        recipe_data = {
+            "name": "Test Recipe",
+            "servings": 0,
+            "ingredients": ["ingredient 1"],
+            "instructions": ["step 1"]
+        }
+
+        response = client.post(
+            '/recipes',
+            data=json.dumps(recipe_data),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'Validation error' in data['error']
+        assert 'positive' in data['message'].lower()
+
+    def test_create_recipe_negative_time(self, client):
+        """Test that negative time values return error."""
+        recipe_data = {
+            "name": "Test Recipe",
+            "servings": 4,
+            "prep_time_minutes": -10,
+            "ingredients": ["ingredient 1"],
+            "instructions": ["step 1"]
+        }
+
+        response = client.post(
+            '/recipes',
+            data=json.dumps(recipe_data),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'Validation error' in data['error']
+        assert 'negative' in data['message'].lower()
+
+    def test_create_recipe_structured_ingredients(self, client, monkeypatch):
+        """Test creating recipe with pre-structured ingredient dicts."""
+        from app import config
+        from app.recipes import load_recipes
+
+        recipe_data = {
+            "name": "Structured Ingredients Recipe",
+            "servings": 4,
+            "ingredients": [
+                {"item": "chicken breast", "quantity": 500, "unit": "g", "category": "meat"},
+                {"item": "olive oil", "quantity": 2, "unit": "tbsp", "category": "pantry"}
+            ],
+            "instructions": ["Cook the chicken"]
+        }
+
+        response = client.post(
+            '/recipes',
+            data=json.dumps(recipe_data),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['success'] is True
+
+        # Verify structured ingredients were preserved
+        recipes = load_recipes(config.RECIPES_FILE)
+        created_recipe = [r for r in recipes if r.name == "Structured Ingredients Recipe"][0]
+        assert created_recipe.ingredients[0]['item'] == 'chicken breast'
+        assert created_recipe.ingredients[0]['quantity'] == 500
+        assert created_recipe.ingredients[0]['unit'] == 'g'
+        assert created_recipe.ingredients[0]['category'] == 'meat'
+
+    def test_create_recipe_invalid_json(self, client):
+        """Test that invalid JSON returns error."""
+        response = client.post(
+            '/recipes',
+            data="not valid json",
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'Invalid JSON' in data['error']
+
+    def test_create_recipe_generates_unique_id(self, client, monkeypatch):
+        """Test that recipe IDs are unique even with conflicting names."""
+        from app import config
+        from app.recipes import load_recipes
+
+        # Create first recipe
+        recipe_data = {
+            "name": "Duplicate Name",
+            "servings": 4,
+            "ingredients": ["ingredient 1"],
+            "instructions": ["step 1"]
+        }
+
+        response1 = client.post(
+            '/recipes',
+            data=json.dumps(recipe_data),
+            content_type='application/json'
+        )
+        assert response1.status_code == 200
+
+        # Create second recipe with same name
+        response2 = client.post(
+            '/recipes',
+            data=json.dumps(recipe_data),
+            content_type='application/json'
+        )
+        assert response2.status_code == 200
+
+        # Verify unique IDs were generated
+        recipes = load_recipes(config.RECIPES_FILE)
+        duplicate_recipes = [r for r in recipes if r.name == "Duplicate Name"]
+        assert len(duplicate_recipes) == 2
+        assert duplicate_recipes[0].id == 'duplicate-name'
+        assert duplicate_recipes[1].id == 'duplicate-name-2'
+
+    def test_create_recipe_clears_current_plan(self, client):
+        """Test that creating a recipe clears the current plan."""
+        from app import main
+
+        # Set a current plan
+        main.current_plan = "some plan"
+        main.current_shopping_list = "some list"
+
+        recipe_data = {
+            "name": "New Recipe",
+            "servings": 4,
+            "ingredients": ["ingredient 1"],
+            "instructions": ["step 1"]
+        }
+
+        response = client.post(
+            '/recipes',
+            data=json.dumps(recipe_data),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        # Verify plan was cleared
+        assert main.current_plan is None
+        assert main.current_shopping_list is None
+
+
+class TestShareRecipe:
+    """Test the PWA share target endpoint /share-recipe."""
+
+    def test_share_recipe_with_url(self, client):
+        """Test sharing a recipe URL redirects to home with import_url param."""
+        response = client.post(
+            '/share-recipe',
+            data={
+                'url': 'https://example.com/recipe',
+                'title': 'Test Recipe',
+                'text': 'Some description'
+            },
+            content_type='application/x-www-form-urlencoded',
+            follow_redirects=False
+        )
+
+        assert response.status_code == 302
+        assert '/?import_url=https%3A%2F%2Fexample.com%2Frecipe' in response.location
+
+    def test_share_recipe_with_text_no_url(self, client):
+        """Test sharing text without URL redirects to home with import_text param."""
+        response = client.post(
+            '/share-recipe',
+            data={
+                'text': 'Recipe ingredients and instructions here',
+                'title': 'My Recipe'
+            },
+            content_type='application/x-www-form-urlencoded',
+            follow_redirects=False
+        )
+
+        assert response.status_code == 302
+        assert 'import_text=' in response.location
+        assert 'Recipe' in response.location
+
+    def test_share_recipe_with_title_only(self, client):
+        """Test sharing only a title redirects to home with import_text param."""
+        response = client.post(
+            '/share-recipe',
+            data={
+                'title': 'Recipe Title'
+            },
+            content_type='application/x-www-form-urlencoded',
+            follow_redirects=False
+        )
+
+        assert response.status_code == 302
+        assert 'import_text=' in response.location
+        assert 'Recipe' in response.location
+
+    def test_share_recipe_no_data(self, client):
+        """Test sharing with no data redirects to home page."""
+        response = client.post(
+            '/share-recipe',
+            data={},
+            content_type='application/x-www-form-urlencoded',
+            follow_redirects=False
+        )
+
+        assert response.status_code == 302
+        assert response.location.endswith('/')
+        assert 'import_url' not in response.location
+        assert 'import_text' not in response.location
+
+    def test_share_recipe_url_priority_over_text(self, client):
+        """Test that URL takes priority over text when both are provided."""
+        response = client.post(
+            '/share-recipe',
+            data={
+                'url': 'https://example.com/recipe',
+                'text': 'Some text',
+                'title': 'Title'
+            },
+            content_type='application/x-www-form-urlencoded',
+            follow_redirects=False
+        )
+
+        assert response.status_code == 302
+        assert 'import_url=' in response.location
+        assert 'import_text=' not in response.location
+
+    def test_share_recipe_empty_strings(self, client):
+        """Test sharing with empty strings redirects to home page."""
+        response = client.post(
+            '/share-recipe',
+            data={
+                'url': '   ',
+                'text': '  ',
+                'title': ''
+            },
+            content_type='application/x-www-form-urlencoded',
+            follow_redirects=False
+        )
+
+        assert response.status_code == 302
+        assert response.location.endswith('/')
+        assert 'import_url' not in response.location
+        assert 'import_text' not in response.location
