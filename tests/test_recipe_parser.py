@@ -237,11 +237,12 @@ class TestRecipeParserHelpers:
         assert result["unit"] == "cup"
 
     def test_parse_ingredient_fallback_no_quantity(self):
-        """Test parsing ingredient without quantity falls back to full string."""
+        """Test parsing ingredient without quantity extracts preparation notes."""
         parser = RecipeParser()
         result = parser._parse_ingredient("Salt and pepper to taste")
 
-        assert result["item"] == "Salt and pepper to taste"
+        assert result["item"] == "Salt and pepper"
+        assert result["notes"] == "to taste"
         assert result["quantity"] == 1
         assert result["unit"] == "serving"
 

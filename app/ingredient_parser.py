@@ -118,7 +118,7 @@ class IngredientParser:
         'seeded', 'deveined', 'boneless', 'skinless', 'trimmed',
         'halved', 'quartered', 'cubed', 'julienned', 'blanched',
         'sifted', 'beaten', 'whisked', 'at room temperature',
-        'plus more', 'or more', 'to taste', 'optional', 'for serving',
+        'plus more', 'or more', 'season to taste', 'to taste', 'optional', 'for serving',
         'for garnish', 'if desired', 'as needed'
     ]
 
@@ -283,6 +283,7 @@ class IngredientParser:
             "all-purpose flour (1 cup | 120 g)" → ("all-purpose flour", None)
             "unsalted butter, melted and cooled" → ("unsalted butter", "melted and cooled")
             "2 large eggs, beaten" → ("large eggs", "beaten")
+            "Tbsp. Avocado Oil" → ("Avocado Oil", None)
         """
         # Remove measurement patterns from text
         clean_text = text
@@ -292,7 +293,18 @@ class IngredientParser:
         clean_text = re.sub(r'\s*\([^)]*[\d¼½¾⅓⅔⅛⅜⅝⅞][^)]*\)', '', clean_text)
 
         # Remove leading measurements: "2 cups", "120 g", "1/4 tsp", "1½ tsp"
-        clean_text = re.sub(r'^\s*[\d¼½¾⅓⅔⅛⅜⅝⅞./\s]+[a-zA-Z]+\s+', '', clean_text)
+        clean_text = re.sub(r'^\s*[\d¼½¾⅓⅔⅛⅜⅝⅞./\s]+[a-zA-Z]+\.?\s+', '', clean_text)
+
+        # Remove leading unit without number: "Tbsp. ", "Tsp. ", etc.
+        all_units = list(self.WEIGHT_UNITS) + list(self.VOLUME_UNITS) + list(self.COUNT_UNITS)
+        # Sort by length (longest first) to match "tablespoon" before "tbsp"
+        all_units_sorted = sorted(all_units, key=len, reverse=True)
+        for unit in all_units_sorted:
+            # Case-insensitive match for unit at start, optionally followed by period
+            pattern = rf'^\s*{re.escape(unit)}\.?\s+'
+            clean_text = re.sub(pattern, '', clean_text, flags=re.IGNORECASE)
+            if clean_text != text:  # If we made a change, we're done
+                break
 
         # Remove leading quantity without unit: "2 large eggs" → "large eggs"
         clean_text = re.sub(r'^\s*\d+\s+', '', clean_text)
@@ -318,6 +330,20 @@ class IngredientParser:
                     item = potential_item
                     notes = potential_notes
                     break
+
+        # If no separator found, check for preparation words without separators
+        # Example: "Lawry's Seasoned Salt season to taste"
+        # Sort by length (longest first) to match "season to taste" before "to taste"
+        if notes is None:
+            prep_words_sorted = sorted(self.PREPARATION_WORDS, key=len, reverse=True)
+            for prep_word in prep_words_sorted:
+                if prep_word in clean_text.lower():
+                    # Find where the prep word starts
+                    idx = clean_text.lower().find(prep_word)
+                    if idx > 0:  # Not at the very start
+                        item = clean_text[:idx].strip()
+                        notes = clean_text[idx:].strip()
+                        break
 
         # Clean up item name
         item = item.strip()
