@@ -57,6 +57,39 @@ def recipe_detail(recipe_id: str):
     return render_template("recipe_detail.html", recipe=recipe)
 
 
+@app.route("/share-recipe", methods=["POST"])
+def share_recipe():
+    """Handle PWA share target for recipe URLs and text.
+
+    This endpoint receives shared content from the browser's share menu
+    (Android Chrome, iOS Safari with Web Share Target API).
+    """
+    from flask import redirect, url_for
+    from urllib.parse import quote
+
+    # Get form data from share target
+    url = request.form.get('url', '').strip()
+    title = request.form.get('title', '').strip()
+    text = request.form.get('text', '').strip()
+
+    # Priority 1: If URL is shared, redirect to import with pre-filled URL
+    if url:
+        # Redirect to home page with import_url query parameter
+        return redirect(url_for('index', import_url=url, _external=False))
+
+    # Priority 2: If text is shared (but no URL), redirect to text import
+    if text:
+        # Redirect to home page with import_text query parameter
+        return redirect(url_for('index', import_text=quote(text), _external=False))
+
+    # Priority 3: Use title if available
+    if title:
+        return redirect(url_for('index', import_text=quote(title), _external=False))
+
+    # Fallback: No content to share, just go to home page
+    return redirect(url_for('index', _external=False))
+
+
 @app.route("/generate", methods=["POST"])
 def generate():
     """Generate a new weekly meal plan."""
@@ -642,7 +675,7 @@ def import_recipe_image():
         }), 500
 
 
-@app.route("/recipes")
+@app.route("/recipes", methods=["GET"])
 def recipes():
     """List all available recipes."""
     recipes_file = Path(config.RECIPES_FILE)
@@ -663,6 +696,197 @@ def recipes():
             }
             for r in all_recipes
         ]
+    })
+
+
+@app.route("/recipes", methods=["POST"])
+def create_recipe():
+    """Create a new recipe manually."""
+    global current_plan, current_shopping_list
+
+    # Parse request JSON
+    try:
+        data = request.get_json()
+    except Exception:
+        return jsonify({
+            "error": "Invalid JSON",
+            "message": "Request body must be valid JSON"
+        }), 400
+
+    if not data:
+        return jsonify({
+            "error": "Invalid request",
+            "message": "Request body is required"
+        }), 400
+
+    # Validate required fields
+    required_fields = ["name", "servings", "ingredients", "instructions"]
+    missing_fields = []
+    for field in required_fields:
+        if field not in data:
+            missing_fields.append(field)
+        elif field in ["ingredients", "instructions"] and not data[field]:
+            # For lists, check if empty
+            missing_fields.append(field)
+        elif field == "name" and not data[field].strip():
+            # For name, check if empty string
+            missing_fields.append(field)
+        # Note: servings can be 0, so we don't check "not data[field]" for it
+
+    if missing_fields:
+        return jsonify({
+            "error": "Validation error",
+            "message": f"Missing required fields: {', '.join(missing_fields)}"
+        }), 400
+
+    # Validate ingredients (must be non-empty list)
+    if not isinstance(data["ingredients"], list) or len(data["ingredients"]) == 0:
+        return jsonify({
+            "error": "Validation error",
+            "message": "At least one ingredient is required"
+        }), 400
+
+    # Validate instructions (must be non-empty list)
+    if not isinstance(data["instructions"], list) or len(data["instructions"]) == 0:
+        return jsonify({
+            "error": "Validation error",
+            "message": "At least one instruction step is required"
+        }), 400
+
+    # Validate numeric fields
+    try:
+        servings = int(data["servings"])
+        if servings <= 0:
+            return jsonify({
+                "error": "Validation error",
+                "message": "Servings must be a positive number"
+            }), 400
+    except (ValueError, TypeError):
+        return jsonify({
+            "error": "Validation error",
+            "message": "Servings must be a valid number"
+        }), 400
+
+    prep_time_minutes = data.get("prep_time_minutes", 0)
+    cook_time_minutes = data.get("cook_time_minutes", 0)
+
+    try:
+        prep_time_minutes = int(prep_time_minutes)
+        cook_time_minutes = int(cook_time_minutes)
+        if prep_time_minutes < 0 or cook_time_minutes < 0:
+            return jsonify({
+                "error": "Validation error",
+                "message": "Time values cannot be negative"
+            }), 400
+    except (ValueError, TypeError):
+        return jsonify({
+            "error": "Validation error",
+            "message": "Time values must be valid numbers"
+        }), 400
+
+    # Load existing recipes
+    recipes_file = Path(config.RECIPES_FILE)
+    existing_recipes = load_recipes(recipes_file)
+    existing_ids = {r.id for r in existing_recipes}
+
+    # Generate unique ID
+    from app.recipe_parser import generate_recipe_id
+    recipe_id = generate_recipe_id(data["name"], existing_ids)
+
+    # Parse ingredients using ingredient parser
+    from app.ingredient_parser import IngredientParser
+    ingredient_parser = IngredientParser()
+    parsed_ingredients = []
+
+    for ing in data["ingredients"]:
+        if isinstance(ing, str):
+            # Parse string ingredient
+            parsed = ingredient_parser.parse(ing)
+            parsed_ingredients.append(ingredient_parser.to_dict(parsed))
+        elif isinstance(ing, dict):
+            # Already structured - validate it has required fields
+            if "item" not in ing:
+                return jsonify({
+                    "error": "Validation error",
+                    "message": "Each ingredient must have an 'item' field"
+                }), 400
+            # Use structured ingredient directly
+            parsed_ingredients.append(ing)
+        else:
+            return jsonify({
+                "error": "Validation error",
+                "message": "Ingredients must be strings or objects"
+            }), 400
+
+    # Build nutrition_per_serving (initialize with zeros - can be edited later)
+    nutrition_per_serving = {
+        "calories": 0,
+        "protein": 0.0,
+        "carbs": 0.0,
+        "fat": 0.0,
+        "saturated_fat": None,
+        "polyunsaturated_fat": None,
+        "monounsaturated_fat": None,
+        "sodium": None,
+        "potassium": None,
+        "fiber": None,
+        "sugar": None,
+        "vitamin_a": None,
+        "vitamin_c": None,
+        "calcium": None,
+        "iron": None
+    }
+
+    # Build recipe dict
+    recipe_dict = {
+        "id": recipe_id,
+        "name": data["name"],
+        "servings": servings,
+        "prep_time_minutes": prep_time_minutes,
+        "cook_time_minutes": cook_time_minutes,
+        "nutrition_per_serving": nutrition_per_serving,
+        "tags": data.get("tags", ["manual-entry"]),
+        "ingredients": parsed_ingredients,
+        "instructions": data["instructions"],
+        "source_url": data.get("source_url"),
+        "image_url": data.get("image_url")
+    }
+
+    # Create Recipe object with validation
+    try:
+        new_recipe = Recipe.from_dict(recipe_dict)
+    except ValueError as e:
+        return jsonify({
+            "error": "Validation error",
+            "message": str(e)
+        }), 400
+
+    # Add to recipes list and save
+    updated_recipes = existing_recipes + [new_recipe]
+    try:
+        save_recipes(recipes_file, updated_recipes)
+    except RecipeSaveError as e:
+        return jsonify({
+            "error": "Save error",
+            "message": f"Failed to save recipe: {str(e)}"
+        }), 500
+
+    # Clear current plan to force regeneration
+    current_plan = None
+    current_shopping_list = None
+
+    return jsonify({
+        "success": True,
+        "message": f"Recipe '{new_recipe.name}' created successfully",
+        "recipe": {
+            "id": new_recipe.id,
+            "name": new_recipe.name,
+            "servings": new_recipe.servings,
+            "prep_time_minutes": new_recipe.prep_time_minutes,
+            "cook_time_minutes": new_recipe.cook_time_minutes,
+            "ingredient_count": len(new_recipe.ingredients),
+            "instruction_count": len(new_recipe.instructions)
+        }
     })
 
 

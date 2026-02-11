@@ -1,10 +1,10 @@
 # Meal Planner Pro - Feature Specification
 
 ## Progress Summary
-**Total Features Implemented: 29 / 150+ (19%)**
+**Total Features Implemented: 31 / 150+ (21%)**
 
 ### Implementation Status by Category:
-- Recipe Management: 10/20 features (50%)
+- Recipe Management: 12/20 features (60%)
 - Meal Planning: 7/15 features (47%)
 - Shopping List: 3/12 features (25%)
 - UI/UX: 4/8 features (50%)
@@ -44,9 +44,9 @@
   - ✅ Import from Instagram posts (text-based with AI extraction)
   - ⬜ Import from video (YouTube cooking videos with AI extraction)
   - ⬜ Import from voice notes
-  - ⬜ Share to app from browser/other apps
+  - ✅ Share to app from browser/other apps (PWA Web Share Target API)
   - ⬜ Barcode scanning for packaged meal recipes
-  - ⬜ Manual recipe creation
+  - ✅ Manual recipe creation
 
 - **Recipe Organization**
   - ✅ Automatic tag inference
