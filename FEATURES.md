@@ -1,12 +1,12 @@
 # Meal Planner Pro - Feature Specification
 
 ## Progress Summary
-**Total Features Implemented: 32 / 150+ (21%)**
+**Total Features Implemented: 34 / 150+ (23%)**
 
 ### Implementation Status by Category:
 - Recipe Management: 12/20 features (60%)
 - Meal Planning: 8/15 features (53%)
-- Shopping List: 3/12 features (25%)
+- Shopping List: 5/12 features (42%)
 - UI/UX: 4/8 features (50%)
 - Export & Integration: 1/5 features (20%)
 - Other Categories: 4/90+ features (4%)
@@ -124,8 +124,8 @@
   - ✅ Automatic generation from meal plan
   - ✅ Check off items while shopping (frontend UI)
   - ✅ Organize by store section/category (produce, meat, dairy, grains, pantry, spices)
-  - ⬜ Editable quantities and items
-  - ⬜ Add custom items
+  - ✅ Editable quantities and items
+  - ✅ Add custom items
   - ⬜ Multiple lists (different stores, backup items)
 
 - **Smart Features**
