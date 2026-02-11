@@ -642,17 +642,24 @@ def import_recipe_image():
     try:
         # Convert to ParsedRecipe format
         print("[IMAGE IMPORT] Converting extracted data to ParsedRecipe...", flush=True)
+        # Build tags list - include notes as a tag if present
+        tags = extracted_data.tags + ["photo-imported"]
+        if extracted_data.notes:
+            # Notes can be added to instructions as a final note
+            instructions = extracted_data.instructions.copy() if extracted_data.instructions else []
+            instructions.append(f"Note: {extracted_data.notes}")
+        else:
+            instructions = extracted_data.instructions
+
         parsed_recipe = ParsedRecipe(
             name=extracted_data.name,
             servings=extracted_data.servings,
             prep_time_minutes=extracted_data.prep_time_minutes,
             cook_time_minutes=extracted_data.cook_time_minutes,
-            total_time_minutes=(extracted_data.prep_time_minutes or 0) + (extracted_data.cook_time_minutes or 0) if extracted_data.prep_time_minutes or extracted_data.cook_time_minutes else None,
             ingredients=extracted_data.ingredients,
-            instructions=extracted_data.instructions,
-            tags=extracted_data.tags + ["photo-imported"],
+            instructions=instructions,
+            tags=tags,
             source_url=None,
-            notes=extracted_data.notes,
             calories_per_serving=None,
             protein_per_serving=None,
             carbs_per_serving=None,
