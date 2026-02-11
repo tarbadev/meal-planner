@@ -525,16 +525,25 @@ def import_recipe_image():
     """Import a recipe from a photo."""
     global current_plan, current_shopping_list
 
+    print(f"[IMAGE IMPORT] Request received - Content-Type: {request.content_type}", flush=True)
+    print(f"[IMAGE IMPORT] Request files: {list(request.files.keys())}", flush=True)
+    print(f"[IMAGE IMPORT] Request form: {list(request.form.keys())}", flush=True)
+
     # Check if image file is present
     if 'image' not in request.files:
+        error_msg = "No image provided - image file is required"
+        print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
         return jsonify({
             "error": "No image provided",
             "message": "Image file is required"
         }), 400
 
     file = request.files['image']
+    print(f"[IMAGE IMPORT] File object received: {file}, filename: {file.filename}", flush=True)
 
     if file.filename == '':
+        error_msg = "No file selected"
+        print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
         return jsonify({
             "error": "No file selected",
             "message": "Please select an image file"
@@ -543,7 +552,11 @@ def import_recipe_image():
     # Validate file type
     allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
     file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+    print(f"[IMAGE IMPORT] File extension: {file_ext}", flush=True)
+
     if file_ext not in allowed_extensions:
+        error_msg = f"Invalid file type: {file_ext}"
+        print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
         return jsonify({
             "error": "Invalid file type",
             "message": f"Allowed types: {', '.join(allowed_extensions)}"
@@ -551,35 +564,84 @@ def import_recipe_image():
 
     try:
         # Read image data
+        print("[IMAGE IMPORT] Reading image data...", flush=True)
         image_data = file.read()
+        print(f"[IMAGE IMPORT] Image data read successfully: {len(image_data)} bytes", flush=True)
+
+        # Check for empty file
+        if len(image_data) == 0:
+            error_msg = "Image file is empty"
+            print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
+            return jsonify({
+                "error": "Empty file",
+                "message": "The uploaded image file is empty"
+            }), 400
+
+        # Check file size (log warning if > 10MB)
+        if len(image_data) > 10 * 1024 * 1024:
+            print(f"[IMAGE IMPORT WARNING] Large file size: {len(image_data) / (1024*1024):.2f}MB", flush=True)
 
         # Extract recipe from image using Vision API
         from app.image_recipe_extractor import ImageRecipeExtractor
         from app.nutrition_generator import NutritionGenerator
         from app.recipe_parser import ParsedRecipe, generate_recipe_id
 
+        print("[IMAGE IMPORT] Checking OpenAI API key configuration...", flush=True)
+        if not config.OPENAI_API_KEY:
+            error_msg = "OpenAI API key not configured"
+            print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
+            return jsonify({
+                "error": "Configuration error",
+                "message": "Image import is not configured on the server"
+            }), 500
+        print(f"[IMAGE IMPORT] API key configured: {config.OPENAI_API_KEY[:8]}...", flush=True)
+
+        print("[IMAGE IMPORT] Initializing ImageRecipeExtractor...", flush=True)
         extractor = ImageRecipeExtractor(api_key=config.OPENAI_API_KEY)
+
+        print("[IMAGE IMPORT] Starting OpenAI Vision API call...", flush=True)
         extracted_data = extractor.extract_recipe(image_data, file_ext)
+        print(f"[IMAGE IMPORT] Successfully extracted recipe data: {extracted_data.name}", flush=True)
+        print(f"[IMAGE IMPORT] Confidence: {extracted_data.confidence}, Ingredients: {len(extracted_data.ingredients)}", flush=True)
+
     except ValueError as e:
+        error_msg = f"ValueError during extraction: {str(e)}"
+        print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
+        import traceback
+        print(f"[IMAGE IMPORT ERROR] Traceback: {traceback.format_exc()}", flush=True)
         return jsonify({
             "error": "Extraction failed",
             "message": str(e)
         }), 422
     except Exception as e:
+        error_msg = f"Exception during extraction: {type(e).__name__}: {str(e)}"
+        print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
+        import traceback
+        print(f"[IMAGE IMPORT ERROR] Traceback: {traceback.format_exc()}", flush=True)
+
         # Check if it looks like a timeout
-        error_msg = str(e)
-        if "timeout" in error_msg.lower():
+        error_str = str(e)
+        if "timeout" in error_str.lower():
             return jsonify({
                 "error": "Timeout",
                 "message": "The image processing took too long. Please try again with a smaller or clearer image."
             }), 504
+
+        # Check for API errors
+        if "api" in error_str.lower() or "openai" in error_str.lower():
+            return jsonify({
+                "error": "API error",
+                "message": f"OpenAI API error: {error_str}"
+            }), 502
+
         return jsonify({
             "error": "Processing failed",
-            "message": f"An error occurred while processing the image: {error_msg}"
+            "message": f"An error occurred while processing the image: {error_str}"
         }), 500
 
     try:
         # Convert to ParsedRecipe format
+        print("[IMAGE IMPORT] Converting extracted data to ParsedRecipe...", flush=True)
         parsed_recipe = ParsedRecipe(
             name=extracted_data.name,
             servings=extracted_data.servings,
@@ -597,16 +659,20 @@ def import_recipe_image():
             fat_per_serving=None
         )
         parsed_recipe.ai_confidence = extracted_data.confidence
+        print("[IMAGE IMPORT] ParsedRecipe created successfully", flush=True)
 
         # Generate nutrition if missing
+        print("[IMAGE IMPORT] Checking if nutrition generation is needed...", flush=True)
         nutrition_gen = NutritionGenerator(api_key=config.USDA_API_KEY)
         if nutrition_gen.should_generate_nutrition(parsed_recipe):
+            print("[IMAGE IMPORT] Generating nutrition data...", flush=True)
             generated_nutrition = nutrition_gen.generate_from_ingredients(
                 parsed_recipe.ingredients,
                 parsed_recipe.servings or 4
             )
 
             if generated_nutrition:
+                print(f"[IMAGE IMPORT] Nutrition generated: {generated_nutrition.calories} cal", flush=True)
                 parsed_recipe.calories_per_serving = int(generated_nutrition.calories)
                 parsed_recipe.protein_per_serving = generated_nutrition.protein
                 parsed_recipe.carbs_per_serving = generated_nutrition.carbs
@@ -633,8 +699,13 @@ def import_recipe_image():
                     if not parsed_recipe.tags:
                         parsed_recipe.tags = []
                     parsed_recipe.tags.append("nutrition-generated")
+            else:
+                print("[IMAGE IMPORT] No nutrition data generated", flush=True)
+        else:
+            print("[IMAGE IMPORT] Nutrition generation not needed", flush=True)
 
         # Infer additional tags
+        print("[IMAGE IMPORT] Inferring tags...", flush=True)
         tag_inferencer = TagInferencer()
         parsed_recipe.tags = tag_inferencer.enhance_tags(
             name=parsed_recipe.name,
@@ -644,24 +715,33 @@ def import_recipe_image():
             cook_time_minutes=parsed_recipe.cook_time_minutes or 0,
             existing_tags=parsed_recipe.tags or []
         )
+        print(f"[IMAGE IMPORT] Tags inferred: {parsed_recipe.tags}", flush=True)
 
         # Load existing recipes
+        print("[IMAGE IMPORT] Loading existing recipes...", flush=True)
         recipes_file = Path(config.RECIPES_FILE)
         existing_recipes = load_recipes(recipes_file)
         existing_ids = {r.id for r in existing_recipes}
+        print(f"[IMAGE IMPORT] Found {len(existing_recipes)} existing recipes", flush=True)
 
         # Generate unique ID
+        print("[IMAGE IMPORT] Generating recipe ID...", flush=True)
         recipe_id = generate_recipe_id(parsed_recipe.name, existing_ids)
+        print(f"[IMAGE IMPORT] Recipe ID: {recipe_id}", flush=True)
 
         # Convert to Recipe dict
+        print("[IMAGE IMPORT] Converting to Recipe dict...", flush=True)
         recipe_dict = parsed_recipe.to_recipe_dict(recipe_id)
 
         # Validate using Recipe.from_dict
+        print("[IMAGE IMPORT] Validating recipe...", flush=True)
         new_recipe = Recipe.from_dict(recipe_dict)
 
         # Add to recipes list and save
+        print("[IMAGE IMPORT] Saving recipe to file...", flush=True)
         updated_recipes = existing_recipes + [new_recipe]
         save_recipes(recipes_file, updated_recipes)
+        print("[IMAGE IMPORT] Recipe saved successfully!", flush=True)
 
         # Clear current plan
         current_plan = None
@@ -689,17 +769,29 @@ def import_recipe_image():
         return jsonify(response_data)
 
     except ValueError as e:
+        error_msg = f"ValueError during recipe conversion/saving: {str(e)}"
+        print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
+        import traceback
+        print(f"[IMAGE IMPORT ERROR] Traceback: {traceback.format_exc()}", flush=True)
         return jsonify({
             "error": "Extraction error",
             "message": str(e),
             "suggestion": "The image may be unclear or not contain a recipe. Please try a clearer photo."
         }), 400
     except RecipeSaveError as e:
+        error_msg = f"RecipeSaveError: {str(e)}"
+        print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
+        import traceback
+        print(f"[IMAGE IMPORT ERROR] Traceback: {traceback.format_exc()}", flush=True)
         return jsonify({
             "error": "Save error",
             "message": f"Failed to save recipe: {str(e)}"
         }), 500
     except Exception as e:
+        error_msg = f"Unexpected exception during recipe conversion/saving: {type(e).__name__}: {str(e)}"
+        print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
+        import traceback
+        print(f"[IMAGE IMPORT ERROR] Traceback: {traceback.format_exc()}", flush=True)
         return jsonify({
             "error": "Import error",
             "message": f"Unexpected error: {str(e)}"
