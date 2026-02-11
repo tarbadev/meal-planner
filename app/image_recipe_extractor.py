@@ -151,6 +151,8 @@ Important:
 - Parse quantities and units separately
 - If handwritten, do your best to read it
 - If uncertain about a value, use your best guess but lower the confidence
+- For servings: If not specified, estimate based on ingredient quantities (default to 4 if unclear)
+- For times: Use null only if no time information is visible at all
 - Confidence: 0-1 (0.9+ high confidence, 0.7-0.9 medium, <0.7 low)
 - Return ONLY the JSON, no other text"""
 
@@ -198,9 +200,17 @@ Important:
 
         # Create ImageRecipeData object
         try:
+            # Handle null servings by defaulting to 4
+            servings = data.get("servings")
+            if servings is None:
+                print("[IMAGE EXTRACTOR] Warning: servings is null, defaulting to 4", flush=True)
+                servings = 4
+            else:
+                servings = int(servings)
+
             result = ImageRecipeData(
                 name=data["name"],
-                servings=int(data["servings"]),
+                servings=servings,
                 prep_time_minutes=data.get("prep_time_minutes"),
                 cook_time_minutes=data.get("cook_time_minutes"),
                 ingredients=data["ingredients"],
