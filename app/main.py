@@ -37,6 +37,8 @@ def index():
 @app.route("/recipe/<recipe_id>")
 def recipe_detail(recipe_id: str):
     """Display detailed recipe page."""
+    from app.ingredient_substitutions import get_substitutions
+
     recipes_file = Path(config.RECIPES_FILE)
     all_recipes = load_recipes(recipes_file)
 
@@ -54,7 +56,17 @@ def recipe_detail(recipe_id: str):
             error_message=f"No recipe found with ID '{recipe_id}'"
         ), 404
 
-    return render_template("recipe_detail.html", recipe=recipe)
+    ingredient_substitutions = {}
+    for i, ingredient in enumerate(recipe.ingredients):
+        subs = get_substitutions(ingredient["item"])
+        if subs:
+            ingredient_substitutions[i] = subs
+
+    return render_template(
+        "recipe_detail.html",
+        recipe=recipe,
+        substitutions=ingredient_substitutions
+    )
 
 
 @app.route("/share-recipe", methods=["POST"])

@@ -210,6 +210,63 @@
             text-transform: uppercase;
         }
 
+        .substitutions-toggle {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-left: 10px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .substitutions-toggle:hover {
+            background: #229954;
+        }
+
+        .substitutions-list {
+            display: none;
+            margin-top: 10px;
+            padding: 12px;
+            background: #e8f8f5;
+            border-left: 3px solid #27ae60;
+            border-radius: 4px;
+        }
+
+        .substitutions-list.show {
+            display: block;
+        }
+
+        .substitutions-header {
+            font-weight: bold;
+            color: #27ae60;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .substitution-item {
+            padding: 6px 0;
+            font-size: 13px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .substitution-name {
+            font-weight: 600;
+            color: #27ae60;
+        }
+
+        .substitution-ratio {
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .substitution-note {
+            color: #95a5a6;
+        }
+
         .instructions-list {
             counter-reset: step-counter;
             list-style: none;
@@ -380,13 +437,32 @@
                 <ul class="ingredients-list">
                     {% for ingredient in recipe.ingredients %}
                         <li class="ingredient-item">
-                            <span class="ingredient-name">
-                                {{ ingredient.item }}
-                                <span class="ingredient-category">{{ ingredient.category }}</span>
-                                {% if ingredient.notes %}
-                                    <span class="ingredient-notes">{{ ingredient.notes }}</span>
+                            <div style="flex: 1;">
+                                <span class="ingredient-name">
+                                    {{ ingredient.item }}
+                                    <span class="ingredient-category">{{ ingredient.category }}</span>
+                                    {% if loop.index0 in substitutions %}
+                                        <span class="substitutions-toggle" onclick="toggleSubstitutions({{ loop.index0 }})">
+                                            🔄 Substitutes
+                                        </span>
+                                    {% endif %}
+                                    {% if ingredient.notes %}
+                                        <span class="ingredient-notes">{{ ingredient.notes }}</span>
+                                    {% endif %}
+                                </span>
+                                {% if loop.index0 in substitutions %}
+                                    <div class="substitutions-list" id="subs-{{ loop.index0 }}">
+                                        <div class="substitutions-header">💡 Substitution Options:</div>
+                                        {% for sub in substitutions[loop.index0] %}
+                                            <div class="substitution-item">
+                                                <span class="substitution-name">{{ sub.substitute }}</span>
+                                                <span class="substitution-ratio">({{ sub.ratio }})</span>
+                                                — <span class="substitution-note">{{ sub.note }}</span>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
                                 {% endif %}
-                            </span>
+                            </div>
                             <span class="ingredient-quantity">
                                 {{ ingredient.quantity }} {{ ingredient.unit }}
                             </span>
@@ -412,5 +488,12 @@
             {% endif %}
         </div>
     </div>
+
+    <script>
+        function toggleSubstitutions(index) {
+            const subsEl = document.getElementById('subs-' + index);
+            subsEl.classList.toggle('show');
+        }
+    </script>
 </body>
 </html>
