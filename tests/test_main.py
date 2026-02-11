@@ -448,14 +448,14 @@ class TestImportRecipe:
             assert 'Parse error' in data['error']
             assert 'Could not extract ingredients' in data['message']
 
-    def test_import_recipe_missing_instructions_fails(self, client):
-        """Test that importing a recipe without instructions fails."""
+    def test_import_recipe_missing_instructions_adds_default(self, client):
+        """Test that importing a recipe without instructions adds a default instruction."""
         from unittest.mock import patch
 
-        from app.recipe_parser import ParsedRecipe, RecipeParseError
+        from app.recipe_parser import ParsedRecipe
 
         mock_parsed_recipe = ParsedRecipe(
-            name="Invalid Recipe",
+            name="Marinade Recipe",
             ingredients=[{"item": "test", "quantity": 1, "unit": "piece", "category": "other"}],
             instructions=[]  # Empty instructions
         )
@@ -469,10 +469,11 @@ class TestImportRecipe:
                 content_type='application/json'
             )
 
-            assert response.status_code == 400
+            assert response.status_code == 200
             data = json.loads(response.data)
-            assert 'Parse error' in data['error']
-            assert 'Could not extract cooking instructions' in data['message']
+            assert data['success'] is True
+            # Check that instruction_count is 1 (default instruction was added)
+            assert data['recipe']['instruction_count'] == 1
 
     def test_import_recipe_generates_nutrition_when_missing(self, client):
         """Test that nutrition is automatically generated when missing."""

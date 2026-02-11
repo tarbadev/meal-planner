@@ -1102,6 +1102,154 @@
       ],
       "source_url": "https://www.twopeasandtheirpod.com/buttermilk-banana-bread/",
       "image_url": "https://www.twopeasandtheirpod.com/wp-content/uploads/2018/02/Buttermilk-Banana-Bread-2.jpg"
+    },
+    {
+      "id": "all-purpose-chicken-thigh-marinade",
+      "name": "All-Purpose Chicken Thigh Marinade",
+      "servings": 6,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 0,
+        "protein": 0.0,
+        "carbs": 0.0,
+        "fat": 0.0,
+        "saturated_fat": null,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": null,
+        "potassium": null,
+        "fiber": null,
+        "sugar": null,
+        "vitamin_a": null,
+        "vitamin_c": null,
+        "calcium": null,
+        "iron": null
+      },
+      "tags": [
+        "imported"
+      ],
+      "ingredients": [
+        {
+          "item": "soy sauce",
+          "quantity": 3.0,
+          "unit": "tablespoons",
+          "category": "pantry",
+          "notes": "or tamari (for gluten-free)"
+        },
+        {
+          "item": "mirin sweet rice wine",
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "category": "grains",
+          "notes": "maple syrup or honey"
+        },
+        {
+          "item": "Dijon mustard",
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "category": "pantry"
+        },
+        {
+          "item": "rice wine vinegar",
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "category": "grains",
+          "notes": "or white wine vinegar"
+        },
+        {
+          "item": "neutral vegetable oil",
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "category": "pantry"
+        },
+        {
+          "item": "crushed",
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "category": "other",
+          "notes": "grated garlic"
+        },
+        {
+          "item": "cayenne pepper",
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "category": "produce"
+        },
+        {
+          "item": "boneless chicken thighs",
+          "quantity": 2.0,
+          "unit": "pounds",
+          "category": "meat",
+          "notes": "or 2\u00bd-3 pounds bone-in chicken thighs"
+        },
+        {
+          "item": "Kosher salt and fresh",
+          "quantity": 1.0,
+          "unit": "",
+          "category": "pantry",
+          "notes": "ground black pepper"
+        }
+      ],
+      "instructions": [
+        "Combine all ingredients and mix well."
+      ],
+      "source_url": "https://familystylefood.com/chicken-thigh-marinade/#wprm-recipe-container-92945",
+      "image_url": null
+    },
+    {
+      "id": "test",
+      "name": "Test",
+      "servings": 4,
+      "prep_time_minutes": 15,
+      "cook_time_minutes": 30,
+      "nutrition_per_serving": {
+        "calories": 0,
+        "protein": 0.0,
+        "carbs": 0.0,
+        "fat": 0.0,
+        "saturated_fat": null,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": null,
+        "potassium": null,
+        "fiber": null,
+        "sugar": null,
+        "vitamin_a": null,
+        "vitamin_c": null,
+        "calcium": null,
+        "iron": null
+      },
+      "tags": [
+        "manual-entry"
+      ],
+      "ingredients": [
+        {
+          "item": "chicken breast",
+          "quantity": 2.0,
+          "unit": "cups",
+          "category": "meat"
+        },
+        {
+          "item": "olive oil",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "category": "pantry"
+        },
+        {
+          "item": "carrots",
+          "quantity": 5.0,
+          "unit": "oz",
+          "category": "produce",
+          "notes": "peeled and cut into 1 inch pieces"
+        }
+      ],
+      "instructions": [
+        "Step 1: Cook the chicken",
+        "Add carrots and olive oil"
+      ],
+      "source_url": null,
+      "image_url": null
     }
   ]
 }

@@ -117,31 +117,32 @@ class TestParsedRecipeToDict:
 
         assert "Could not extract ingredients" in str(exc_info.value)
 
-    def test_missing_instructions_raises_error(self):
-        """Test that missing instructions raises RecipeParseError."""
+    def test_missing_instructions_adds_default(self):
+        """Test that missing instructions adds a default instruction."""
         parsed = ParsedRecipe(
             name="No Instructions",
             ingredients=[{"item": "test", "quantity": 1, "unit": "piece", "category": "other"}]
         )
 
-        with pytest.raises(RecipeParseError) as exc_info:
-            parsed.to_recipe_dict("test-id")
+        result = parsed.to_recipe_dict("test-id")
 
-        assert "Could not extract cooking instructions" in str(exc_info.value)
-        assert "unusual format" in str(exc_info.value)
+        assert "instructions" in result
+        assert len(result["instructions"]) == 1
+        assert "Combine all ingredients" in result["instructions"][0]
 
-    def test_empty_instructions_list_raises_error(self):
-        """Test that empty instructions list raises RecipeParseError."""
+    def test_empty_instructions_list_adds_default(self):
+        """Test that empty instructions list adds a default instruction."""
         parsed = ParsedRecipe(
             name="Empty Instructions",
             ingredients=[{"item": "test", "quantity": 1, "unit": "piece", "category": "other"}],
             instructions=[]
         )
 
-        with pytest.raises(RecipeParseError) as exc_info:
-            parsed.to_recipe_dict("test-id")
+        result = parsed.to_recipe_dict("test-id")
 
-        assert "Could not extract cooking instructions" in str(exc_info.value)
+        assert "instructions" in result
+        assert len(result["instructions"]) == 1
+        assert "Combine all ingredients" in result["instructions"][0]
 
 
 class TestRecipeParserHelpers:

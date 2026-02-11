@@ -45,7 +45,7 @@ class ParsedRecipe:
         Raises:
             RecipeParseError: If ingredients or instructions are missing/empty
         """
-        # CRITICAL: Validate that ingredients and instructions were extracted
+        # CRITICAL: Validate that ingredients were extracted
         if not self.ingredients or len(self.ingredients) == 0:
             raise RecipeParseError(
                 "Could not extract ingredients from this recipe. "
@@ -53,12 +53,10 @@ class ParsedRecipe:
                 "Please try a different URL or add the recipe manually."
             )
 
+        # Instructions are optional - some recipes (marinades, sauces) may not have them
+        # If missing, add a default instruction
         if not self.instructions or len(self.instructions) == 0:
-            raise RecipeParseError(
-                "Could not extract cooking instructions from this recipe. "
-                "The recipe may have an unusual format. "
-                "Please try a different URL or add the recipe manually."
-            )
+            self.instructions = ["Combine all ingredients and mix well."]
 
         # Build nested nutrition structure
         nutrition_per_serving = {
@@ -311,12 +309,51 @@ class RecipeParser:
     def _parse_wprm(self, html: str) -> ParsedRecipe | None:
         """Parse WP Recipe Maker (WPRM) plugin data from window.wprm_recipes."""
         # Look for window.wprm_recipes JavaScript variable
-        match = re.search(r'window\.wprm_recipes\s*=\s*(\{.+?\});', html, re.DOTALL)
+        pattern = r'window\.wprm_recipes\s*=\s*'
+        match = re.search(pattern, html)
         if not match:
             return None
 
+        # Extract JSON by counting braces from the match position
+        start_pos = match.end()
+        if html[start_pos] != '{':
+            return None
+
+        # Count braces to find the end of the JSON object
+        brace_count = 0
+        in_string = False
+        escape_next = False
+        end_pos = start_pos
+
+        for i, char in enumerate(html[start_pos:], start=start_pos):
+            if escape_next:
+                escape_next = False
+                continue
+
+            if char == '\\':
+                escape_next = True
+                continue
+
+            if char == '"' and not escape_next:
+                in_string = not in_string
+                continue
+
+            if not in_string:
+                if char == '{':
+                    brace_count += 1
+                elif char == '}':
+                    brace_count -= 1
+                    if brace_count == 0:
+                        end_pos = i + 1
+                        break
+
+        if brace_count != 0:
+            return None
+
+        json_str = html[start_pos:end_pos]
+
         try:
-            wprm_data = json.loads(match.group(1))
+            wprm_data = json.loads(json_str)
 
             # Get first recipe (usually only one)
             recipe_data = next(iter(wprm_data.values()))
@@ -324,20 +361,48 @@ class RecipeParser:
             # Extract ingredients
             ingredients = []
             ingredient_parser = IngredientParser()
-            for ing_group in recipe_data.get('ingredients', []):
-                for ing in ing_group.get('ingredients', []):
-                    # Use structured data from WPRM but improve item name and category
-                    item_name = ing.get('name', '')
+            ingredients_data = recipe_data.get('ingredients', [])
+
+            # Handle both flat and nested ingredient structures
+            for item in ingredients_data:
+                # Check if this is a group with nested ingredients or a flat ingredient
+                if 'ingredients' in item and isinstance(item['ingredients'], list):
+                    # Nested structure: groups containing ingredients
+                    for ing in item['ingredients']:
+                        item_name = ing.get('name', '')
+                        if not item_name:
+                            continue
+
+                        # Parse the item name to extract clean name and notes
+                        item_clean, notes = ingredient_parser._extract_item_and_notes(item_name)
+
+                        parsed = {
+                            "item": item_clean,
+                            "quantity": self._parse_fraction(ing.get('amount', '1')),
+                            "unit": ing.get('unit', 'pieces'),
+                            "category": ingredient_parser._categorize(item_clean)
+                        }
+                        if notes:
+                            parsed["notes"] = notes
+
+                        ingredients.append(parsed)
+                elif 'name' in item:
+                    # Flat structure: each item is an ingredient
+                    item_name = item.get('name', '')
                     if not item_name:
                         continue
 
                     # Parse the item name to extract clean name and notes
                     item_clean, notes = ingredient_parser._extract_item_and_notes(item_name)
+                    # Combine notes from WPRM with parsed notes
+                    wprm_notes = item.get('notes', '')
+                    if wprm_notes:
+                        notes = f"{notes}, {wprm_notes}" if notes else wprm_notes
 
                     parsed = {
                         "item": item_clean,
-                        "quantity": self._parse_fraction(ing.get('amount', '1')),
-                        "unit": ing.get('unit', 'pieces'),
+                        "quantity": self._parse_fraction(item.get('amount', '1')),
+                        "unit": item.get('unit', 'pieces'),
                         "category": ingredient_parser._categorize(item_clean)
                     }
                     if notes:
@@ -347,18 +412,38 @@ class RecipeParser:
 
             # Extract instructions
             instructions = []
-            for inst_group in recipe_data.get('instructions', []):
-                for inst in inst_group.get('instructions', []):
-                    text = inst.get('text', '')
+            instructions_data = recipe_data.get('instructions', [])
+
+            # Handle both flat and nested instruction structures
+            for item in instructions_data:
+                # Check if this is a group with nested instructions or a flat instruction
+                if 'instructions' in item and isinstance(item['instructions'], list):
+                    # Nested structure: groups containing instructions
+                    for inst in item['instructions']:
+                        text = inst.get('text', '')
+                        if text:
+                            instructions.append(text.strip())
+                elif 'text' in item:
+                    # Flat structure: each item is an instruction
+                    text = item.get('text', '')
                     if text:
                         instructions.append(text.strip())
 
             # Extract nutrition (per serving)
             nutrition = recipe_data.get('nutrition', {})
 
+            # Extract servings - try multiple keys for compatibility
+            servings = (
+                recipe_data.get('servings') or
+                recipe_data.get('originalServingsParsed') or
+                recipe_data.get('originalServings') or
+                recipe_data.get('currentServingsParsed') or
+                4  # fallback
+            )
+
             return ParsedRecipe(
                 name=recipe_data.get('name', 'Unnamed Recipe'),
-                servings=recipe_data.get('servings', 4),
+                servings=servings,
                 prep_time_minutes=recipe_data.get('prep_time', 0),
                 cook_time_minutes=recipe_data.get('cook_time', 0),
                 # Core nutrition fields
