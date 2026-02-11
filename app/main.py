@@ -1390,6 +1390,133 @@ def _regenerate_from_manual_plan(recipes: list[Recipe]):
     current_shopping_list = generate_shopping_list(current_plan)
 
 
+@app.route("/shopping-list/update-item", methods=["POST"])
+def update_shopping_item():
+    """Update quantity or name of a shopping list item."""
+    global current_shopping_list
+
+    if current_shopping_list is None:
+        return jsonify({"error": "No shopping list available"}), 404
+
+    try:
+        data = request.get_json()
+    except Exception:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    item_index = data.get("index")
+    new_quantity = data.get("quantity")
+    new_name = data.get("name")
+
+    if item_index is None:
+        return jsonify({"error": "Missing item index"}), 400
+
+    if item_index < 0 or item_index >= len(current_shopping_list.items):
+        return jsonify({"error": "Invalid item index"}), 400
+
+    item = current_shopping_list.items[item_index]
+
+    if new_quantity is not None:
+        try:
+            item.quantity = float(new_quantity)
+        except ValueError:
+            return jsonify({"error": "Invalid quantity"}), 400
+
+    if new_name is not None:
+        item.item = new_name.strip()
+
+    return jsonify({
+        "success": True,
+        "message": "Item updated",
+        "item": {
+            "item": item.item,
+            "quantity": item.quantity,
+            "unit": item.unit,
+            "category": item.category
+        }
+    })
+
+
+@app.route("/shopping-list/delete-item", methods=["POST"])
+def delete_shopping_item():
+    """Delete an item from the shopping list."""
+    global current_shopping_list
+
+    if current_shopping_list is None:
+        return jsonify({"error": "No shopping list available"}), 404
+
+    try:
+        data = request.get_json()
+    except Exception:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    item_index = data.get("index")
+
+    if item_index is None:
+        return jsonify({"error": "Missing item index"}), 400
+
+    if item_index < 0 or item_index >= len(current_shopping_list.items):
+        return jsonify({"error": "Invalid item index"}), 400
+
+    deleted_item = current_shopping_list.items.pop(item_index)
+
+    return jsonify({
+        "success": True,
+        "message": f"Deleted {deleted_item.item}",
+        "deleted_item": deleted_item.item
+    })
+
+
+@app.route("/shopping-list/add-item", methods=["POST"])
+def add_shopping_item():
+    """Add a custom item to the shopping list."""
+    global current_shopping_list
+    from app.shopping_list import ShoppingListItem
+
+    if current_shopping_list is None:
+        return jsonify({"error": "No shopping list available"}), 404
+
+    try:
+        data = request.get_json()
+    except Exception:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    item_name = data.get("name")
+    quantity = data.get("quantity", 1)
+    unit = data.get("unit", "")
+    category = data.get("category", "other")
+
+    if not item_name or not item_name.strip():
+        return jsonify({"error": "Item name is required"}), 400
+
+    try:
+        quantity = float(quantity)
+        if quantity <= 0:
+            return jsonify({"error": "Quantity must be positive"}), 400
+    except ValueError:
+        return jsonify({"error": "Invalid quantity"}), 400
+
+    new_item = ShoppingListItem(
+        item=item_name.strip(),
+        quantity=quantity,
+        unit=unit.strip(),
+        category=category
+    )
+
+    current_shopping_list.items.append(new_item)
+    current_shopping_list.items.sort(key=lambda x: (x.category, x.item))
+
+    return jsonify({
+        "success": True,
+        "message": f"Added {item_name}",
+        "item": {
+            "item": new_item.item,
+            "quantity": new_item.quantity,
+            "unit": new_item.unit,
+            "category": new_item.category
+        }
+    })
+
+
 @app.route("/write-to-sheets", methods=["POST"])
 def write_to_sheets():
     """Write the current plan to Google Sheets."""
