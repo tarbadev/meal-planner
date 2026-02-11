@@ -37,6 +37,7 @@ class ParsedRecipe:
     ingredients: list[dict] = None
     instructions: list[str] = None
     source_url: str = None
+    image_url: str | None = None
 
     def to_recipe_dict(self, generated_id: str) -> dict:
         """Convert to Recipe dict format with defaults for missing values.
@@ -88,7 +89,8 @@ class ParsedRecipe:
             "tags": self.tags or ["imported"],
             "ingredients": self.ingredients,
             "instructions": self.instructions,
-            "source_url": self.source_url
+            "source_url": self.source_url,
+            "image_url": self.image_url
         }
 
 
@@ -237,7 +239,8 @@ class RecipeParser:
             iron_per_serving=self._extract_nutrient(nutrition, 'ironContent'),
             tags=[],  # Could extract from recipeCategory or recipeCuisine
             ingredients=ingredients,
-            instructions=instructions
+            instructions=instructions,
+            image_url=self._extract_image_url(data.get('image'))
         )
 
     def _extract_servings(self, yield_value) -> int | None:
@@ -268,6 +271,35 @@ class RecipeParser:
             match = re.search(r'([\d.]+)', value_str)
             if match:
                 return float(match.group(1))
+        return None
+
+    def _extract_image_url(self, image_data) -> str | None:
+        """Extract image URL from schema.org image field.
+
+        Image can be:
+        - A string (URL)
+        - An object with 'url' property
+        - An array of strings or objects
+        """
+        if not image_data:
+            return None
+
+        # Handle string URL
+        if isinstance(image_data, str):
+            return image_data
+
+        # Handle object with url property
+        if isinstance(image_data, dict):
+            return image_data.get('url')
+
+        # Handle array (take first image)
+        if isinstance(image_data, list) and len(image_data) > 0:
+            first_image = image_data[0]
+            if isinstance(first_image, str):
+                return first_image
+            if isinstance(first_image, dict):
+                return first_image.get('url')
+
         return None
 
     def _parse_ingredient(self, ingredient_str: str) -> dict | None:

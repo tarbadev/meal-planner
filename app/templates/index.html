@@ -487,6 +487,19 @@
             align-items: center;
             justify-content: center;
             font-size: 4rem;
+            object-fit: cover;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .recipe-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .recipe-image-emoji {
+            font-size: 4rem;
         }
 
         .recipe-content {
@@ -1062,13 +1075,19 @@
                 {% for recipe in recipes %}
                 <div class="recipe-card" onclick="window.location.href='/recipe/{{ recipe.id }}'">
                     <div class="recipe-image">
-                        {% if 'italian' in recipe.tags %}🍝
-                        {% elif 'mexican' in recipe.tags %}🌮
-                        {% elif 'asian' in recipe.tags %}🍜
-                        {% elif 'breakfast' in recipe.tags %}🥞
-                        {% elif 'dessert' in recipe.tags %}🍰
-                        {% elif 'salad' in recipe.tags %}🥗
-                        {% else %}🍲{% endif %}
+                        {% if recipe.image_url %}
+                        <img src="{{ recipe.image_url }}" alt="{{ recipe.name }}" loading="lazy">
+                        {% else %}
+                        <span class="recipe-image-emoji">
+                            {% if 'italian' in recipe.tags %}🍝
+                            {% elif 'mexican' in recipe.tags %}🌮
+                            {% elif 'asian' in recipe.tags %}🍜
+                            {% elif 'breakfast' in recipe.tags %}🥞
+                            {% elif 'dessert' in recipe.tags %}🍰
+                            {% elif 'salad' in recipe.tags %}🥗
+                            {% else %}🍲{% endif %}
+                        </span>
+                        {% endif %}
                     </div>
                     <div class="recipe-content">
                         <h3 class="recipe-title">{{ recipe.name }}</h3>
