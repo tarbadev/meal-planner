@@ -64,8 +64,9 @@ def share_recipe():
     This endpoint receives shared content from the browser's share menu
     (Android Chrome, iOS Safari with Web Share Target API).
     """
-    from flask import redirect, url_for
     from urllib.parse import quote
+
+    from flask import redirect, url_for
 
     # Get form data from share target
     url = request.form.get('url', '').strip()

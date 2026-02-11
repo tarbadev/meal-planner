@@ -1113,7 +1113,7 @@ class TestShareRecipe:
         )
 
         assert response.status_code == 302
-        assert '/?import_url=https%3A%2F%2Fexample.com%2Frecipe' in response.location
+        assert '/?import_url=https://example.com/recipe' in response.location
 
     def test_share_recipe_with_text_no_url(self, client):
         """Test sharing text without URL redirects to home with import_text param."""
