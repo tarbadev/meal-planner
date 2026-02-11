@@ -1481,3 +1481,230 @@ class TestRegenerateMeal:
             data = json.loads(response.data)
             assert data['success'] is True
             assert main.manual_plan["Saturday"]["Snack"]["recipe_id"] == "chicken-stir-fry"
+
+
+class TestShoppingListEditing:
+    """Test shopping list CRUD operations."""
+
+    def test_update_shopping_item_quantity(self, client, monkeypatch):
+        """Test updating item quantity."""
+        from app import main
+        from app.shopping_list import ShoppingList, ShoppingListItem
+
+        main.current_shopping_list = ShoppingList(items=[
+            ShoppingListItem(item="apples", quantity=3.0, unit="lbs", category="produce"),
+            ShoppingListItem(item="milk", quantity=1.0, unit="gallon", category="dairy")
+        ])
+
+        response = client.post(
+            '/shopping-list/update-item',
+            data=json.dumps({
+                "index": 0,
+                "quantity": 5.0
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['success'] is True
+        assert data['item']['quantity'] == 5.0
+        assert main.current_shopping_list.items[0].quantity == 5.0
+
+    def test_update_shopping_item_name(self, client, monkeypatch):
+        """Test updating item name."""
+        from app import main
+        from app.shopping_list import ShoppingList, ShoppingListItem
+
+        main.current_shopping_list = ShoppingList(items=[
+            ShoppingListItem(item="apples", quantity=3.0, unit="lbs", category="produce")
+        ])
+
+        response = client.post(
+            '/shopping-list/update-item',
+            data=json.dumps({
+                "index": 0,
+                "name": "green apples"
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['success'] is True
+        assert data['item']['item'] == 'green apples'
+        assert main.current_shopping_list.items[0].item == 'green apples'
+
+    def test_update_shopping_item_invalid_index(self, client):
+        """Test updating with invalid index."""
+        from app import main
+        from app.shopping_list import ShoppingList, ShoppingListItem
+
+        main.current_shopping_list = ShoppingList(items=[
+            ShoppingListItem(item="apples", quantity=3.0, unit="lbs", category="produce")
+        ])
+
+        response = client.post(
+            '/shopping-list/update-item',
+            data=json.dumps({
+                "index": 10,
+                "quantity": 5.0
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+        assert 'Invalid item index' in data['error']
+
+    def test_update_shopping_item_no_list(self, client):
+        """Test updating when no shopping list exists."""
+        from app import main
+
+        main.current_shopping_list = None
+
+        response = client.post(
+            '/shopping-list/update-item',
+            data=json.dumps({
+                "index": 0,
+                "quantity": 5.0
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 404
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_delete_shopping_item(self, client):
+        """Test deleting an item from shopping list."""
+        from app import main
+        from app.shopping_list import ShoppingList, ShoppingListItem
+
+        main.current_shopping_list = ShoppingList(items=[
+            ShoppingListItem(item="apples", quantity=3.0, unit="lbs", category="produce"),
+            ShoppingListItem(item="milk", quantity=1.0, unit="gallon", category="dairy")
+        ])
+
+        response = client.post(
+            '/shopping-list/delete-item',
+            data=json.dumps({"index": 0}),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['success'] is True
+        assert data['deleted_item'] == 'apples'
+        assert len(main.current_shopping_list.items) == 1
+        assert main.current_shopping_list.items[0].item == 'milk'
+
+    def test_delete_shopping_item_invalid_index(self, client):
+        """Test deleting with invalid index."""
+        from app import main
+        from app.shopping_list import ShoppingList, ShoppingListItem
+
+        main.current_shopping_list = ShoppingList(items=[
+            ShoppingListItem(item="apples", quantity=3.0, unit="lbs", category="produce")
+        ])
+
+        response = client.post(
+            '/shopping-list/delete-item',
+            data=json.dumps({"index": 5}),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_add_shopping_item(self, client):
+        """Test adding a custom item to shopping list."""
+        from app import main
+        from app.shopping_list import ShoppingList, ShoppingListItem
+
+        main.current_shopping_list = ShoppingList(items=[
+            ShoppingListItem(item="apples", quantity=3.0, unit="lbs", category="produce")
+        ])
+
+        response = client.post(
+            '/shopping-list/add-item',
+            data=json.dumps({
+                "name": "bananas",
+                "quantity": 2.0,
+                "unit": "lbs",
+                "category": "produce"
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['success'] is True
+        assert data['item']['item'] == 'bananas'
+        assert data['item']['quantity'] == 2.0
+        assert len(main.current_shopping_list.items) == 2
+
+    def test_add_shopping_item_minimal(self, client):
+        """Test adding item with minimal data."""
+        from app import main
+        from app.shopping_list import ShoppingList
+
+        main.current_shopping_list = ShoppingList(items=[])
+
+        response = client.post(
+            '/shopping-list/add-item',
+            data=json.dumps({
+                "name": "salt"
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['success'] is True
+        assert data['item']['item'] == 'salt'
+        assert data['item']['quantity'] == 1
+        assert data['item']['category'] == 'other'
+
+    def test_add_shopping_item_invalid_quantity(self, client):
+        """Test adding item with invalid quantity."""
+        from app import main
+        from app.shopping_list import ShoppingList
+
+        main.current_shopping_list = ShoppingList(items=[])
+
+        response = client.post(
+            '/shopping-list/add-item',
+            data=json.dumps({
+                "name": "salt",
+                "quantity": -5
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+        assert 'positive' in data['error'].lower()
+
+    def test_add_shopping_item_empty_name(self, client):
+        """Test adding item with empty name."""
+        from app import main
+        from app.shopping_list import ShoppingList
+
+        main.current_shopping_list = ShoppingList(items=[])
+
+        response = client.post(
+            '/shopping-list/add-item',
+            data=json.dumps({
+                "name": "   "
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+        assert 'name is required' in data['error'].lower()
