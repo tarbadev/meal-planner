@@ -2395,6 +2395,19 @@
                 return;
             }
 
+            // Log file details for debugging
+            console.log('[IMAGE UPLOAD] File selected:', {
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                lastModified: new Date(file.lastModified).toISOString()
+            });
+
+            // Check file size (warn if > 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                console.warn('[IMAGE UPLOAD] Large file detected:', (file.size / (1024 * 1024)).toFixed(2), 'MB');
+            }
+
             importBtn.disabled = true;
             importBtn.innerHTML = '<span class="loading"></span> Analyzing...';
             statusEl.className = 'status-message';
@@ -2404,13 +2417,22 @@
             try {
                 const formData = new FormData();
                 formData.append('image', file);
+                console.log('[IMAGE UPLOAD] FormData created, starting upload...');
 
                 const response = await fetch('/import-recipe-image', {
                     method: 'POST',
                     body: formData
                 });
 
+                console.log('[IMAGE UPLOAD] Response received:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    ok: response.ok,
+                    headers: Object.fromEntries(response.headers.entries())
+                });
+
                 const data = await response.json();
+                console.log('[IMAGE UPLOAD] Response data:', data);
 
                 if (response.ok && data.success) {
                     statusEl.className = 'status-message success';
@@ -2418,11 +2440,24 @@
                     setTimeout(() => window.location.reload(), 2000);
                 } else {
                     statusEl.className = 'status-message error';
-                    statusEl.textContent = data.message || data.error || 'Error importing recipe';
+                    const errorMsg = data.message || data.error || 'Error importing recipe';
+                    statusEl.textContent = errorMsg;
+                    console.error('[IMAGE UPLOAD] Error response:', {
+                        status: response.status,
+                        error: data.error,
+                        message: data.message,
+                        suggestion: data.suggestion
+                    });
                 }
             } catch (error) {
                 statusEl.className = 'status-message error';
-                statusEl.textContent = 'Error: ' + error.message;
+                const errorMsg = 'Error: ' + error.message;
+                statusEl.textContent = errorMsg;
+                console.error('[IMAGE UPLOAD] Exception caught:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
             } finally {
                 importBtn.disabled = false;
                 importBtn.innerHTML = 'Import from Photo';
