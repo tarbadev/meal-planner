@@ -548,7 +548,25 @@ def import_recipe_image():
 
         extractor = ImageRecipeExtractor(api_key=config.OPENAI_API_KEY)
         extracted_data = extractor.extract_recipe(image_data, file_ext)
+    except ValueError as e:
+        return jsonify({
+            "error": "Extraction failed",
+            "message": str(e)
+        }), 422
+    except Exception as e:
+        # Check if it looks like a timeout
+        error_msg = str(e)
+        if "timeout" in error_msg.lower():
+            return jsonify({
+                "error": "Timeout",
+                "message": "The image processing took too long. Please try again with a smaller or clearer image."
+            }), 504
+        return jsonify({
+            "error": "Processing failed",
+            "message": f"An error occurred while processing the image: {error_msg}"
+        }), 500
 
+    try:
         # Convert to ParsedRecipe format
         parsed_recipe = ParsedRecipe(
             name=extracted_data.name,
@@ -861,6 +879,11 @@ def create_recipe():
             "error": "Validation error",
             "message": str(e)
         }), 400
+    except Exception as e:
+        return jsonify({
+            "error": "Processing error",
+            "message": f"Failed to process recipe data: {str(e)}"
+        }), 500
 
     # Add to recipes list and save
     updated_recipes = existing_recipes + [new_recipe]

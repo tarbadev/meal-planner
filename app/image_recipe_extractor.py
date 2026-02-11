@@ -48,7 +48,7 @@ class ImageRecipeExtractor:
         prompt = self._build_extraction_prompt()
 
         try:
-            # Call GPT-4 Vision API
+            # Call GPT-4 Vision API with a specific timeout
             response = self.client.chat.completions.create(
                 model="gpt-4o",  # gpt-4o has vision capabilities
                 messages=[
@@ -69,7 +69,8 @@ class ImageRecipeExtractor:
                     }
                 ],
                 max_tokens=2000,
-                temperature=0.1  # Low temperature for consistent extraction
+                temperature=0.1,  # Low temperature for consistent extraction
+                timeout=90.0      # Explicit timeout for the API call
             )
 
             # Parse response
