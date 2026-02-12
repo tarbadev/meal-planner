@@ -1,15 +1,15 @@
 # Meal Planner Pro - Feature Specification
 
 ## Progress Summary
-**Total Features Implemented: 35 / 150+ (23%)**
+**Total Features Implemented: 36 / 150+ (24%)**
 
 ### Implementation Status by Category:
-- Recipe Management: 12/20 features (60%)
+- Recipe Management: 13/20 features (65%)
 - Meal Planning: 8/15 features (53%)
 - Shopping List: 5/12 features (42%)
 - UI/UX: 4/8 features (50%)
 - Export & Integration: 1/5 features (20%)
-- Other Categories: 4/90+ features (4%)
+- Other Categories: 5/90+ features (6%)
 
 ## Core Features
 
@@ -54,12 +54,12 @@
   - ⬜ Recipe collections/cookbooks
   - ⬜ Favorites and ratings
   - ⬜ Recently viewed
-  - ⬜ Search and advanced filtering
+  - ✅ Search and advanced filtering (server-side pagination API)
     - ⬜ By ingredients
-    - ⬜ By tags
-    - ⬜ By cooking time
+    - ✅ By tags (multi-select with AND logic)
+    - ✅ By cooking time (max time filter)
     - ⬜ By difficulty
-    - ⬜ By nutrition criteria
+    - ✅ By nutrition criteria (calorie range filtering)
     - ⬜ By available ingredients
 
 - **Recipe Details**
