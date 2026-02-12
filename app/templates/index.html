@@ -667,6 +667,47 @@
             font-weight: 500;
         }
 
+        /* Tag Filter Buttons */
+        .tag-filter {
+            padding: 0.375rem 0.875rem;
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .tag-filter:hover {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+
+        .tag-filter.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        /* Clear All Button */
+        .clear-all-btn {
+            padding: 0.375rem 0.875rem;
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text-muted);
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .clear-all-btn:hover {
+            border-color: var(--color-error);
+            color: var(--color-error);
+            background: #fee;
+        }
+
         /* Shopping List */
         .shopping-list {
             background: var(--color-surface);
@@ -1062,6 +1103,66 @@
             .form-actions {
                 flex-direction: column;
             }
+
+            /* Recipe Filter Responsive Styles */
+            .recipe-filters > div:first-child {
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+            }
+
+            .recipe-filters select {
+                width: 100%;
+            }
+
+            .recipe-filters input {
+                font-size: 16px !important; /* Prevent iOS zoom on focus */
+            }
+
+            /* Tag filters with better touch targets */
+            .tag-filter,
+            .clear-all-btn {
+                padding: 0.625rem 1rem;
+                font-size: 0.9375rem;
+                min-height: 44px; /* iOS recommended touch target */
+            }
+
+            /* Pagination responsive */
+            #recipePagination {
+                flex-wrap: wrap;
+                gap: 0.375rem !important;
+            }
+
+            #recipePagination button {
+                min-width: 44px;
+                min-height: 44px;
+                padding: 0.5rem;
+            }
+
+            #recipePagination span {
+                padding: 0 0.25rem !important;
+            }
+
+            /* Hide page number ellipsis on very small screens */
+            @media (max-width: 480px) {
+                #recipePagination button:not(.btn-primary):not(:first-child):not(:last-child) {
+                    display: none;
+                }
+
+                #recipePagination span {
+                    display: none;
+                }
+            }
+
+            /* Recipe cards already single column, ensure proper spacing */
+            .recipe-card {
+                margin-bottom: 0;
+            }
+
+            /* Adjust quick stats grid on mobile */
+            .grid-3 {
+                grid-template-columns: 1fr !important;
+                gap: 1rem !important;
+            }
         }
 
         /* Loading State */
@@ -1244,62 +1345,79 @@
             <div class="section-header">
                 <div>
                     <h2 class="section-title">Recipe Library</h2>
-                    <p class="section-subtitle">{{ recipes|length }} recipes available</p>
+                    <p class="section-subtitle" id="recipeCount">Loading recipes...</p>
                 </div>
             </div>
 
-            {% if recipes|length == 0 %}
-            <div class="empty-state">
-                <div class="empty-state-icon">🍽️</div>
-                <h3 class="empty-state-title">No recipes yet</h3>
-                <p class="empty-state-text">Import your first recipe from a URL, text, or photo to get started!</p>
-                <button class="btn btn-primary" onclick="openImportModal()">
-                    <span class="btn-icon">📥</span>
-                    Import Your First Recipe
-                </button>
-            </div>
-            {% else %}
-            <div class="recipe-grid">
-                {% for recipe in recipes %}
-                <div class="recipe-card" onclick="window.location.href='/recipe/{{ recipe.id }}'">
-                    <div class="recipe-image">
-                        {% if recipe.image_url %}
-                        <img src="{{ recipe.image_url }}" alt="{{ recipe.name }}" loading="lazy">
-                        {% else %}
-                        <span class="recipe-image-emoji">
-                            {% if 'italian' in recipe.tags %}🍝
-                            {% elif 'mexican' in recipe.tags %}🌮
-                            {% elif 'asian' in recipe.tags %}🍜
-                            {% elif 'breakfast' in recipe.tags %}🥞
-                            {% elif 'dessert' in recipe.tags %}🍰
-                            {% elif 'salad' in recipe.tags %}🥗
-                            {% else %}🍲{% endif %}
-                        </span>
-                        {% endif %}
+            <!-- Search and Filters -->
+            <div class="recipe-filters" style="margin-bottom: 2rem;">
+                <!-- Search Bar -->
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="flex: 1; position: relative;">
+                        <input
+                            type="text"
+                            id="recipeSearch"
+                            placeholder="Search recipes by name or tags..."
+                            style="width: 100%; padding: 0.75rem 2.5rem 0.75rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: 1rem;"
+                        >
+                        <button
+                            id="clearSearch"
+                            onclick="clearSearch()"
+                            style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--color-text-muted); cursor: pointer; padding: 0.5rem; display: none;"
+                        >✕</button>
                     </div>
-                    <div class="recipe-content">
-                        <h3 class="recipe-title">{{ recipe.name }}</h3>
-                        <div class="recipe-meta">
-                            <span>🍽️ {{ recipe.servings }} servings</span>
-                            {% if recipe.total_time_minutes %}
-                            <span>⏱️ {{ recipe.total_time_minutes }} min</span>
-                            {% endif %}
-                            {% if recipe.calories_per_serving %}
-                            <span>🔥 {{ recipe.calories_per_serving|int }} cal</span>
-                            {% endif %}
-                        </div>
-                        {% if recipe.tags %}
-                        <div class="recipe-tags">
-                            {% for tag in recipe.tags[:3] %}
-                            <span class="tag">{{ tag }}</span>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                    </div>
+                    <select
+                        id="recipeSort"
+                        onchange="applyFilters()"
+                        style="padding: 0.75rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: 1rem; background: white;"
+                    >
+                        <option value="">Sort by...</option>
+                        <option value="name_asc">Name (A-Z)</option>
+                        <option value="name_desc">Name (Z-A)</option>
+                        <option value="calories_asc">Calories (Low to High)</option>
+                        <option value="calories_desc">Calories (High to Low)</option>
+                        <option value="time_asc">Time (Quick First)</option>
+                        <option value="time_desc">Time (Long First)</option>
+                    </select>
                 </div>
-                {% endfor %}
+
+                <!-- Tag Filters -->
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+                    <span style="color: var(--color-text-muted); font-size: 0.875rem; line-height: 2rem;">Quick filters:</span>
+                    <button class="tag-filter" data-tag="quick" onclick="toggleTagFilter(this)">⚡ Quick</button>
+                    <button class="tag-filter" data-tag="vegetarian" onclick="toggleTagFilter(this)">🥬 Vegetarian</button>
+                    <button class="tag-filter" data-tag="vegan" onclick="toggleTagFilter(this)">🌱 Vegan</button>
+                    <button class="tag-filter" data-tag="italian" onclick="toggleTagFilter(this)">🍝 Italian</button>
+                    <button class="tag-filter" data-tag="mexican" onclick="toggleTagFilter(this)">🌮 Mexican</button>
+                    <button class="tag-filter" data-tag="asian" onclick="toggleTagFilter(this)">🍜 Asian</button>
+                    <button class="tag-filter" data-tag="breakfast" onclick="toggleTagFilter(this)">🥞 Breakfast</button>
+                    <button class="tag-filter" data-tag="dessert" onclick="toggleTagFilter(this)">🍰 Dessert</button>
+                    <button class="tag-filter" data-tag="salad" onclick="toggleTagFilter(this)">🥗 Salad</button>
+                    <button class="clear-all-btn" onclick="clearAllTags()">Clear All</button>
+                </div>
             </div>
-            {% endif %}
+
+            <!-- Loading State -->
+            <div id="recipeLoading" style="text-align: center; padding: 3rem; display: none;">
+                <div style="font-size: 3rem;">⏳</div>
+                <p style="color: var(--color-text-muted); margin-top: 1rem;">Loading recipes...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="recipeEmpty" style="display: none;">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔍</div>
+                    <h3 class="empty-state-title">No recipes found</h3>
+                    <p class="empty-state-text">Try adjusting your search or filters</p>
+                    <button class="btn btn-outline" onclick="resetFilters()">Clear Filters</button>
+                </div>
+            </div>
+
+            <!-- Recipe Grid (populated by JavaScript) -->
+            <div id="recipeGrid" class="recipe-grid"></div>
+
+            <!-- Pagination -->
+            <div id="recipePagination" style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 2rem;"></div>
         </section>
     </div>
 
@@ -1924,27 +2042,36 @@
         }
 
         async function openRecipeSelector(day, mealType) {
-            const recipes = {{ recipes | tojson }};
-            if (recipes.length === 0) {
-                alert('No recipes available. Import a recipe first!');
-                return;
+            // Fetch all recipes from API (up to 1000)
+            try {
+                const response = await fetch('/api/recipes?per_page=1000');
+                const data = await response.json();
+                const recipes = data.recipes;
+
+                if (recipes.length === 0) {
+                    alert('No recipes available. Import a recipe first!');
+                    return;
+                }
+
+                const recipeId = prompt(`Enter recipe ID or name for ${day} ${mealType}:\n\n` +
+                    recipes.map(r => `- ${r.id}: ${r.name}`).join('\n'));
+
+                if (!recipeId) return;
+
+                const recipe = recipes.find(r => r.id === recipeId || r.name.toLowerCase().includes(recipeId.toLowerCase()));
+                if (!recipe) {
+                    alert('Recipe not found');
+                    return;
+                }
+
+                const servings = prompt('How many servings?', {{ household_portions }});
+                if (!servings || isNaN(servings)) return;
+
+                await addMeal(day, mealType, recipe.id, parseFloat(servings));
+            } catch (error) {
+                console.error('Error fetching recipes:', error);
+                alert('Error loading recipes. Please try again.');
             }
-
-            const recipeId = prompt(`Enter recipe ID or name for ${day} ${mealType}:\n\n` +
-                recipes.map(r => `- ${r.id}: ${r.name}`).join('\n'));
-
-            if (!recipeId) return;
-
-            const recipe = recipes.find(r => r.id === recipeId || r.name.toLowerCase().includes(recipeId.toLowerCase()));
-            if (!recipe) {
-                alert('Recipe not found');
-                return;
-            }
-
-            const servings = prompt('How many servings?', {{ household_portions }});
-            if (!servings || isNaN(servings)) return;
-
-            await addMeal(day, mealType, recipe.id, parseFloat(servings));
         }
 
         // Shopping list functions
@@ -2609,6 +2736,243 @@
                 createBtn.innerHTML = 'Create Recipe';
             }
         }
+
+        // ============================================
+        // Recipe Library - API-based Filtering
+        // ============================================
+
+        let currentPage = 1;
+        let currentFilters = {
+            search: '',
+            tags: [],
+            sort: ''
+        };
+
+        // Fetch and render recipes from API
+        async function fetchRecipes(page = 1) {
+            const params = new URLSearchParams({
+                page: page,
+                per_page: 24
+            });
+
+            if (currentFilters.search) {
+                params.append('search', currentFilters.search);
+            }
+
+            if (currentFilters.tags.length > 0) {
+                params.append('tags', currentFilters.tags.join(','));
+            }
+
+            if (currentFilters.sort) {
+                params.append('sort', currentFilters.sort);
+            }
+
+            // Show loading state
+            document.getElementById('recipeLoading').style.display = 'block';
+            document.getElementById('recipeGrid').style.display = 'none';
+            document.getElementById('recipeEmpty').style.display = 'none';
+            document.getElementById('recipePagination').style.display = 'none';
+
+            try {
+                const response = await fetch(`/api/recipes?${params}`);
+                const data = await response.json();
+
+                currentPage = page;
+
+                // Update recipe count
+                const countEl = document.getElementById('recipeCount');
+                countEl.textContent = `${data.pagination.total_recipes} recipe${data.pagination.total_recipes !== 1 ? 's' : ''} found`;
+
+                // Hide loading
+                document.getElementById('recipeLoading').style.display = 'none';
+
+                if (data.recipes.length === 0) {
+                    // Show empty state
+                    document.getElementById('recipeEmpty').style.display = 'block';
+                } else {
+                    // Render recipes
+                    renderRecipes(data.recipes);
+                    renderPagination(data.pagination);
+                    document.getElementById('recipeGrid').style.display = 'grid';
+                    document.getElementById('recipePagination').style.display = 'flex';
+                }
+            } catch (error) {
+                console.error('Error fetching recipes:', error);
+                document.getElementById('recipeLoading').style.display = 'none';
+                document.getElementById('recipeEmpty').style.display = 'block';
+            }
+        }
+
+        // Render recipe cards
+        function renderRecipes(recipes) {
+            const grid = document.getElementById('recipeGrid');
+
+            grid.innerHTML = recipes.map(recipe => {
+                // Determine emoji
+                let emoji = '🍲';
+                if (recipe.tags.includes('italian')) emoji = '🍝';
+                else if (recipe.tags.includes('mexican')) emoji = '🌮';
+                else if (recipe.tags.includes('asian')) emoji = '🍜';
+                else if (recipe.tags.includes('breakfast')) emoji = '🥞';
+                else if (recipe.tags.includes('dessert')) emoji = '🍰';
+                else if (recipe.tags.includes('salad')) emoji = '🥗';
+
+                const imageHtml = recipe.image_url
+                    ? `<img src="${recipe.image_url}" alt="${recipe.name}" loading="lazy">`
+                    : `<span class="recipe-image-emoji">${emoji}</span>`;
+
+                const timeHtml = recipe.total_time_minutes
+                    ? `<span>⏱️ ${recipe.total_time_minutes} min</span>`
+                    : '';
+
+                const caloriesHtml = recipe.nutrition_per_serving?.calories
+                    ? `<span>🔥 ${Math.round(recipe.nutrition_per_serving.calories)} cal</span>`
+                    : '';
+
+                const tagsHtml = recipe.tags.slice(0, 3).map(tag =>
+                    `<span class="tag">${tag}</span>`
+                ).join('');
+
+                return `
+                    <div class="recipe-card" onclick="window.location.href='/recipe/${recipe.id}'">
+                        <div class="recipe-image">
+                            ${imageHtml}
+                        </div>
+                        <div class="recipe-content">
+                            <h3 class="recipe-title">${recipe.name}</h3>
+                            <div class="recipe-meta">
+                                <span>🍽️ ${recipe.servings} servings</span>
+                                ${timeHtml}
+                                ${caloriesHtml}
+                            </div>
+                            ${tagsHtml ? `<div class="recipe-tags">${tagsHtml}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render pagination controls
+        function renderPagination(pagination) {
+            const container = document.getElementById('recipePagination');
+
+            if (pagination.total_pages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+
+            // Previous button
+            if (pagination.has_prev) {
+                html += `<button class="btn btn-outline btn-small" onclick="fetchRecipes(${pagination.page - 1})">← Previous</button>`;
+            }
+
+            // Page numbers (show max 7 pages)
+            const maxVisible = 7;
+            let startPage = Math.max(1, pagination.page - Math.floor(maxVisible / 2));
+            let endPage = Math.min(pagination.total_pages, startPage + maxVisible - 1);
+
+            if (endPage - startPage < maxVisible - 1) {
+                startPage = Math.max(1, endPage - maxVisible + 1);
+            }
+
+            if (startPage > 1) {
+                html += `<button class="btn btn-outline btn-small" onclick="fetchRecipes(1)">1</button>`;
+                if (startPage > 2) {
+                    html += `<span style="padding: 0 0.5rem; color: var(--color-text-muted);">...</span>`;
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === pagination.page) {
+                    html += `<button class="btn btn-primary btn-small">${i}</button>`;
+                } else {
+                    html += `<button class="btn btn-outline btn-small" onclick="fetchRecipes(${i})">${i}</button>`;
+                }
+            }
+
+            if (endPage < pagination.total_pages) {
+                if (endPage < pagination.total_pages - 1) {
+                    html += `<span style="padding: 0 0.5rem; color: var(--color-text-muted);">...</span>`;
+                }
+                html += `<button class="btn btn-outline btn-small" onclick="fetchRecipes(${pagination.total_pages})">${pagination.total_pages}</button>`;
+            }
+
+            // Next button
+            if (pagination.has_next) {
+                html += `<button class="btn btn-outline btn-small" onclick="fetchRecipes(${pagination.page + 1})">Next →</button>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Apply filters and fetch
+        function applyFilters() {
+            currentFilters.search = document.getElementById('recipeSearch').value.trim();
+            currentFilters.sort = document.getElementById('recipeSort').value;
+
+            // Show/hide clear button
+            const clearBtn = document.getElementById('clearSearch');
+            clearBtn.style.display = currentFilters.search ? 'block' : 'none';
+
+            fetchRecipes(1);
+        }
+
+        // Clear search
+        function clearSearch() {
+            document.getElementById('recipeSearch').value = '';
+            applyFilters();
+        }
+
+        // Toggle tag filter
+        function toggleTagFilter(button) {
+            const tag = button.dataset.tag;
+            button.classList.toggle('active');
+
+            if (button.classList.contains('active')) {
+                if (!currentFilters.tags.includes(tag)) {
+                    currentFilters.tags.push(tag);
+                }
+            } else {
+                currentFilters.tags = currentFilters.tags.filter(t => t !== tag);
+            }
+
+            fetchRecipes(1);
+        }
+
+        // Clear all tag filters
+        function clearAllTags() {
+            currentFilters.tags = [];
+            document.querySelectorAll('.tag-filter').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            fetchRecipes(1);
+        }
+
+        // Reset all filters
+        function resetFilters() {
+            document.getElementById('recipeSearch').value = '';
+            document.getElementById('recipeSort').value = '';
+            document.getElementById('clearSearch').style.display = 'none';
+            currentFilters = { search: '', tags: [], sort: '' };
+            clearAllTags();
+        }
+
+        // Search on input with debounce
+        let searchDebounce;
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('recipeSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchDebounce);
+                    searchDebounce = setTimeout(() => applyFilters(), 300);
+                });
+            }
+
+            // Load initial recipes
+            fetchRecipes(1);
+        });
     </script>
 
     <style>

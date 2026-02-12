@@ -94,17 +94,131 @@ def _serialize_plan(plan):
 @app.route("/")
 def index():
     """Render the web UI."""
-    recipes_file = Path(config.RECIPES_FILE)
-    recipes = load_recipes(recipes_file)
-
     return render_template(
         "index.html",
-        recipes=recipes,
         current_plan=_serialize_plan(current_plan),
         current_shopping_list=current_shopping_list,
         household_portions=config.TOTAL_PORTIONS,
         config=config
     )
+
+
+@app.route("/api/recipes")
+def api_recipes():
+    """API endpoint for paginated, searchable, filterable recipe listing."""
+    import math
+
+    from flask import request
+
+    # Load all recipes
+    recipes_file = Path(config.RECIPES_FILE)
+    all_recipes = load_recipes(recipes_file)
+
+    # Get query parameters
+    page = int(request.args.get('page', 1))
+    per_page = int(request.args.get('per_page', 24))
+    search = request.args.get('search', '').lower()
+    tags_param = request.args.get('tags', '')
+    sort = request.args.get('sort', '')
+    max_calories = request.args.get('max_calories', type=int)
+    min_calories = request.args.get('min_calories', type=int)
+    max_time = request.args.get('max_time', type=int)
+
+    # Filter recipes
+    filtered_recipes = all_recipes
+
+    # Search filter
+    if search:
+        filtered_recipes = [
+            r for r in filtered_recipes
+            if search in r.name.lower() or
+               any(search in tag.lower() for tag in r.tags)
+        ]
+
+    # Tag filter (AND logic)
+    if tags_param:
+        required_tags = [tag.strip().lower() for tag in tags_param.split(',')]
+        filtered_recipes = [
+            r for r in filtered_recipes
+            if all(req_tag in [t.lower() for t in r.tags] for req_tag in required_tags)
+        ]
+
+    # Calorie filters
+    if min_calories is not None:
+        filtered_recipes = [
+            r for r in filtered_recipes
+            if r.calories_per_serving >= min_calories
+        ]
+
+    if max_calories is not None:
+        filtered_recipes = [
+            r for r in filtered_recipes
+            if r.calories_per_serving <= max_calories
+        ]
+
+    # Time filter
+    if max_time is not None:
+        filtered_recipes = [
+            r for r in filtered_recipes
+            if r.total_time_minutes <= max_time
+        ]
+
+    # Sorting
+    if sort == 'name_asc':
+        filtered_recipes.sort(key=lambda r: r.name.lower())
+    elif sort == 'name_desc':
+        filtered_recipes.sort(key=lambda r: r.name.lower(), reverse=True)
+    elif sort == 'calories_asc':
+        filtered_recipes.sort(key=lambda r: r.calories_per_serving)
+    elif sort == 'calories_desc':
+        filtered_recipes.sort(key=lambda r: r.calories_per_serving, reverse=True)
+    elif sort == 'time_asc':
+        filtered_recipes.sort(key=lambda r: r.total_time_minutes)
+    elif sort == 'time_desc':
+        filtered_recipes.sort(key=lambda r: r.total_time_minutes, reverse=True)
+
+    # Pagination
+    total_recipes = len(filtered_recipes)
+    total_pages = math.ceil(total_recipes / per_page) if total_recipes > 0 else 1
+
+    # Calculate slice indices
+    start_idx = (page - 1) * per_page
+    end_idx = start_idx + per_page
+
+    # Get page of recipes
+    paginated_recipes = filtered_recipes[start_idx:end_idx]
+
+    # Serialize recipes
+    serialized_recipes = [
+        {
+            "id": r.id,
+            "name": r.name,
+            "servings": r.servings,
+            "prep_time_minutes": r.prep_time_minutes,
+            "cook_time_minutes": r.cook_time_minutes,
+            "total_time_minutes": r.total_time_minutes,
+            "tags": r.tags,
+            "image_url": r.image_url,
+            "source_url": r.source_url,
+            "nutrition_per_serving": r.nutrition_per_serving
+        }
+        for r in paginated_recipes
+    ]
+
+    # Build response
+    response = {
+        "recipes": serialized_recipes,
+        "pagination": {
+            "page": page,
+            "per_page": per_page,
+            "total_recipes": total_recipes,
+            "total_pages": total_pages,
+            "has_next": page < total_pages,
+            "has_prev": page > 1
+        }
+    }
+
+    return jsonify(response)
 
 
 @app.route("/recipe/<recipe_id>")
