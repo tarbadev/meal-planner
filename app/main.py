@@ -18,6 +18,79 @@ current_shopping_list = None
 manual_plan = {}
 
 
+def _serialize_plan(plan):
+    """Serialize a WeeklyPlan object to dict for JSON."""
+    if plan is None:
+        return None
+
+    return {
+        "meals": [
+            {
+                "day": meal.day,
+                "meal_type": meal.meal_type,
+                "recipe_id": meal.recipe.id,
+                "recipe_name": meal.recipe.name,
+                "portions": meal.portions,
+                "calories": meal.calories,
+                "protein": meal.protein,
+                "carbs": meal.carbs,
+                "fat": meal.fat,
+                "saturated_fat": meal.saturated_fat,
+                "polyunsaturated_fat": meal.polyunsaturated_fat,
+                "monounsaturated_fat": meal.monounsaturated_fat,
+                "sodium": meal.sodium,
+                "potassium": meal.potassium,
+                "fiber": meal.fiber,
+                "sugar": meal.sugar,
+                "vitamin_a": meal.vitamin_a,
+                "vitamin_c": meal.vitamin_c,
+                "calcium": meal.calcium,
+                "iron": meal.iron,
+                "prep_time": meal.recipe.prep_time_minutes,
+                "cook_time": meal.recipe.cook_time_minutes,
+                "total_time": meal.recipe.total_time_minutes
+            }
+            for meal in plan.meals
+        ],
+        "totals": {
+            "calories": plan.total_calories,
+            "protein": plan.total_protein,
+            "carbs": plan.total_carbs,
+            "fat": plan.total_fat,
+            "saturated_fat": plan.total_saturated_fat,
+            "polyunsaturated_fat": plan.total_polyunsaturated_fat,
+            "monounsaturated_fat": plan.total_monounsaturated_fat,
+            "sodium": plan.total_sodium,
+            "potassium": plan.total_potassium,
+            "fiber": plan.total_fiber,
+            "sugar": plan.total_sugar,
+            "vitamin_a": plan.total_vitamin_a,
+            "vitamin_c": plan.total_vitamin_c,
+            "calcium": plan.total_calcium,
+            "iron": plan.total_iron
+        },
+        "daily_averages": {
+            "calories": plan.avg_daily_calories,
+            "protein": plan.avg_daily_protein,
+            "carbs": plan.avg_daily_carbs,
+            "fat": plan.avg_daily_fat,
+            "saturated_fat": plan.avg_daily_saturated_fat,
+            "polyunsaturated_fat": plan.avg_daily_polyunsaturated_fat,
+            "monounsaturated_fat": plan.avg_daily_monounsaturated_fat,
+            "sodium": plan.avg_daily_sodium,
+            "potassium": plan.avg_daily_potassium,
+            "fiber": plan.avg_daily_fiber,
+            "sugar": plan.avg_daily_sugar,
+            "vitamin_a": plan.avg_daily_vitamin_a,
+            "vitamin_c": plan.avg_daily_vitamin_c,
+            "calcium": plan.avg_daily_calcium,
+            "iron": plan.avg_daily_iron
+        },
+        "daily_nutrition": plan.get_daily_nutrition(),
+        "daily_calorie_limit": plan.daily_calorie_limit
+    }
+
+
 @app.route("/")
 def index():
     """Render the web UI."""
@@ -27,7 +100,7 @@ def index():
     return render_template(
         "index.html",
         recipes=recipes,
-        current_plan=current_plan,
+        current_plan=_serialize_plan(current_plan),
         current_shopping_list=current_shopping_list,
         household_portions=config.TOTAL_PORTIONS,
         config=config
