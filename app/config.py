@@ -44,6 +44,10 @@ if not OPENAI_API_KEY and not _is_testing():
 # Instagram session file (optional, for automatic fetching)
 INSTAGRAM_SESSION_FILE = os.environ.get("INSTAGRAM_SESSION_FILE")
 
+# Spoonacular API key (OPTIONAL - only needed for bulk recipe import scripts)
+# Get your free API key at: https://spoonacular.com/food-api/console#Dashboard
+SPOONACULAR_API_KEY = os.environ.get("SPOONACULAR_API_KEY")
+
 HOUSEHOLD_PORTIONS = {
     "adults": 2,
     "child_4y": 0.5,

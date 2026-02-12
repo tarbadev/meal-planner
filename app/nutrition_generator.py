@@ -149,6 +149,10 @@ class USDAFoodDataClient:
 
     BASE_URL = 'https://api.nal.usda.gov/fdc/v1'
 
+    # Rate limiting: USDA allows 1000 requests/hour = ~16/minute
+    # Use 4 seconds between requests = 15 requests/minute (safely under limit)
+    MIN_REQUEST_INTERVAL = 4.0  # seconds
+
     def __init__(self, api_key: str | None = None):
         """Initialize USDA API client.
 
@@ -158,6 +162,19 @@ class USDAFoodDataClient:
         """
         self.session = requests.Session()
         self.api_key = api_key
+        self._last_request_time = 0.0
+
+    def _rate_limit(self):
+        """Enforce rate limiting between API requests."""
+        import time
+        current_time = time.time()
+        time_since_last = current_time - self._last_request_time
+
+        if time_since_last < self.MIN_REQUEST_INTERVAL:
+            sleep_time = self.MIN_REQUEST_INTERVAL - time_since_last
+            time.sleep(sleep_time)
+
+        self._last_request_time = time.time()
 
     def search_foods(self, query: str, page_size: int = 5) -> list[dict]:
         """Search for foods in USDA database.
@@ -170,10 +187,15 @@ class USDAFoodDataClient:
             List of food items with fdcId, description, score
         """
         try:
+            # Rate limit
+            self._rate_limit()
+
             params = {
                 'query': query,
                 'pageSize': page_size,
-                'dataType': ['SR Legacy', 'Foundation']  # Prefer high-quality data
+                # Use Foundation and Branded - most reliable data types
+                # Note: Survey (FNDDS) causes 400 errors due to parentheses
+                'dataType': ['Foundation', 'Branded']
             }
 
             # Add API key if available
@@ -202,13 +224,16 @@ class USDAFoodDataClient:
             Food details with nutrition data, or None if error
         """
         try:
+            # Rate limit
+            self._rate_limit()
+
             params = {}
             # Add API key if available
             if self.api_key:
                 params['api_key'] = self.api_key
 
             response = self.session.get(
-                f'{self.BASE_URL}/foods/{fdc_id}',
+                f'{self.BASE_URL}/food/{fdc_id}',  # Note: singular 'food', not 'foods'
                 params=params if params else None,
                 timeout=10
             )
