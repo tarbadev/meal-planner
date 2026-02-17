@@ -308,72 +308,6 @@
             border-radius: 4px;
         }
 
-        /* Servings stepper */
-        .servings-stepper {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .servings-stepper button {
-            width: 28px;
-            height: 28px;
-            border: 2px solid #3498db;
-            background: white;
-            color: #3498db;
-            border-radius: 50%;
-            font-size: 16px;
-            font-weight: bold;
-            line-height: 1;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            transition: background 0.15s ease, color 0.15s ease;
-        }
-
-        .servings-stepper button:hover:not(:disabled) {
-            background: #3498db;
-            color: white;
-        }
-
-        .servings-stepper button:disabled {
-            border-color: #bdc3c7;
-            color: #bdc3c7;
-            cursor: not-allowed;
-        }
-
-        .servings-stepper .servings-count {
-            min-width: 28px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .servings-reset {
-            display: block;
-            font-size: 11px;
-            color: #95a5a6;
-            text-decoration: none;
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 0;
-            margin-top: 4px;
-            font-family: inherit;
-        }
-
-        .servings-reset:hover {
-            color: #3498db;
-            text-decoration: underline;
-        }
-
-        .servings-reset.hidden {
-            visibility: hidden;
-        }
-
         /* Add to Plan button */
         .add-to-plan-btn {
             display: inline-flex;
@@ -395,6 +329,379 @@
         .add-to-plan-btn:hover {
             background: #047857;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        /* Edit Recipe button */
+        .edit-recipe-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e8f4fd;
+            color: #2980b9;
+            border: 2px solid #3498db;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 20px;
+            margin-left: 10px;
+            transition: background 0.2s ease, box-shadow 0.2s ease;
+            font-family: inherit;
+        }
+
+        .edit-recipe-btn:hover {
+            background: #d1e8f8;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08);
+        }
+
+        /* ===== EDIT MODE STYLES ===== */
+
+        /* Hide/show view vs edit mode elements */
+        .view-mode { display: block; }
+        .edit-mode { display: none; }
+
+        body.editing .view-mode { display: none !important; }
+        body.editing .edit-mode { display: block !important; }
+
+        /* Edit mode banner */
+        .edit-actions-bar {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding: 16px 20px;
+            background: #fef3c7;
+            border-radius: 8px;
+            border-left: 4px solid #f59e0b;
+        }
+
+        body.editing .edit-actions-bar {
+            display: flex;
+        }
+
+        .edit-mode-label {
+            font-weight: 600;
+            color: #92400e;
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .btn-save {
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s ease;
+        }
+
+        .btn-save:hover:not(:disabled) {
+            background: #047857;
+        }
+
+        .btn-save:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-cancel-edit {
+            background: transparent;
+            color: #57534e;
+            border: 2px solid #d6d3d1;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            transition: border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .btn-cancel-edit:hover {
+            border-color: #dc2626;
+            color: #dc2626;
+        }
+
+        /* Shared edit field base */
+        .edit-field {
+            width: 100%;
+            padding: 9px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 15px;
+            font-family: inherit;
+            color: #2c3e50;
+            background: #fafafa;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .edit-field:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+            background: #fff;
+        }
+
+        /* Editable recipe title */
+        #editName {
+            font-size: 26px;
+            font-weight: 700;
+            color: #2c3e50;
+            padding: 8px 12px;
+            margin-bottom: 16px;
+        }
+
+        /* Meta edit inputs */
+        .edit-meta-grid {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            flex-wrap: wrap;
+        }
+
+        .edit-meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 100px;
+        }
+
+        .edit-meta-item label {
+            color: #7f8c8d;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .edit-meta-item .edit-field {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+            width: 90px;
+            padding: 6px 8px;
+        }
+
+        /* Total time display in edit mode */
+        .edit-total-time {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 100px;
+        }
+
+        .edit-total-time label {
+            color: #7f8c8d;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .edit-total-time .total-time-display {
+            font-size: 20px;
+            font-weight: bold;
+            color: #95a5a6;
+            text-align: center;
+            padding: 6px 8px;
+        }
+
+        /* Image edit */
+        .edit-image-section {
+            margin: 0 0 24px 0;
+        }
+
+        .edit-image-section label {
+            display: block;
+            color: #7f8c8d;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .edit-image-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 2px solid #e2e8f0;
+            display: none;
+        }
+
+        /* Tags edit */
+        .edit-tags-section {
+            margin-bottom: 30px;
+        }
+
+        .edit-tags-section label {
+            display: block;
+            color: #7f8c8d;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .edit-tags-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+            min-height: 32px;
+        }
+
+        .edit-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #3498db;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+
+        .edit-tag .remove-tag-btn {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.85);
+            cursor: pointer;
+            font-size: 15px;
+            line-height: 1;
+            padding: 0;
+            transition: color 0.15s;
+        }
+
+        .edit-tag .remove-tag-btn:hover {
+            color: white;
+        }
+
+        .add-tag-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .add-tag-row input {
+            width: 200px;
+        }
+
+        .btn-add-item {
+            background: #e8f4fd;
+            color: #2980b9;
+            border: 2px solid #3498db;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.15s;
+            white-space: nowrap;
+        }
+
+        .btn-add-item:hover {
+            background: #d1e8f8;
+        }
+
+        /* Ingredients edit */
+        .edit-ingredients-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .edit-ingredient-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 10px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .edit-ingredient-row .qty-field {
+            width: 70px;
+            flex-shrink: 0;
+            text-align: center;
+        }
+
+        .edit-ingredient-row .unit-field {
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .edit-ingredient-row .item-field {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .btn-remove-row {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            line-height: 1;
+            flex-shrink: 0;
+            transition: background 0.15s;
+        }
+
+        .btn-remove-row:hover {
+            background: #fdf2f2;
+        }
+
+        /* Instructions edit */
+        .edit-instructions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .edit-instruction-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .edit-step-num {
+            background: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+            margin-top: 8px;
+        }
+
+        .edit-instruction-row textarea {
+            flex: 1;
+            min-height: 72px;
+            resize: vertical;
+            line-height: 1.5;
         }
 
         /* Modal overlay */
@@ -596,6 +903,16 @@
                 gap: 15px;
             }
 
+            .edit-meta-grid {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .edit-meta-item .edit-field,
+            .edit-total-time .total-time-display {
+                width: 100%;
+            }
+
             .nutrition-grid {
                 grid-template-columns: 1fr 1fr;
             }
@@ -651,60 +968,150 @@
             .atp-form-actions {
                 flex-direction: column;
             }
+
+            .edit-ingredient-row {
+                flex-wrap: wrap;
+            }
+
+            .edit-ingredient-row .qty-field {
+                width: 60px;
+            }
+
+            .edit-ingredient-row .unit-field {
+                width: 70px;
+            }
+
+            .add-tag-row input {
+                width: 150px;
+            }
+
+            .edit-actions-bar {
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="/" class="back-link">← Back to Meal Plan</a>
+        <a href="/" class="back-link">&#8592; Back to Meal Plan</a>
 
-        <h1>{{ recipe.name }}</h1>
+        <!-- Edit mode banner (always present, shown only in editing state) -->
+        <div class="edit-actions-bar">
+            <span class="edit-mode-label">Editing recipe &#8212; unsaved changes</span>
+            <button class="btn-save" id="saveBtn" onclick="saveRecipe()">Save Changes</button>
+            <button class="btn-cancel-edit" onclick="cancelEdit()">Cancel</button>
+        </div>
 
-        <button class="add-to-plan-btn" onclick="openAddToPlanModal()">+ Add to Plan</button>
+        <!-- VIEW MODE: title -->
+        <h1 class="view-mode" id="viewTitle">{{ recipe.name }}</h1>
 
+        <!-- EDIT MODE: title input -->
+        <input
+            id="editName"
+            class="edit-field edit-mode"
+            type="text"
+            value="{{ recipe.name | e }}"
+            placeholder="Recipe name"
+        >
+
+        <!-- VIEW MODE: action buttons -->
+        <div class="view-mode" style="display: flex; align-items: center; flex-wrap: wrap; gap: 0;">
+            <button class="add-to-plan-btn" onclick="openAddToPlanModal()">+ Add to Plan</button>
+            <button class="edit-recipe-btn" onclick="enterEditMode()">&#9998; Edit Recipe</button>
+        </div>
+
+        <!-- VIEW MODE: hero image -->
         {% if recipe.image_url %}
-        <img src="{{ recipe.image_url }}" alt="{{ recipe.name }}" class="recipe-image-hero" loading="lazy">
+        <img src="{{ recipe.image_url }}" alt="{{ recipe.name }}" class="recipe-image-hero view-mode" loading="lazy" id="viewImage">
         {% endif %}
 
-        <div class="recipe-meta">
+        <!-- EDIT MODE: image URL field + preview -->
+        <div class="edit-mode edit-image-section">
+            <label for="editImageUrl">Image URL</label>
+            <img id="editImagePreview" class="edit-image-preview" src="{{ recipe.image_url or '' }}" alt="Image preview">
+            <input
+                id="editImageUrl"
+                class="edit-field"
+                type="url"
+                value="{{ recipe.image_url or '' }}"
+                placeholder="https://example.com/image.jpg"
+                oninput="updateImagePreview(this.value)"
+            >
+        </div>
+
+        <!-- VIEW MODE: meta row -->
+        <div class="recipe-meta view-mode" id="viewMeta">
             <div class="meta-item">
                 <span class="meta-label">Servings</span>
-                <div class="servings-stepper">
-                    <button id="servings-dec" onclick="changeServings(-1)" aria-label="Decrease servings">&#8722;</button>
-                    <span class="servings-count" id="servings-display">{{ recipe.servings }}</span>
-                    <button id="servings-inc" onclick="changeServings(1)" aria-label="Increase servings">+</button>
-                </div>
-                <button class="servings-reset hidden" id="servings-reset" onclick="resetServings()">Reset</button>
+                <span class="meta-value" id="viewServings">{{ recipe.servings }}</span>
             </div>
             <div class="meta-item">
                 <span class="meta-label">Prep Time</span>
-                <span class="meta-value">{{ recipe.prep_time_minutes }}<span style="font-size: 14px;">min</span></span>
+                <span class="meta-value" id="viewPrepTime">{{ recipe.prep_time_minutes }}<span style="font-size: 14px;">min</span></span>
             </div>
             <div class="meta-item">
                 <span class="meta-label">Cook Time</span>
-                <span class="meta-value">{{ recipe.cook_time_minutes }}<span style="font-size: 14px;">min</span></span>
+                <span class="meta-value" id="viewCookTime">{{ recipe.cook_time_minutes }}<span style="font-size: 14px;">min</span></span>
             </div>
             <div class="meta-item">
                 <span class="meta-label">Total Time</span>
-                <span class="meta-value">{{ recipe.total_time_minutes }}<span style="font-size: 14px;">min</span></span>
+                <span class="meta-value" id="viewTotalTime">{{ recipe.total_time_minutes }}<span style="font-size: 14px;">min</span></span>
             </div>
         </div>
 
+        <!-- EDIT MODE: meta inputs -->
+        <div class="edit-meta-grid edit-mode">
+            <div class="edit-meta-item">
+                <label for="editServings">Servings</label>
+                <input id="editServings" class="edit-field" type="number" min="1" step="1" value="{{ recipe.servings }}">
+            </div>
+            <div class="edit-meta-item">
+                <label for="editPrepTime">Prep (min)</label>
+                <input id="editPrepTime" class="edit-field" type="number" min="0" step="1" value="{{ recipe.prep_time_minutes }}" oninput="updateTotalTime()">
+            </div>
+            <div class="edit-meta-item">
+                <label for="editCookTime">Cook (min)</label>
+                <input id="editCookTime" class="edit-field" type="number" min="0" step="1" value="{{ recipe.cook_time_minutes }}" oninput="updateTotalTime()">
+            </div>
+            <div class="edit-total-time">
+                <label>Total (min)</label>
+                <div class="total-time-display" id="editTotalTime">{{ recipe.total_time_minutes }}</div>
+            </div>
+        </div>
+
+        <!-- VIEW MODE: tags -->
         {% if recipe.tags %}
-        <div class="tags">
+        <div class="tags view-mode" id="viewTags">
             {% for tag in recipe.tags %}
                 <span class="tag {% if tag == 'nutrition-generated' %}nutrition-generated{% endif %}">{{ tag }}</span>
             {% endfor %}
         </div>
         {% endif %}
 
+        <!-- EDIT MODE: tags editor -->
+        <div class="edit-mode edit-tags-section">
+            <label>Tags</label>
+            <div class="edit-tags-list" id="editTagsList">
+                {% for tag in recipe.tags %}
+                    <span class="edit-tag" data-tag="{{ tag | e }}">
+                        {{ tag }}<button class="remove-tag-btn" onclick="removeTag(this)" type="button" aria-label="Remove tag {{ tag }}">&times;</button>
+                    </span>
+                {% endfor %}
+            </div>
+            <div class="add-tag-row">
+                <input id="newTagInput" class="edit-field" type="text" placeholder="Add tag..." maxlength="50"
+                    onkeydown="if(event.key==='Enter'){event.preventDefault();addTag();}">
+                <button class="btn-add-item" type="button" onclick="addTag()">+ Add Tag</button>
+            </div>
+        </div>
+
         {% if recipe.source_url %}
-        <div class="source-url">
+        <div class="source-url view-mode">
             <strong>Source:</strong> <a href="{{ recipe.source_url }}" target="_blank" rel="noopener noreferrer">{{ recipe.source_url }}</a>
         </div>
         {% endif %}
 
-        <!-- Nutrition Information -->
+        <!-- Nutrition Information (read-only in both modes) -->
         <div class="section">
             <h2>Nutrition (per serving)</h2>
             <div class="nutrition-grid">
@@ -730,61 +1137,96 @@
         <!-- Ingredients -->
         <div class="section">
             <h2>Ingredients</h2>
-            {% if recipe.ingredients %}
-                <ul class="ingredients-list">
-                    {% for ingredient in recipe.ingredients %}
-                        <li class="ingredient-item">
-                            <div style="flex: 1;">
-                                <span class="ingredient-name">
-                                    {{ ingredient.item }}
-                                    <span class="ingredient-category">{{ ingredient.category }}</span>
+
+            <!-- VIEW MODE -->
+            <div class="view-mode" id="viewIngredients">
+                {% if recipe.ingredients %}
+                    <ul class="ingredients-list">
+                        {% for ingredient in recipe.ingredients %}
+                            <li class="ingredient-item">
+                                <div style="flex: 1;">
+                                    <span class="ingredient-name">
+                                        {{ ingredient.item }}
+                                        <span class="ingredient-category">{{ ingredient.category }}</span>
+                                        {% if loop.index0 in substitutions %}
+                                            <span class="substitutions-toggle" onclick="toggleSubstitutions({{ loop.index0 }})">
+                                                &#x1F504; Substitutes
+                                            </span>
+                                        {% endif %}
+                                        {% if ingredient.notes %}
+                                            <span class="ingredient-notes">{{ ingredient.notes }}</span>
+                                        {% endif %}
+                                    </span>
                                     {% if loop.index0 in substitutions %}
-                                        <span class="substitutions-toggle" onclick="toggleSubstitutions({{ loop.index0 }})">
-                                            🔄 Substitutes
-                                        </span>
+                                        <div class="substitutions-list" id="subs-{{ loop.index0 }}">
+                                            <div class="substitutions-header">&#x1F4A1; Substitution Options:</div>
+                                            {% for sub in substitutions[loop.index0] %}
+                                                <div class="substitution-item">
+                                                    <span class="substitution-name">{{ sub.substitute }}</span>
+                                                    <span class="substitution-ratio">({{ sub.ratio }})</span>
+                                                    &#8212; <span class="substitution-note">{{ sub.note }}</span>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
                                     {% endif %}
-                                    {% if ingredient.notes %}
-                                        <span class="ingredient-notes">{{ ingredient.notes }}</span>
-                                    {% endif %}
+                                </div>
+                                <span class="ingredient-quantity">
+                                    {{ ingredient.quantity }} {{ ingredient.unit }}
                                 </span>
-                                {% if loop.index0 in substitutions %}
-                                    <div class="substitutions-list" id="subs-{{ loop.index0 }}">
-                                        <div class="substitutions-header">💡 Substitution Options:</div>
-                                        {% for sub in substitutions[loop.index0] %}
-                                            <div class="substitution-item">
-                                                <span class="substitution-name">{{ sub.substitute }}</span>
-                                                <span class="substitution-ratio">({{ sub.ratio }})</span>
-                                                — <span class="substitution-note">{{ sub.note }}</span>
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <span class="ingredient-quantity"
-                                  data-original-qty="{{ ingredient.quantity }}"
-                                  data-unit="{{ ingredient.unit }}">
-                                {{ ingredient.quantity }} {{ ingredient.unit }}
-                            </span>
-                        </li>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="no-data">No ingredients listed</div>
+                {% endif %}
+            </div>
+
+            <!-- EDIT MODE -->
+            <div class="edit-mode" id="editIngredientsSection">
+                <div class="edit-ingredients-list" id="editIngredientsList">
+                    {% for ingredient in recipe.ingredients %}
+                        <div class="edit-ingredient-row">
+                            <input class="edit-field qty-field" type="text" placeholder="Qty" value="{{ ingredient.quantity }}" aria-label="Quantity">
+                            <input class="edit-field unit-field" type="text" placeholder="Unit" value="{{ ingredient.unit }}" aria-label="Unit">
+                            <input class="edit-field item-field" type="text" placeholder="Ingredient" value="{{ ingredient.item | e }}" aria-label="Ingredient name">
+                            <button class="btn-remove-row" type="button" onclick="removeIngredientRow(this)" aria-label="Remove ingredient">&times;</button>
+                        </div>
                     {% endfor %}
-                </ul>
-            {% else %}
-                <div class="no-data">No ingredients listed</div>
-            {% endif %}
+                </div>
+                <button class="btn-add-item" type="button" onclick="addIngredientRow()">+ Add Ingredient</button>
+            </div>
         </div>
 
         <!-- Instructions -->
         <div class="section">
             <h2>Instructions</h2>
-            {% if recipe.instructions %}
-                <ol class="instructions-list">
+
+            <!-- VIEW MODE -->
+            <div class="view-mode" id="viewInstructions">
+                {% if recipe.instructions %}
+                    <ol class="instructions-list">
+                        {% for instruction in recipe.instructions %}
+                            <li class="instruction-item">{{ instruction }}</li>
+                        {% endfor %}
+                    </ol>
+                {% else %}
+                    <div class="no-data">No instructions available</div>
+                {% endif %}
+            </div>
+
+            <!-- EDIT MODE -->
+            <div class="edit-mode" id="editInstructionsSection">
+                <div class="edit-instructions-list" id="editInstructionsList">
                     {% for instruction in recipe.instructions %}
-                        <li class="instruction-item">{{ instruction }}</li>
+                        <div class="edit-instruction-row">
+                            <div class="edit-step-num">{{ loop.index }}</div>
+                            <textarea class="edit-field" placeholder="Step description...">{{ instruction | e }}</textarea>
+                            <button class="btn-remove-row" type="button" onclick="removeInstructionRow(this)" aria-label="Remove step">&times;</button>
+                        </div>
                     {% endfor %}
-                </ol>
-            {% else %}
-                <div class="no-data">No instructions available</div>
-            {% endif %}
+                </div>
+                <button class="btn-add-item" type="button" onclick="addInstructionRow()">+ Add Step</button>
+            </div>
         </div>
     </div>
 
@@ -821,26 +1263,397 @@
     <div id="atpToast" class="atp-toast" role="status" aria-live="polite"></div>
 
     <script>
+        // ===== Recipe data snapshot from server =====
+        var RECIPE_DATA = {
+            id: {{ recipe.id | tojson }},
+            name: {{ recipe.name | tojson }},
+            servings: {{ recipe.servings | tojson }},
+            prep_time_minutes: {{ recipe.prep_time_minutes | tojson }},
+            cook_time_minutes: {{ recipe.cook_time_minutes | tojson }},
+            nutrition_per_serving: {{ recipe.nutrition_per_serving | tojson }},
+            tags: {{ recipe.tags | tojson }},
+            ingredients: {{ recipe.ingredients | tojson }},
+            instructions: {{ recipe.instructions | tojson }},
+            source_url: {{ recipe.source_url | tojson }},
+            image_url: {{ recipe.image_url | tojson }}
+        };
+
+        var RECIPE_ID = RECIPE_DATA.id;
+        var RECIPE_NAME = RECIPE_DATA.name;
+
+        // ===== Substitutions toggle =====
         function toggleSubstitutions(index) {
-            const subsEl = document.getElementById('subs-' + index);
+            var subsEl = document.getElementById('subs-' + index);
             subsEl.classList.toggle('show');
         }
 
-        // --- Add to Plan Modal ---
+        // ===== EDIT MODE =====
 
-        const RECIPE_ID = {{ recipe.id | tojson }};
-        const RECIPE_NAME = {{ recipe.name | tojson }};
+        function enterEditMode() {
+            document.body.classList.add('editing');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            updateTotalTime();
+            updateImagePreview(document.getElementById('editImageUrl').value);
+            renumberInstructionSteps();
+        }
 
-        // Days in schedule order
-        const DAYS_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        function cancelEdit() {
+            // Restore all fields to original snapshot values
+            document.getElementById('editName').value = RECIPE_DATA.name;
+            document.getElementById('editServings').value = RECIPE_DATA.servings;
+            document.getElementById('editPrepTime').value = RECIPE_DATA.prep_time_minutes;
+            document.getElementById('editCookTime').value = RECIPE_DATA.cook_time_minutes;
+            document.getElementById('editImageUrl').value = RECIPE_DATA.image_url || '';
 
-        let atpPlanData = null;
+            rebuildTagsList(RECIPE_DATA.tags);
+            rebuildIngredientsList(RECIPE_DATA.ingredients);
+            rebuildInstructionsList(RECIPE_DATA.instructions);
+
+            updateTotalTime();
+            updateImagePreview(RECIPE_DATA.image_url || '');
+
+            document.body.classList.remove('editing');
+        }
+
+        // ----- Tag management -----
+
+        function rebuildTagsList(tags) {
+            var list = document.getElementById('editTagsList');
+            list.innerHTML = '';
+            (tags || []).forEach(function(tag) {
+                appendTagChip(tag);
+            });
+        }
+
+        function appendTagChip(tag) {
+            var list = document.getElementById('editTagsList');
+            var span = document.createElement('span');
+            span.className = 'edit-tag';
+            span.dataset.tag = tag;
+            var textNode = document.createTextNode(tag);
+            span.appendChild(textNode);
+            var btn = document.createElement('button');
+            btn.className = 'remove-tag-btn';
+            btn.type = 'button';
+            btn.setAttribute('aria-label', 'Remove tag ' + tag);
+            btn.textContent = '\u00D7';
+            btn.onclick = function() { removeTag(this); };
+            span.appendChild(btn);
+            list.appendChild(span);
+        }
+
+        function addTag() {
+            var input = document.getElementById('newTagInput');
+            var tag = input.value.trim().toLowerCase().replace(/\s+/g, '-');
+            if (!tag) return;
+
+            // Prevent duplicates
+            var existing = document.querySelectorAll('#editTagsList .edit-tag');
+            for (var i = 0; i < existing.length; i++) {
+                if (existing[i].dataset.tag === tag) {
+                    input.value = '';
+                    return;
+                }
+            }
+
+            appendTagChip(tag);
+            input.value = '';
+            input.focus();
+        }
+
+        function removeTag(btn) {
+            btn.closest('.edit-tag').remove();
+        }
+
+        function getEditTags() {
+            var chips = document.querySelectorAll('#editTagsList .edit-tag');
+            var tags = [];
+            chips.forEach(function(chip) { tags.push(chip.dataset.tag); });
+            return tags;
+        }
+
+        // ----- Ingredient management -----
+
+        function rebuildIngredientsList(ingredients) {
+            var list = document.getElementById('editIngredientsList');
+            list.innerHTML = '';
+            (ingredients || []).forEach(function(ing) {
+                appendIngredientRow(ing.quantity, ing.unit, ing.item);
+            });
+        }
+
+        function appendIngredientRow(qty, unit, item) {
+            var list = document.getElementById('editIngredientsList');
+            var row = document.createElement('div');
+            row.className = 'edit-ingredient-row';
+
+            var qtyInput = document.createElement('input');
+            qtyInput.className = 'edit-field qty-field';
+            qtyInput.type = 'text';
+            qtyInput.placeholder = 'Qty';
+            qtyInput.value = qty || '';
+            qtyInput.setAttribute('aria-label', 'Quantity');
+
+            var unitInput = document.createElement('input');
+            unitInput.className = 'edit-field unit-field';
+            unitInput.type = 'text';
+            unitInput.placeholder = 'Unit';
+            unitInput.value = unit || '';
+            unitInput.setAttribute('aria-label', 'Unit');
+
+            var itemInput = document.createElement('input');
+            itemInput.className = 'edit-field item-field';
+            itemInput.type = 'text';
+            itemInput.placeholder = 'Ingredient';
+            itemInput.value = item || '';
+            itemInput.setAttribute('aria-label', 'Ingredient name');
+
+            var removeBtn = document.createElement('button');
+            removeBtn.className = 'btn-remove-row';
+            removeBtn.type = 'button';
+            removeBtn.setAttribute('aria-label', 'Remove ingredient');
+            removeBtn.textContent = '\u00D7';
+            removeBtn.onclick = function() { removeIngredientRow(this); };
+
+            row.appendChild(qtyInput);
+            row.appendChild(unitInput);
+            row.appendChild(itemInput);
+            row.appendChild(removeBtn);
+            list.appendChild(row);
+        }
+
+        function addIngredientRow() {
+            appendIngredientRow('', '', '');
+            var rows = document.querySelectorAll('#editIngredientsList .edit-ingredient-row');
+            rows[rows.length - 1].querySelector('.item-field').focus();
+        }
+
+        function removeIngredientRow(btn) {
+            btn.closest('.edit-ingredient-row').remove();
+        }
+
+        function getEditIngredients() {
+            var rows = document.querySelectorAll('#editIngredientsList .edit-ingredient-row');
+            var ingredients = [];
+            rows.forEach(function(row) {
+                var qty = row.querySelector('.qty-field').value.trim();
+                var unit = row.querySelector('.unit-field').value.trim();
+                var item = row.querySelector('.item-field').value.trim();
+                if (item) {
+                    ingredients.push({
+                        quantity: qty,
+                        unit: unit,
+                        item: item,
+                        category: 'other',
+                        notes: ''
+                    });
+                }
+            });
+            return ingredients;
+        }
+
+        // ----- Instruction management -----
+
+        function rebuildInstructionsList(instructions) {
+            var list = document.getElementById('editInstructionsList');
+            list.innerHTML = '';
+            (instructions || []).forEach(function(text) {
+                appendInstructionRow(text);
+            });
+            renumberInstructionSteps();
+        }
+
+        function appendInstructionRow(text) {
+            var list = document.getElementById('editInstructionsList');
+            var row = document.createElement('div');
+            row.className = 'edit-instruction-row';
+
+            var stepNum = document.createElement('div');
+            stepNum.className = 'edit-step-num';
+            stepNum.textContent = list.children.length + 1;
+
+            var ta = document.createElement('textarea');
+            ta.className = 'edit-field';
+            ta.placeholder = 'Step description...';
+            ta.value = text || '';
+
+            var removeBtn = document.createElement('button');
+            removeBtn.className = 'btn-remove-row';
+            removeBtn.type = 'button';
+            removeBtn.setAttribute('aria-label', 'Remove step');
+            removeBtn.textContent = '\u00D7';
+            removeBtn.onclick = function() { removeInstructionRow(this); };
+
+            row.appendChild(stepNum);
+            row.appendChild(ta);
+            row.appendChild(removeBtn);
+            list.appendChild(row);
+        }
+
+        function addInstructionRow() {
+            appendInstructionRow('');
+            renumberInstructionSteps();
+            var rows = document.querySelectorAll('#editInstructionsList .edit-instruction-row');
+            rows[rows.length - 1].querySelector('textarea').focus();
+        }
+
+        function removeInstructionRow(btn) {
+            btn.closest('.edit-instruction-row').remove();
+            renumberInstructionSteps();
+        }
+
+        function renumberInstructionSteps() {
+            var rows = document.querySelectorAll('#editInstructionsList .edit-instruction-row');
+            rows.forEach(function(row, idx) {
+                var numEl = row.querySelector('.edit-step-num');
+                if (numEl) numEl.textContent = idx + 1;
+            });
+        }
+
+        function getEditInstructions() {
+            var textareas = document.querySelectorAll('#editInstructionsList .edit-instruction-row textarea');
+            var steps = [];
+            textareas.forEach(function(ta) {
+                var val = ta.value.trim();
+                if (val) steps.push(val);
+            });
+            return steps;
+        }
+
+        // ----- Meta helpers -----
+
+        function updateTotalTime() {
+            var prep = parseInt(document.getElementById('editPrepTime').value, 10) || 0;
+            var cook = parseInt(document.getElementById('editCookTime').value, 10) || 0;
+            document.getElementById('editTotalTime').textContent = prep + cook;
+        }
+
+        function updateImagePreview(url) {
+            var preview = document.getElementById('editImagePreview');
+            if (url && url.trim()) {
+                preview.src = url.trim();
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        // ----- Save -----
+
+        function saveRecipe() {
+            var name = document.getElementById('editName').value.trim();
+            if (!name) {
+                showAtpToast('Recipe name is required.', 'error');
+                document.getElementById('editName').focus();
+                return;
+            }
+
+            var servings = parseInt(document.getElementById('editServings').value, 10);
+            if (!servings || servings <= 0) {
+                showAtpToast('Servings must be a positive number.', 'error');
+                document.getElementById('editServings').focus();
+                return;
+            }
+
+            var prepTime = parseInt(document.getElementById('editPrepTime').value, 10);
+            if (isNaN(prepTime) || prepTime < 0) {
+                showAtpToast('Prep time cannot be negative.', 'error');
+                document.getElementById('editPrepTime').focus();
+                return;
+            }
+
+            var cookTime = parseInt(document.getElementById('editCookTime').value, 10);
+            if (isNaN(cookTime) || cookTime < 0) {
+                showAtpToast('Cook time cannot be negative.', 'error');
+                document.getElementById('editCookTime').focus();
+                return;
+            }
+
+            var ingredients = getEditIngredients();
+            if (ingredients.length === 0) {
+                showAtpToast('At least one ingredient is required.', 'error');
+                return;
+            }
+
+            var instructions = getEditInstructions();
+            if (instructions.length === 0) {
+                showAtpToast('At least one instruction step is required.', 'error');
+                return;
+            }
+
+            var imageUrl = document.getElementById('editImageUrl').value.trim() || null;
+
+            // Build PUT payload — preserve existing nutrition_per_serving unchanged
+            var payload = {
+                id: RECIPE_DATA.id,
+                name: name,
+                servings: servings,
+                prep_time_minutes: prepTime,
+                cook_time_minutes: cookTime,
+                nutrition_per_serving: RECIPE_DATA.nutrition_per_serving,
+                tags: getEditTags(),
+                ingredients: ingredients,
+                instructions: instructions,
+                source_url: RECIPE_DATA.source_url,
+                image_url: imageUrl
+            };
+
+            var saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+
+            fetch('/recipes/' + RECIPE_DATA.id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+            .then(function(result) {
+                if (result.ok && result.data.success) {
+                    // Update local snapshot so subsequent Cancel restores new values
+                    RECIPE_DATA.name = name;
+                    RECIPE_DATA.servings = servings;
+                    RECIPE_DATA.prep_time_minutes = prepTime;
+                    RECIPE_DATA.cook_time_minutes = cookTime;
+                    RECIPE_DATA.tags = getEditTags();
+                    RECIPE_DATA.ingredients = ingredients;
+                    RECIPE_DATA.instructions = instructions;
+                    RECIPE_DATA.image_url = imageUrl;
+
+                    // Reflect changes in view-mode elements immediately
+                    document.getElementById('viewTitle').textContent = name;
+                    document.getElementById('viewServings').textContent = servings;
+                    document.getElementById('viewPrepTime').innerHTML = prepTime + '<span style="font-size: 14px;">min</span>';
+                    document.getElementById('viewCookTime').innerHTML = cookTime + '<span style="font-size: 14px;">min</span>';
+                    document.getElementById('viewTotalTime').innerHTML = (prepTime + cookTime) + '<span style="font-size: 14px;">min</span>';
+                    document.title = name + ' - Meal Planner';
+
+                    document.body.classList.remove('editing');
+                    showAtpToast('Recipe saved successfully!', 'success');
+                } else {
+                    var msg = (result.data && result.data.message) ? result.data.message : 'Failed to save recipe.';
+                    showAtpToast(msg, 'error');
+                }
+            })
+            .catch(function() {
+                showAtpToast('Network error. Please try again.', 'error');
+            })
+            .finally(function() {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Changes';
+            });
+        }
+
+        // ===== Add to Plan Modal =====
+
+        var DAYS_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        var atpPlanData = null;
 
         function openAddToPlanModal() {
-            const overlay = document.getElementById('addToPlanModal');
+            var overlay = document.getElementById('addToPlanModal');
             overlay.classList.add('visible');
 
-            // Fetch the current plan to populate dropdowns
             fetch('/current-plan')
                 .then(function(res) { return res.json(); })
                 .then(function(data) {
@@ -870,12 +1683,11 @@
         });
 
         function populateAtpDropdowns(data) {
-            const noPlanMsg = document.getElementById('atpNoPlanMsg');
-            const formContent = document.getElementById('atpFormContent');
-            const daySelect = document.getElementById('atpDaySelect');
-            const mealTypeSelect = document.getElementById('atpMealTypeSelect');
+            var noPlanMsg = document.getElementById('atpNoPlanMsg');
+            var formContent = document.getElementById('atpFormContent');
+            var daySelect = document.getElementById('atpDaySelect');
+            var mealTypeSelect = document.getElementById('atpMealTypeSelect');
 
-            // If no plan exists, show message
             if (!data || !data.plan || !data.plan.meals || data.plan.meals.length === 0) {
                 showAtpNoPlan();
                 return;
@@ -885,10 +1697,9 @@
             formContent.style.display = 'block';
             document.getElementById('atpAddBtn').disabled = false;
 
-            // Extract unique days (in calendar order) and meal types from the plan
-            const planMeals = data.plan.meals;
-            const daysInPlan = [];
-            const mealTypesInPlan = [];
+            var planMeals = data.plan.meals;
+            var daysInPlan = [];
+            var mealTypesInPlan = [];
 
             planMeals.forEach(function(meal) {
                 if (!daysInPlan.includes(meal.day)) {
@@ -899,24 +1710,21 @@
                 }
             });
 
-            // Sort days by calendar order
             daysInPlan.sort(function(a, b) {
                 return DAYS_ORDER.indexOf(a) - DAYS_ORDER.indexOf(b);
             });
 
-            // Populate day dropdown
             daySelect.innerHTML = '';
             daysInPlan.forEach(function(day) {
-                const option = document.createElement('option');
+                var option = document.createElement('option');
                 option.value = day;
                 option.textContent = day;
                 daySelect.appendChild(option);
             });
 
-            // Populate meal type dropdown
             mealTypeSelect.innerHTML = '';
             mealTypesInPlan.forEach(function(mealType) {
-                const option = document.createElement('option');
+                var option = document.createElement('option');
                 option.value = mealType;
                 option.textContent = capitalize(mealType);
                 mealTypeSelect.appendChild(option);
@@ -933,9 +1741,9 @@
         }
 
         function confirmAddToPlan() {
-            const day = document.getElementById('atpDaySelect').value;
-            const mealType = document.getElementById('atpMealTypeSelect').value;
-            const addBtn = document.getElementById('atpAddBtn');
+            var day = document.getElementById('atpDaySelect').value;
+            var mealType = document.getElementById('atpMealTypeSelect').value;
+            var addBtn = document.getElementById('atpAddBtn');
 
             if (!day || !mealType) {
                 showAtpToast('Please select a day and meal type.', 'error');
@@ -972,73 +1780,6 @@
                 addBtn.textContent = 'Add';
             });
         }
-
-        // --- Servings Scaling ---
-
-        var ORIGINAL_SERVINGS = {{ recipe.servings | tojson }};
-        var currentServings = ORIGINAL_SERVINGS;
-
-        function formatQty(value) {
-            if (value === null || value === undefined || value === '' || isNaN(value)) {
-                return value;
-            }
-            var num = parseFloat(value);
-            if (isNaN(num)) {
-                return value;
-            }
-            // Round to at most 2 decimal places, strip trailing zeros
-            var rounded = Math.round(num * 100) / 100;
-            // Convert to string and strip trailing zeros after decimal point
-            var str = rounded.toString();
-            if (str.indexOf('.') !== -1) {
-                str = str.replace(/\.?0+$/, '');
-            }
-            return str;
-        }
-
-        function updateIngredients() {
-            var items = document.querySelectorAll('.ingredient-quantity[data-original-qty]');
-            items.forEach(function(el) {
-                var origQtyStr = el.getAttribute('data-original-qty');
-                var unit = el.getAttribute('data-unit') || '';
-                var origQty = parseFloat(origQtyStr);
-
-                if (!isNaN(origQty) && origQty !== 0) {
-                    var scaled = origQty * (currentServings / ORIGINAL_SERVINGS);
-                    var displayQty = formatQty(scaled);
-                    el.textContent = unit ? displayQty + ' ' + unit : displayQty;
-                }
-                // If original qty is not a number (e.g. empty string or text), leave it unchanged
-            });
-        }
-
-        function changeServings(delta) {
-            var newVal = currentServings + delta;
-            if (newVal < 1) return;
-            currentServings = newVal;
-            document.getElementById('servings-display').textContent = currentServings;
-            document.getElementById('servings-dec').disabled = (currentServings <= 1);
-            var resetBtn = document.getElementById('servings-reset');
-            if (currentServings === ORIGINAL_SERVINGS) {
-                resetBtn.classList.add('hidden');
-            } else {
-                resetBtn.classList.remove('hidden');
-            }
-            updateIngredients();
-        }
-
-        function resetServings() {
-            currentServings = ORIGINAL_SERVINGS;
-            document.getElementById('servings-display').textContent = currentServings;
-            document.getElementById('servings-dec').disabled = (currentServings <= 1);
-            document.getElementById('servings-reset').classList.add('hidden');
-            updateIngredients();
-        }
-
-        // Initialize: disable dec button if servings is already 1
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('servings-dec').disabled = (ORIGINAL_SERVINGS <= 1);
-        });
 
         var atpToastTimer = null;
 

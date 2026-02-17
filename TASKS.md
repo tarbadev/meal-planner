@@ -120,3 +120,44 @@ showing recipe cards, filtered by meal type.
 - Remove "Configure Schedule" from the plan header — lives in Settings now
 - Remove import buttons from the hero — FAB covers this
 - Clean up the top header to just logo + (future) user avatar
+
+---
+
+## FEAT-4: Ingredient-Based Search
+**Priority:** High
+
+Extend the existing `/api/recipes` search to also match against ingredient
+names (e.g. searching "chicken" returns recipes that contain chicken as an
+ingredient, not just recipes named "chicken something").
+
+- Backend only — no frontend changes needed
+- Extend search logic to query `recipe.ingredients[].item` in addition to recipe name
+- TDD: add tests for ingredient search before implementing
+
+---
+
+## FEAT-5: Servings Scaling on Recipe Detail Page
+**Priority:** High
+
+On the recipe detail page, let the user change the serving count and see
+all ingredient quantities update instantly.
+
+- Frontend only — pure JavaScript, no backend changes
+- Add a serving size input/stepper next to the servings count
+- All ingredient quantities re-scale in real time relative to the original serving count
+- Original quantities preserved so the user can reset
+
+---
+
+## FEAT-6: Recipe Editing from Detail Page
+**Priority:** High
+
+Currently recipes can only be edited via the API. Add an inline edit mode
+to the recipe detail page so users can update recipe fields without leaving
+the page.
+
+- Edit button toggles the page into edit mode
+- Editable fields: name, servings, prep/cook time, tags, ingredients, instructions, image URL
+- Save calls the existing PUT /api/recipes/<id> endpoint
+- Cancel restores the original values
+- Show a success/error toast after saving
