@@ -2,7 +2,12 @@ import pytest
 
 from app.planner import PlannedMeal, WeeklyPlan
 from app.recipes import Recipe
-from app.shopping_list import ShoppingList, ShoppingListItem, generate_shopping_list
+from app.shopping_list import (
+    ShoppingList,
+    ShoppingListItem,
+    _combine_entries,
+    generate_shopping_list,
+)
 from tests.conftest import create_test_recipe
 
 
@@ -139,8 +144,8 @@ class TestGenerateShoppingList:
         assert len(garlic_items) == 1
         assert abs(garlic_items[0].quantity - 3.4375) < 0.01
 
-    def test_generate_shopping_list_keeps_items_with_different_units_separate(self):
-        # Create recipes with same item but different units
+    def test_generate_shopping_list_merges_compatible_volume_units(self):
+        # 200 ml + 1 cup of milk — both volume, should merge into one line expressed in cups
         recipe1 = create_test_recipe(
             recipe_id="r1",
             name="R1",
@@ -182,7 +187,13 @@ class TestGenerateShoppingList:
         shopping_list = generate_shopping_list(plan)
 
         milk_items = [item for item in shopping_list.items if item.item == "milk"]
-        assert len(milk_items) == 2  # Should be separate because different units
+        # ml and cup are both volume → merged into one line (cup is the larger unit)
+        assert len(milk_items) == 1
+        assert milk_items[0].unit == "cup"
+        # 200 ml/serving * 4 portions / 4 servings = 200 ml total
+        # + 1 cup/serving * 4 portions / 4 servings = 1 cup = 236.588 ml
+        # total = 436.588 ml / 236.588 ml-per-cup ≈ 1.845 cups
+        assert abs(milk_items[0].quantity - 1.845) < 0.01
 
     def test_generate_shopping_list_groups_by_category(self, weekly_plan):
         shopping_list = generate_shopping_list(weekly_plan)
@@ -312,3 +323,107 @@ class TestBug3ServingUnitDisplay:
         assert tomato_items[0].unit == "", (
             f"Expected unit='' for ingredient without 'unit' key, got '{tomato_items[0].unit}'"
         )
+
+
+class TestUnitConversion:
+    """Unit conversion: same ingredient with compatible but different units combines into one line."""
+
+    # --- volume ---
+
+    def test_tsp_plus_tbsp_combines_to_tbsp(self):
+        # 3 tsp == 1 tbsp; 3 tsp + 1 tbsp = 2 tbsp (largest unit = tbsp)
+        result = _combine_entries([(3.0, "tsp"), (1.0, "tbsp")])
+        assert len(result) == 1
+        unit = result[0][1]
+        qty = result[0][0]
+        assert unit == "tbsp"
+        assert abs(qty - 2.0) < 0.01
+
+    def test_ml_plus_cup_combines_to_cup(self):
+        # 236.588 ml == 1 cup; 236.588 ml + 1 cup = 2 cups (largest = cup)
+        result = _combine_entries([(236.588, "ml"), (1.0, "cup")])
+        assert len(result) == 1
+        assert result[0][1] == "cup"
+        assert abs(result[0][0] - 2.0) < 0.01
+
+    def test_volume_combines_across_three_units(self):
+        # 3 tsp + 1 tbsp + 0.5 cup; largest = cup
+        # 3 tsp = 14.79 ml, 1 tbsp = 14.79 ml, 0.5 cup = 118.29 ml → total = 147.87 ml
+        # / 236.588 (cup) ≈ 0.625 cup
+        result = _combine_entries([(3.0, "tsp"), (1.0, "tbsp"), (0.5, "cup")])
+        assert len(result) == 1
+        assert result[0][1] == "cup"
+        assert abs(result[0][0] - 0.625) < 0.01
+
+    # --- weight ---
+
+    def test_oz_plus_lb_combines_to_lb(self):
+        # 16 oz == 1 lb; 16 oz + 1 lb = 2 lb (largest = lb)
+        result = _combine_entries([(16.0, "oz"), (1.0, "lb")])
+        assert len(result) == 1
+        assert result[0][1] == "lb"
+        assert abs(result[0][0] - 2.0) < 0.01
+
+    def test_g_plus_kg_combines_to_kg(self):
+        # 500 g + 0.5 kg = 1 kg (largest = kg)
+        result = _combine_entries([(500.0, "g"), (0.5, "kg")])
+        assert len(result) == 1
+        assert result[0][1] == "kg"
+        assert abs(result[0][0] - 1.0) < 0.01
+
+    # --- incompatible units kept separate ---
+
+    def test_volume_and_weight_kept_separate(self):
+        # 1 cup + 100 g — different families, cannot merge
+        result = _combine_entries([(1.0, "cup"), (100.0, "g")])
+        assert len(result) == 2
+        units = {r[1] for r in result}
+        assert "cup" in units
+        assert "g" in units
+
+    def test_unknown_units_same_kept_combined(self):
+        # 3 cloves + 2 cloves → 5 cloves
+        result = _combine_entries([(3.0, "clove"), (2.0, "clove")])
+        assert len(result) == 1
+        assert result[0] == (5.0, "clove")
+
+    def test_unknown_units_different_kept_separate(self):
+        # 3 cloves + 1 head — unknown units that differ, cannot merge
+        result = _combine_entries([(3.0, "clove"), (1.0, "head")])
+        assert len(result) == 2
+        units = {r[1] for r in result}
+        assert "clove" in units
+        assert "head" in units
+
+    def test_unitless_kept_separate_from_known_unit(self):
+        # 2 (unitless) + 1 cup — unitless cannot merge with volume
+        result = _combine_entries([(2.0, ""), (1.0, "cup")])
+        assert len(result) == 2
+        units = {r[1] for r in result}
+        assert "" in units
+        assert "cup" in units
+
+    # --- integration via generate_shopping_list ---
+
+    def test_integration_tsp_and_tbsp_combined_in_plan(self):
+        def make_recipe(rid, qty, unit):
+            return create_test_recipe(
+                recipe_id=rid, name=rid, servings=1,
+                prep_time_minutes=5, cook_time_minutes=10,
+                calories=100, protein=5, carbs=10, fat=3, tags=[], ingredients=[
+                    {"item": "oil", "quantity": qty, "unit": unit, "category": "pantry"}
+                ]
+            )
+
+        meals = [
+            PlannedMeal(day="Monday", meal_type="dinner",
+                        recipe=make_recipe("r1", 3.0, "tsp"), household_portions=1.0),
+            PlannedMeal(day="Tuesday", meal_type="dinner",
+                        recipe=make_recipe("r2", 1.0, "tbsp"), household_portions=1.0),
+        ]
+        shopping_list = generate_shopping_list(WeeklyPlan(meals=meals))
+
+        oil_items = [i for i in shopping_list.items if i.item == "oil"]
+        assert len(oil_items) == 1, f"Expected 1 combined oil line, got {len(oil_items)}"
+        assert oil_items[0].unit == "tbsp"
+        assert abs(oil_items[0].quantity - 2.0) < 0.01
