@@ -225,3 +225,90 @@ class TestShoppingList:
         assert len(by_category["produce"]) == 2
         assert len(by_category["dairy"]) == 2
         assert len(by_category["pantry"]) == 1
+
+
+class TestBug2SameIngredientCombining:
+    """BUG-2: Same ingredient name from different meals must always be combined."""
+
+    def test_combining_same_ingredient_both_with_serving_unit(self):
+        recipe1 = create_test_recipe(
+            recipe_id="r1", name="R1", servings=4,
+            prep_time_minutes=10, cook_time_minutes=20,
+            calories=400, protein=20, carbs=50, fat=10, tags=[],
+            ingredients=[{"item": "tomato", "quantity": 1, "unit": "serving", "category": "produce"}]
+        )
+        recipe2 = create_test_recipe(
+            recipe_id="r2", name="R2", servings=4,
+            prep_time_minutes=10, cook_time_minutes=20,
+            calories=400, protein=20, carbs=50, fat=10, tags=[],
+            ingredients=[{"item": "tomato", "quantity": 1, "unit": "serving", "category": "produce"}]
+        )
+        meals = [
+            PlannedMeal(day="Monday", meal_type="dinner", recipe=recipe1, household_portions=4.0),
+            PlannedMeal(day="Tuesday", meal_type="dinner", recipe=recipe2, household_portions=4.0),
+        ]
+        shopping_list = generate_shopping_list(WeeklyPlan(meals=meals))
+
+        tomato_items = [i for i in shopping_list.items if i.item == "tomato"]
+        assert len(tomato_items) == 1, f"Expected 1 combined tomato entry, got {len(tomato_items)}"
+        assert abs(tomato_items[0].quantity - 2.0) < 0.01
+
+    def test_combining_same_ingredient_serving_unit_with_empty_unit(self):
+        recipe1 = create_test_recipe(
+            recipe_id="r1", name="R1", servings=4,
+            prep_time_minutes=10, cook_time_minutes=20,
+            calories=400, protein=20, carbs=50, fat=10, tags=[],
+            ingredients=[{"item": "tomato", "quantity": 1, "unit": "serving", "category": "produce"}]
+        )
+        recipe2 = create_test_recipe(
+            recipe_id="r2", name="R2", servings=4,
+            prep_time_minutes=10, cook_time_minutes=20,
+            calories=400, protein=20, carbs=50, fat=10, tags=[],
+            ingredients=[{"item": "tomato", "quantity": 1, "unit": "", "category": "produce"}]
+        )
+        meals = [
+            PlannedMeal(day="Monday", meal_type="dinner", recipe=recipe1, household_portions=4.0),
+            PlannedMeal(day="Tuesday", meal_type="dinner", recipe=recipe2, household_portions=4.0),
+        ]
+        shopping_list = generate_shopping_list(WeeklyPlan(meals=meals))
+
+        tomato_items = [i for i in shopping_list.items if i.item == "tomato"]
+        assert len(tomato_items) == 1, f"Expected 1 combined tomato entry, got {len(tomato_items)}"
+        assert abs(tomato_items[0].quantity - 2.0) < 0.01
+
+
+class TestBug3ServingUnitDisplay:
+    """BUG-3: 'serving' must not appear in the shopping list unit field."""
+
+    def test_serving_unit_normalised_to_empty_string(self):
+        recipe = create_test_recipe(
+            recipe_id="r1", name="R1", servings=4,
+            prep_time_minutes=10, cook_time_minutes=20,
+            calories=400, protein=20, carbs=50, fat=10, tags=[],
+            ingredients=[{"item": "tomato", "quantity": 1, "unit": "serving", "category": "produce"}]
+        )
+        meals = [PlannedMeal(day="Monday", meal_type="dinner", recipe=recipe, household_portions=2.75)]
+        shopping_list = generate_shopping_list(WeeklyPlan(meals=meals))
+
+        tomato_items = [i for i in shopping_list.items if i.item == "tomato"]
+        assert len(tomato_items) == 1
+        assert tomato_items[0].unit == "", (
+            f"Expected unit='' but got unit='{tomato_items[0].unit}'. "
+            "'serving' must not appear in the display."
+        )
+
+    def test_missing_unit_key_normalised_to_empty_string(self):
+        recipe = create_test_recipe(
+            recipe_id="r1", name="R1", servings=4,
+            prep_time_minutes=10, cook_time_minutes=20,
+            calories=400, protein=20, carbs=50, fat=10, tags=[],
+            ingredients=[{"item": "tomato", "quantity": 1, "category": "produce"}]
+        )
+        meals = [PlannedMeal(day="Monday", meal_type="dinner", recipe=recipe, household_portions=4.0)]
+        shopping_list = generate_shopping_list(WeeklyPlan(meals=meals))
+
+        tomato_items = [i for i in shopping_list.items if i.item == "tomato"]
+        assert len(tomato_items) == 1
+        assert tomato_items[0].unit == "", (
+            f"Expected unit='' for ingredient without 'unit' key, got '{tomato_items[0].unit}'"
+        )

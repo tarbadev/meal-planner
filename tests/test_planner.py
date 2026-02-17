@@ -379,6 +379,71 @@ class TestMealPlanner:
         recipe_ids = [m.recipe.id for m in plan.meals]
         assert len(recipe_ids) == len(set(recipe_ids))
 
+    def test_generate_plan_respects_daily_calorie_limit(self):
+        # 7 low-cal (100 cal) and 7 high-cal (800 cal) dinner recipes.
+        # With daily_calorie_limit=500 and portions=1.0, only low-cal recipes fit.
+        low_cal = [
+            create_test_recipe(
+                recipe_id=f"low-{i}", name=f"Low {i}", servings=1,
+                prep_time_minutes=10, cook_time_minutes=20,
+                calories=100, protein=5, carbs=10, fat=3,
+                tags=["dinner"], ingredients=[]
+            ) for i in range(7)
+        ]
+        high_cal = [
+            create_test_recipe(
+                recipe_id=f"high-{i}", name=f"High {i}", servings=1,
+                prep_time_minutes=10, cook_time_minutes=20,
+                calories=800, protein=40, carbs=80, fat=30,
+                tags=["dinner"], ingredients=[]
+            ) for i in range(7)
+        ]
+
+        planner = MealPlanner(household_portions=1.0, daily_calorie_limit=500)
+        plan = planner.generate_weekly_plan(low_cal + high_cal)
+
+        assert len(plan.meals) == 7
+        for meal in plan.meals:
+            assert meal.recipe.id.startswith("low-"), (
+                f"Expected low-cal recipe but got {meal.recipe.id} ({meal.calories} cal)"
+            )
+
+    def test_generate_plan_picks_lowest_calorie_when_none_fit(self):
+        # daily_calorie_limit=50; all 7 recipes exceed it; plan must still be generated.
+        recipes = [
+            create_test_recipe(
+                recipe_id=f"recipe-{cal}", name=f"Recipe {cal}", servings=1,
+                prep_time_minutes=10, cook_time_minutes=20,
+                calories=cal, protein=5, carbs=10, fat=3,
+                tags=["dinner"], ingredients=[]
+            ) for cal in [200, 300, 400, 500, 600, 700, 800]
+        ]
+
+        planner = MealPlanner(household_portions=1.0, daily_calorie_limit=50)
+        plan = planner.generate_weekly_plan(recipes)
+
+        assert len(plan.meals) == 7
+        selected_calories = sorted(meal.calories for meal in plan.meals)
+        assert selected_calories == [200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0]
+
+    def test_generate_plan_treats_zero_calorie_recipes_neutrally(self):
+        # Recipes with 0 calories must never be blocked by any calorie budget.
+        zero_cal = [
+            create_test_recipe(
+                recipe_id=f"zero-{i}", name=f"Zero {i}", servings=1,
+                prep_time_minutes=10, cook_time_minutes=20,
+                calories=0, protein=0, carbs=0, fat=0,
+                tags=["dinner"], ingredients=[]
+            ) for i in range(7)
+        ]
+
+        planner = MealPlanner(household_portions=1.0, daily_calorie_limit=1)
+        plan = planner.generate_weekly_plan(zero_cal)
+
+        assert len(plan.meals) == 7
+        for meal in plan.meals:
+            assert meal.calories == 0.0
+
 
 class TestPlannedMeal:
     def test_planned_meal_has_day_and_recipe(self, sample_recipes):

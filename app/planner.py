@@ -293,6 +293,42 @@ class MealPlanner:
             meal_schedule = {day: ["dinner"] for day in DAYS_OF_WEEK}
         self.meal_schedule = meal_schedule
 
+    def _select_recipe(
+        self,
+        suitable_recipes: list[Recipe],
+        day: str,
+        slots_per_day: dict[str, int],
+        slots_filled_today: dict[str, int],
+        daily_calories_used: dict[str, float],
+    ) -> Recipe:
+        """Select a recipe preferring ones within the daily calorie budget.
+
+        When daily_calorie_limit is None, picks randomly (existing behaviour).
+        When set, distributes remaining budget evenly across remaining slots.
+        Recipes with 0 calories are treated neutrally and always fit.
+        If no recipe fits, picks the lowest-calorie option (never leaves a slot empty).
+        """
+        if self.daily_calorie_limit is None:
+            return random.choice(suitable_recipes)
+
+        calories_used = daily_calories_used.get(day, 0.0)
+        remaining_budget = self.daily_calorie_limit - calories_used
+        filled = slots_filled_today.get(day, 0)
+        remaining_slots = slots_per_day[day] - filled  # >= 1 (includes current slot)
+        budget_per_slot = remaining_budget / remaining_slots
+
+        fitting = [
+            r for r in suitable_recipes
+            if r.calories_per_serving == 0
+            or r.calories_per_serving * self.household_portions <= budget_per_slot
+        ]
+
+        if fitting:
+            return random.choice(fitting)
+
+        # Fallback: pick lowest-calorie to minimise overage, never leave slot empty
+        return min(suitable_recipes, key=lambda r: r.calories_per_serving)
+
     def generate_weekly_plan(self, available_recipes: list[Recipe]) -> WeeklyPlan:
         # Get meal slots from schedule
         meal_slots = get_meal_slots_from_schedule(self.meal_schedule)
@@ -305,8 +341,15 @@ class MealPlanner:
                 f"Only {len(available_recipes)} recipes available."
             )
 
+        # Pre-compute total slots per day for calorie budget distribution
+        slots_per_day: dict[str, int] = {}
+        for day, _ in meal_slots:
+            slots_per_day[day] = slots_per_day.get(day, 0) + 1
+
         meals = []
-        used_recipes = set()
+        used_recipes: set[str] = set()
+        daily_calories_used: dict[str, float] = {}
+        slots_filled_today: dict[str, int] = {}
 
         for day, meal_type in meal_slots:
             # Filter recipes that have this meal type tag AND haven't been used
@@ -322,12 +365,17 @@ class MealPlanner:
                     if r.id not in used_recipes
                 ]
 
-            # Select recipe
             if not suitable_recipes:
                 raise ValueError(f"Not enough recipes for {day} {meal_type}")
 
-            recipe = random.choice(suitable_recipes)
+            recipe = self._select_recipe(
+                suitable_recipes, day, slots_per_day, slots_filled_today, daily_calories_used
+            )
             used_recipes.add(recipe.id)
+
+            cal = recipe.calories_per_serving * self.household_portions
+            daily_calories_used[day] = daily_calories_used.get(day, 0.0) + cal
+            slots_filled_today[day] = slots_filled_today.get(day, 0) + 1
 
             meals.append(PlannedMeal(
                 day=day,

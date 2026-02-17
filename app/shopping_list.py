@@ -25,6 +25,20 @@ class ShoppingList:
         return dict(grouped)
 
 
+def _normalize_unit(unit: str | None) -> str:
+    """Normalize unit so 'serving', 'servings', None, and empty are all ''.
+
+    Fixes BUG-2: ingredients with unit='serving' in one recipe and unit='' in
+    another share the same aggregation key and are combined into one line.
+
+    Fixes BUG-3: 'serving' is never stored on ShoppingListItem.unit, so the
+    display string becomes '0.6875 tomato' not '0.6875 serving tomato'.
+    """
+    if not unit or unit.lower() in ("serving", "servings"):
+        return ""
+    return unit
+
+
 def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
     """Generate a shopping list from a weekly meal plan.
 
@@ -36,12 +50,14 @@ def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
 
     for meal in weekly_plan.meals:
         for ingredient in meal.scaled_ingredients:
-            # Create a unique key for item + unit combination
-            key = (ingredient["item"], ingredient["unit"])
+            normalized_unit = _normalize_unit(ingredient.get("unit", ""))
+            # Key uses normalized unit so 'serving' and '' map to the same bucket
+            key = (ingredient["item"], normalized_unit)
 
-            if aggregated[key]["unit"] == "":
+            if aggregated[key]["unit"] == "" and normalized_unit:
                 # First time seeing this item+unit combination
-                aggregated[key]["unit"] = ingredient["unit"]
+                aggregated[key]["unit"] = normalized_unit
+            if aggregated[key]["category"] == "":
                 aggregated[key]["category"] = ingredient.get("category", "other")
 
             # Add to the quantity
