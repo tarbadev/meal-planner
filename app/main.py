@@ -132,7 +132,8 @@ def api_recipes():
         filtered_recipes = [
             r for r in filtered_recipes
             if search in r.name.lower() or
-               any(search in tag.lower() for tag in r.tags)
+               any(search in tag.lower() for tag in r.tags) or
+               any(search in ing.get("item", "").lower() for ing in r.ingredients)
         ]
 
     # Tag filter (AND logic)

@@ -189,6 +189,45 @@ class TestSearch:
         assert len(data['recipes']) == 0
         assert data['pagination']['total_recipes'] == 0
 
+    def test_search_by_ingredient_name(self, client, sample_recipes):
+        """Test search by ingredient name finds matching recipe."""
+        response = client.get('/api/recipes?search=lettuce')
+        assert response.status_code == 200
+
+        data = response.get_json()
+        assert len(data['recipes']) == 1
+        assert data['recipes'][0]['name'] == 'Greek Salad'
+        assert data['pagination']['total_recipes'] == 1
+
+    def test_search_by_ingredient_case_insensitive(self, client, sample_recipes):
+        """Test ingredient search is case-insensitive."""
+        response = client.get('/api/recipes?search=FLOUR')
+        assert response.status_code == 200
+
+        data = response.get_json()
+        assert len(data['recipes']) == 1
+        assert data['recipes'][0]['name'] == 'Chocolate Cake'
+
+    def test_search_by_name_still_works_regression(self, client, sample_recipes):
+        """Test that searching by recipe name still works after ingredient search added."""
+        response = client.get('/api/recipes?search=burrito')
+        assert response.status_code == 200
+
+        data = response.get_json()
+        assert len(data['recipes']) == 1
+        assert data['recipes'][0]['name'] == 'Breakfast Burrito'
+
+    def test_search_partial_ingredient_name(self, client, sample_recipes):
+        """Test that partial ingredient name match returns recipe."""
+        # "lettu" is a partial match for the ingredient "lettuce" in Greek Salad
+        # and does not appear in any recipe name or tag
+        response = client.get('/api/recipes?search=lettu')
+        assert response.status_code == 200
+
+        data = response.get_json()
+        assert len(data['recipes']) == 1
+        assert data['recipes'][0]['name'] == 'Greek Salad'
+
 
 class TestTagFiltering:
     """Test filtering by tags."""

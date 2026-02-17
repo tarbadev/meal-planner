@@ -308,6 +308,72 @@
             border-radius: 4px;
         }
 
+        /* Servings stepper */
+        .servings-stepper {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .servings-stepper button {
+            width: 28px;
+            height: 28px;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .servings-stepper button:hover:not(:disabled) {
+            background: #3498db;
+            color: white;
+        }
+
+        .servings-stepper button:disabled {
+            border-color: #bdc3c7;
+            color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .servings-stepper .servings-count {
+            min-width: 28px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .servings-reset {
+            display: block;
+            font-size: 11px;
+            color: #95a5a6;
+            text-decoration: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            margin-top: 4px;
+            font-family: inherit;
+        }
+
+        .servings-reset:hover {
+            color: #3498db;
+            text-decoration: underline;
+        }
+
+        .servings-reset.hidden {
+            visibility: hidden;
+        }
+
         /* Add to Plan button */
         .add-to-plan-btn {
             display: inline-flex;
@@ -603,7 +669,12 @@
         <div class="recipe-meta">
             <div class="meta-item">
                 <span class="meta-label">Servings</span>
-                <span class="meta-value">{{ recipe.servings }}</span>
+                <div class="servings-stepper">
+                    <button id="servings-dec" onclick="changeServings(-1)" aria-label="Decrease servings">&#8722;</button>
+                    <span class="servings-count" id="servings-display">{{ recipe.servings }}</span>
+                    <button id="servings-inc" onclick="changeServings(1)" aria-label="Increase servings">+</button>
+                </div>
+                <button class="servings-reset hidden" id="servings-reset" onclick="resetServings()">Reset</button>
             </div>
             <div class="meta-item">
                 <span class="meta-label">Prep Time</span>
@@ -689,7 +760,9 @@
                                     </div>
                                 {% endif %}
                             </div>
-                            <span class="ingredient-quantity">
+                            <span class="ingredient-quantity"
+                                  data-original-qty="{{ ingredient.quantity }}"
+                                  data-unit="{{ ingredient.unit }}">
                                 {{ ingredient.quantity }} {{ ingredient.unit }}
                             </span>
                         </li>
@@ -899,6 +972,73 @@
                 addBtn.textContent = 'Add';
             });
         }
+
+        // --- Servings Scaling ---
+
+        var ORIGINAL_SERVINGS = {{ recipe.servings | tojson }};
+        var currentServings = ORIGINAL_SERVINGS;
+
+        function formatQty(value) {
+            if (value === null || value === undefined || value === '' || isNaN(value)) {
+                return value;
+            }
+            var num = parseFloat(value);
+            if (isNaN(num)) {
+                return value;
+            }
+            // Round to at most 2 decimal places, strip trailing zeros
+            var rounded = Math.round(num * 100) / 100;
+            // Convert to string and strip trailing zeros after decimal point
+            var str = rounded.toString();
+            if (str.indexOf('.') !== -1) {
+                str = str.replace(/\.?0+$/, '');
+            }
+            return str;
+        }
+
+        function updateIngredients() {
+            var items = document.querySelectorAll('.ingredient-quantity[data-original-qty]');
+            items.forEach(function(el) {
+                var origQtyStr = el.getAttribute('data-original-qty');
+                var unit = el.getAttribute('data-unit') || '';
+                var origQty = parseFloat(origQtyStr);
+
+                if (!isNaN(origQty) && origQty !== 0) {
+                    var scaled = origQty * (currentServings / ORIGINAL_SERVINGS);
+                    var displayQty = formatQty(scaled);
+                    el.textContent = unit ? displayQty + ' ' + unit : displayQty;
+                }
+                // If original qty is not a number (e.g. empty string or text), leave it unchanged
+            });
+        }
+
+        function changeServings(delta) {
+            var newVal = currentServings + delta;
+            if (newVal < 1) return;
+            currentServings = newVal;
+            document.getElementById('servings-display').textContent = currentServings;
+            document.getElementById('servings-dec').disabled = (currentServings <= 1);
+            var resetBtn = document.getElementById('servings-reset');
+            if (currentServings === ORIGINAL_SERVINGS) {
+                resetBtn.classList.add('hidden');
+            } else {
+                resetBtn.classList.remove('hidden');
+            }
+            updateIngredients();
+        }
+
+        function resetServings() {
+            currentServings = ORIGINAL_SERVINGS;
+            document.getElementById('servings-display').textContent = currentServings;
+            document.getElementById('servings-dec').disabled = (currentServings <= 1);
+            document.getElementById('servings-reset').classList.add('hidden');
+            updateIngredients();
+        }
+
+        // Initialize: disable dec button if servings is already 1
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('servings-dec').disabled = (ORIGINAL_SERVINGS <= 1);
+        });
 
         var atpToastTimer = null;
 
