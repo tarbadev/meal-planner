@@ -1708,3 +1708,180 @@ class TestShoppingListEditing:
         data = json.loads(response.data)
         assert 'error' in data
         assert 'name is required' in data['error'].lower()
+
+
+class TestUpdateCurrentPlanMeal:
+    """Test the PUT /current-plan/meals endpoint."""
+
+    def test_update_meal_success(self, client):
+        """Test successfully adding a recipe to a meal slot."""
+        from app import main
+
+        # Ensure clean state
+        main.manual_plan = {}
+
+        response = client.put(
+            '/current-plan/meals',
+            data=json.dumps({
+                "day": "Monday",
+                "meal_type": "dinner",
+                "recipe_id": "pasta-bolognese",
+                "servings": 4
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['success'] is True
+        assert 'Pasta Bolognese' in data['message']
+        assert 'Monday' in data['message']
+        assert 'dinner' in data['message']
+
+        # Verify the manual plan was updated
+        assert 'Monday' in main.manual_plan
+        assert 'dinner' in main.manual_plan['Monday']
+        assert main.manual_plan['Monday']['dinner']['recipe_id'] == 'pasta-bolognese'
+
+    def test_update_meal_creates_current_plan(self, client):
+        """Test that adding a meal creates/updates the current plan."""
+        from app import main
+
+        main.manual_plan = {}
+        main.current_plan = None
+
+        response = client.put(
+            '/current-plan/meals',
+            data=json.dumps({
+                "day": "Tuesday",
+                "meal_type": "dinner",
+                "recipe_id": "chicken-stir-fry",
+                "servings": 2
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        # The current plan should now be populated
+        assert main.current_plan is not None
+
+    def test_update_meal_recipe_not_found(self, client):
+        """Test updating a slot with a non-existent recipe."""
+        response = client.put(
+            '/current-plan/meals',
+            data=json.dumps({
+                "day": "Monday",
+                "meal_type": "dinner",
+                "recipe_id": "nonexistent-recipe",
+                "servings": 4
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 404
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_update_meal_missing_day(self, client):
+        """Test that missing 'day' field returns 400."""
+        response = client.put(
+            '/current-plan/meals',
+            data=json.dumps({
+                "meal_type": "dinner",
+                "recipe_id": "pasta-bolognese",
+                "servings": 4
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_update_meal_missing_meal_type(self, client):
+        """Test that missing 'meal_type' field returns 400."""
+        response = client.put(
+            '/current-plan/meals',
+            data=json.dumps({
+                "day": "Monday",
+                "recipe_id": "pasta-bolognese",
+                "servings": 4
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_update_meal_missing_recipe_id(self, client):
+        """Test that missing 'recipe_id' field returns 400."""
+        response = client.put(
+            '/current-plan/meals',
+            data=json.dumps({
+                "day": "Monday",
+                "meal_type": "dinner",
+                "servings": 4
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_update_meal_invalid_json(self, client):
+        """Test that invalid JSON returns 400."""
+        response = client.put(
+            '/current-plan/meals',
+            data='not json',
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert 'error' in data
+
+    def test_update_meal_uses_default_servings(self, client):
+        """Test that servings defaults to config.TOTAL_PORTIONS when not provided."""
+        from app import config, main
+
+        main.manual_plan = {}
+
+        response = client.put(
+            '/current-plan/meals',
+            data=json.dumps({
+                "day": "Wednesday",
+                "meal_type": "lunch",
+                "recipe_id": "pasta-bolognese"
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        assert main.manual_plan['Wednesday']['lunch']['servings'] == config.TOTAL_PORTIONS
+
+    def test_update_meal_overwrites_existing_slot(self, client):
+        """Test that updating an existing slot replaces the recipe."""
+        from app import main
+
+        main.manual_plan = {
+            'Monday': {
+                'dinner': {'recipe_id': 'pasta-bolognese', 'servings': 4}
+            }
+        }
+
+        response = client.put(
+            '/current-plan/meals',
+            data=json.dumps({
+                "day": "Monday",
+                "meal_type": "dinner",
+                "recipe_id": "chicken-stir-fry",
+                "servings": 3
+            }),
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        assert main.manual_plan['Monday']['dinner']['recipe_id'] == 'chicken-stir-fry'
+        assert main.manual_plan['Monday']['dinner']['servings'] == 3

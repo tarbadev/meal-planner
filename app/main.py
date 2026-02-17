@@ -1688,6 +1688,54 @@ def _regenerate_from_manual_plan(recipes: list[Recipe]):
     current_shopping_list = generate_shopping_list(current_plan)
 
 
+@app.route("/current-plan/meals", methods=["PUT"])
+def update_current_plan_meal():
+    """Update a specific meal slot in the current plan."""
+    global manual_plan, current_plan, current_shopping_list
+
+    try:
+        data = request.get_json()
+    except Exception:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    if not data:
+        return jsonify({"error": "Request body is required"}), 400
+
+    # Validate required fields
+    required = ["day", "meal_type", "recipe_id"]
+    for field in required:
+        if field not in data:
+            return jsonify({"error": f"Missing required field: {field}"}), 400
+
+    day = data["day"]
+    meal_type = data["meal_type"]
+    recipe_id = data["recipe_id"]
+    servings = data.get("servings", config.TOTAL_PORTIONS)
+
+    # Validate recipe exists
+    recipes_file = Path(config.RECIPES_FILE)
+    recipes = load_recipes(recipes_file)
+    recipe = next((r for r in recipes if r.id == recipe_id), None)
+    if not recipe:
+        return jsonify({"error": f"Recipe not found: {recipe_id}"}), 404
+
+    # Update the meal slot in manual_plan
+    if day not in manual_plan:
+        manual_plan[day] = {}
+    manual_plan[day][meal_type] = {
+        "recipe_id": recipe_id,
+        "servings": servings
+    }
+
+    # Regenerate plan and shopping list
+    _regenerate_from_manual_plan(recipes)
+
+    return jsonify({
+        "success": True,
+        "message": f"Added {recipe.name} to {day} {meal_type}"
+    })
+
+
 @app.route("/shopping-list/update-item", methods=["POST"])
 def update_shopping_item():
     """Update quantity or name of a shopping list item."""

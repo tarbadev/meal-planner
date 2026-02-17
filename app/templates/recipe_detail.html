@@ -308,6 +308,214 @@
             border-radius: 4px;
         }
 
+        /* Add to Plan button */
+        .add-to-plan-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
+        }
+
+        .add-to-plan-btn:hover {
+            background: #047857;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        /* Modal overlay */
+        .atp-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .atp-modal-overlay.visible {
+            display: flex;
+        }
+
+        /* Modal content */
+        .atp-modal {
+            background: #ffffff;
+            border-radius: 16px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .atp-modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e7e5e4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .atp-modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1c1917;
+            margin: 0;
+        }
+
+        .atp-modal-close {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: #a8a29e;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+
+        .atp-modal-close:hover {
+            color: #1c1917;
+        }
+
+        .atp-modal-body {
+            padding: 1.5rem 2rem 2rem;
+        }
+
+        .atp-form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .atp-form-group label {
+            display: block;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: #1c1917;
+            margin-bottom: 0.5rem;
+        }
+
+        .atp-form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e7e5e4;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            color: #1c1917;
+            background: #fafaf9;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a8a29e' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+
+        .atp-form-group select:focus {
+            outline: none;
+            border-color: #059669;
+            box-shadow: 0 0 0 3px #d1fae5;
+        }
+
+        .atp-form-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .atp-btn-add {
+            flex: 1;
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 0.875rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s ease;
+        }
+
+        .atp-btn-add:hover:not(:disabled) {
+            background: #047857;
+        }
+
+        .atp-btn-add:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .atp-btn-cancel {
+            background: transparent;
+            color: #57534e;
+            border: 2px solid #e7e5e4;
+            padding: 0.875rem 1.25rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            transition: border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .atp-btn-cancel:hover {
+            border-color: #059669;
+            color: #059669;
+        }
+
+        .atp-no-plan-msg {
+            color: #57534e;
+            font-size: 0.9375rem;
+            padding: 0.75rem;
+            background: #fef3c7;
+            border-radius: 8px;
+            border-left: 3px solid #f59e0b;
+        }
+
+        /* Toast notification */
+        .atp-toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1c1917;
+            color: white;
+            padding: 0.875rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            z-index: 2000;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+            white-space: nowrap;
+            max-width: calc(100vw - 48px);
+        }
+
+        .atp-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .atp-toast.success {
+            background: #059669;
+        }
+
+        .atp-toast.error {
+            background: #dc2626;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -361,6 +569,22 @@
                 padding: 8px 0;
                 display: inline-block;
             }
+
+            .atp-modal {
+                border-radius: 12px;
+            }
+
+            .atp-modal-header {
+                padding: 1.25rem 1.25rem;
+            }
+
+            .atp-modal-body {
+                padding: 1.25rem;
+            }
+
+            .atp-form-actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -369,6 +593,8 @@
         <a href="/" class="back-link">← Back to Meal Plan</a>
 
         <h1>{{ recipe.name }}</h1>
+
+        <button class="add-to-plan-btn" onclick="openAddToPlanModal()">+ Add to Plan</button>
 
         {% if recipe.image_url %}
         <img src="{{ recipe.image_url }}" alt="{{ recipe.name }}" class="recipe-image-hero" loading="lazy">
@@ -489,10 +715,208 @@
         </div>
     </div>
 
+    <!-- Add to Plan Modal -->
+    <div id="addToPlanModal" class="atp-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="atpModalTitle">
+        <div class="atp-modal">
+            <div class="atp-modal-header">
+                <h2 class="atp-modal-title" id="atpModalTitle">Add to Meal Plan</h2>
+                <button class="atp-modal-close" onclick="closeAddToPlanModal()" aria-label="Close">&times;</button>
+            </div>
+            <div class="atp-modal-body">
+                <div id="atpNoPlanMsg" class="atp-no-plan-msg" style="display:none;">
+                    No meal plan is active. Generate a plan first from the main page.
+                </div>
+                <div id="atpFormContent">
+                    <div class="atp-form-group">
+                        <label for="atpDaySelect">Day</label>
+                        <select id="atpDaySelect"></select>
+                    </div>
+                    <div class="atp-form-group">
+                        <label for="atpMealTypeSelect">Meal Type</label>
+                        <select id="atpMealTypeSelect"></select>
+                    </div>
+                    <div class="atp-form-actions">
+                        <button id="atpAddBtn" class="atp-btn-add" onclick="confirmAddToPlan()">Add</button>
+                        <button class="atp-btn-cancel" onclick="closeAddToPlanModal()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="atpToast" class="atp-toast" role="status" aria-live="polite"></div>
+
     <script>
         function toggleSubstitutions(index) {
             const subsEl = document.getElementById('subs-' + index);
             subsEl.classList.toggle('show');
+        }
+
+        // --- Add to Plan Modal ---
+
+        const RECIPE_ID = {{ recipe.id | tojson }};
+        const RECIPE_NAME = {{ recipe.name | tojson }};
+
+        // Days in schedule order
+        const DAYS_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        let atpPlanData = null;
+
+        function openAddToPlanModal() {
+            const overlay = document.getElementById('addToPlanModal');
+            overlay.classList.add('visible');
+
+            // Fetch the current plan to populate dropdowns
+            fetch('/current-plan')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    populateAtpDropdowns(data);
+                })
+                .catch(function() {
+                    showAtpNoPlan();
+                });
+        }
+
+        function closeAddToPlanModal() {
+            document.getElementById('addToPlanModal').classList.remove('visible');
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('addToPlanModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddToPlanModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAddToPlanModal();
+            }
+        });
+
+        function populateAtpDropdowns(data) {
+            const noPlanMsg = document.getElementById('atpNoPlanMsg');
+            const formContent = document.getElementById('atpFormContent');
+            const daySelect = document.getElementById('atpDaySelect');
+            const mealTypeSelect = document.getElementById('atpMealTypeSelect');
+
+            // If no plan exists, show message
+            if (!data || !data.plan || !data.plan.meals || data.plan.meals.length === 0) {
+                showAtpNoPlan();
+                return;
+            }
+
+            noPlanMsg.style.display = 'none';
+            formContent.style.display = 'block';
+            document.getElementById('atpAddBtn').disabled = false;
+
+            // Extract unique days (in calendar order) and meal types from the plan
+            const planMeals = data.plan.meals;
+            const daysInPlan = [];
+            const mealTypesInPlan = [];
+
+            planMeals.forEach(function(meal) {
+                if (!daysInPlan.includes(meal.day)) {
+                    daysInPlan.push(meal.day);
+                }
+                if (!mealTypesInPlan.includes(meal.meal_type)) {
+                    mealTypesInPlan.push(meal.meal_type);
+                }
+            });
+
+            // Sort days by calendar order
+            daysInPlan.sort(function(a, b) {
+                return DAYS_ORDER.indexOf(a) - DAYS_ORDER.indexOf(b);
+            });
+
+            // Populate day dropdown
+            daySelect.innerHTML = '';
+            daysInPlan.forEach(function(day) {
+                const option = document.createElement('option');
+                option.value = day;
+                option.textContent = day;
+                daySelect.appendChild(option);
+            });
+
+            // Populate meal type dropdown
+            mealTypeSelect.innerHTML = '';
+            mealTypesInPlan.forEach(function(mealType) {
+                const option = document.createElement('option');
+                option.value = mealType;
+                option.textContent = capitalize(mealType);
+                mealTypeSelect.appendChild(option);
+            });
+        }
+
+        function showAtpNoPlan() {
+            document.getElementById('atpNoPlanMsg').style.display = 'block';
+            document.getElementById('atpFormContent').style.display = 'none';
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function confirmAddToPlan() {
+            const day = document.getElementById('atpDaySelect').value;
+            const mealType = document.getElementById('atpMealTypeSelect').value;
+            const addBtn = document.getElementById('atpAddBtn');
+
+            if (!day || !mealType) {
+                showAtpToast('Please select a day and meal type.', 'error');
+                return;
+            }
+
+            addBtn.disabled = true;
+            addBtn.textContent = 'Adding...';
+
+            fetch('/current-plan/meals', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    day: day,
+                    meal_type: mealType,
+                    recipe_id: RECIPE_ID
+                })
+            })
+            .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+            .then(function(result) {
+                if (result.ok && result.data.success) {
+                    closeAddToPlanModal();
+                    showAtpToast(RECIPE_NAME + ' added to ' + day + ' ' + capitalize(mealType) + '.', 'success');
+                } else {
+                    var msg = (result.data && result.data.error) ? result.data.error : 'Failed to add recipe to plan.';
+                    showAtpToast(msg, 'error');
+                }
+            })
+            .catch(function() {
+                showAtpToast('Network error. Please try again.', 'error');
+            })
+            .finally(function() {
+                addBtn.disabled = false;
+                addBtn.textContent = 'Add';
+            });
+        }
+
+        var atpToastTimer = null;
+
+        function showAtpToast(message, type) {
+            var toast = document.getElementById('atpToast');
+            toast.textContent = message;
+            toast.className = 'atp-toast ' + (type || '');
+
+            // Force reflow to restart animation
+            void toast.offsetWidth;
+            toast.classList.add('show');
+
+            if (atpToastTimer) {
+                clearTimeout(atpToastTimer);
+            }
+            atpToastTimer = setTimeout(function() {
+                toast.classList.remove('show');
+            }, 3000);
         }
     </script>
 </body>

@@ -2,22 +2,24 @@
 
 ## BUG-1: Desktop Layout Issues
 **Priority:** High
+**Status:** ✅ Done
 
 ### Problems:
-- Weekly plan shows 6 days instead of 7
-- Recipe card not fully displayed (truncated/cut off)
-- Day header not aligned correctly
-- Calories display looks odd (formatting)
-- Shopping list appears huge (font/spacing too large)
-- Too many decimal places throughout (max should be 2-3)
-- Recipe search bar is invisible/easy to miss — users don't see it
-- Sort-by dropdown is too wide/large on desktop
-- **Do not touch mobile layout — it looks great**
+- ✅ Weekly plan shows 6 days instead of 7
+- ✅ Recipe card not fully displayed (truncated/cut off)
+- ✅ Day header not aligned correctly
+- ✅ Calories display looks odd (formatting)
+- ✅ Shopping list appears huge (font/spacing too large)
+- ✅ Too many decimal places throughout (max should be 2-3)
+- ✅ Recipe search bar is invisible/easy to miss — users don't see it
+- ✅ Sort-by dropdown is too wide/large on desktop
+- ✅ Mobile layout untouched
 
 ---
 
 ## BUG-2: Shopping List — Ingredients Not Combined
 **Priority:** High
+**Status:** ✅ Done
 
 Ingredients from different meals that are the same item are not being
 combined into a single line. E.g., multiple recipes each needing "garlic"
@@ -27,6 +29,7 @@ should result in one combined "garlic" line with total quantity.
 
 ## BUG-3: Shopping List — Spurious "serving" Unit
 **Priority:** Medium
+**Status:** ✅ Done
 
 Items with no unit are showing as "0.6875 serving tomato" instead of
 "0.6875 tomato". The word "serving" should not appear; if no unit is
@@ -45,12 +48,13 @@ without leaving the page. Should use a simple dropdown or modal.
 
 ## FEAT-2: Respect Daily Calorie Limit When Generating Plan
 **Priority:** High
+**Status:** ✅ Done
 
 The meal plan generator currently ignores the configured daily calorie
 limit. When generating a plan it should:
-- Aim for plans where daily calories stay within the configured limit
-- Prefer lower-calorie recipes when the day is near the limit
-- Warn or retry if a valid plan within the limit cannot be found
+- ✅ Aim for plans where daily calories stay within the configured limit
+- ✅ Prefer lower-calorie recipes when the day is near the limit
+- ✅ Falls back to lowest-calorie if no recipe fits (never leaves slot empty)
 
 ---
 
