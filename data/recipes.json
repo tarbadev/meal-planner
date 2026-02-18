@@ -85142,6 +85142,3156 @@
       ],
       "source_url": "https://spoonacular.com/-1418388808652",
       "image_url": "https://img.spoonacular.com/recipes/622825-312x231.jpg"
+    },
+    {
+      "id": "skillet-chili-mac",
+      "name": "Skillet Chili Mac",
+      "servings": 6,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 430,
+        "protein": 30.49,
+        "carbs": 34.29,
+        "fat": 18.65,
+        "saturated_fat": 9.17,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 520.78,
+        "potassium": null,
+        "fiber": 2.1,
+        "sugar": 3.98,
+        "vitamin_a": null,
+        "vitamin_c": 1.91,
+        "calcium": 302.78,
+        "iron": 3.11
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner",
+        "spoonacular",
+        "dessert",
+        "soup",
+        "pasta"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.5,
+          "unit": "t",
+          "item": "canola oil",
+          "notes": "1 1/2 t. canola oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "lb",
+          "item": "ground beef",
+          "notes": "1 lb. lean ground beef",
+          "category": "meat"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "onion",
+          "notes": "1 onion, chopped fine",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "T",
+          "item": "chili powder",
+          "notes": "1 T. chili powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "t",
+          "item": "ground cumin",
+          "notes": "2 t. ground cumin",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.125,
+          "unit": "t",
+          "item": "cayenne pepper",
+          "notes": "1/8 - 1/4 t. cayenne pepper (to taste, I used 1/8 t.)",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 6.0,
+          "unit": "servings",
+          "item": "salt & pepper",
+          "notes": "salt & pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "",
+          "item": "garlic cloves",
+          "notes": "3 garlic cloves, minced",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "T",
+          "item": "brown sugar",
+          "notes": "1 T. brown sugar",
+          "category": "baking"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "c",
+          "item": "water",
+          "notes": "2 c. water",
+          "category": "beverages"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "oz",
+          "item": "grain macaroni",
+          "notes": "8 oz. whole grain macaroni",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "c",
+          "item": "cheddar cheese",
+          "notes": "2 c. shredded cheddar cheese",
+          "category": "cheese"
+        }
+      ],
+      "instructions": [
+        "Heat the oil in a large (12 inch) nonstick skillet over medium-high heat.",
+        "Add the ground beef, onion, chili powder, cumin, cayenne and 1/2 t. salt. Cook, breaking up meat into small pieces, until it looses all the pink color, about 5 minutes.",
+        "Add garlic and cook until fragrant, about 30 seconds or so.",
+        "Add brown sugar, tomato sauce, water and macaroni. Bring to a boil. Cover and cook, stirring often and adjusting the heat so that it maintains a lively simmer (somewhere between medium/medium-high heat), until the macaroni is tender, about 10 minutes or so. Season with salt & pepper if needed.",
+        "Off heat, stir in half the cheese.",
+        "Sprinkle the remaining cheese on top."
+      ],
+      "source_url": "https://www.foodista.com/recipe/T5H745JJ/skillet-chili-mac",
+      "image_url": "https://img.spoonacular.com/recipes/660216-312x231.jpg"
+    },
+    {
+      "id": "caribbean-cobb-salad-with-fire-roasted-pineapple-vinaigrette",
+      "name": "Caribbean Cobb Salad with Fire-Roasted Pineapple Vinaigrette",
+      "servings": 4,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 307,
+        "protein": 18.51,
+        "carbs": 20.34,
+        "fat": 18.7,
+        "saturated_fat": 3.49,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 287.15,
+        "potassium": null,
+        "fiber": 7.89,
+        "sugar": 10.93,
+        "vitamin_a": null,
+        "vitamin_c": 68.4,
+        "calcium": 68.77,
+        "iron": 2.29
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "lunch",
+        "main course",
+        "salad",
+        "main dish",
+        "dinner",
+        "gluten free",
+        "dairy free",
+        "paleolithic",
+        "primal",
+        "whole 30",
+        "spoonacular",
+        "breakfast",
+        "baking",
+        "grilling"
+      ],
+      "ingredients": [
+        {
+          "quantity": 2.0,
+          "unit": "",
+          "item": "chicken breasts",
+          "notes": "2 boneless, skinless chicken breasts",
+          "category": "meat"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "teaspoons",
+          "item": "jamaican jerk seasoning",
+          "notes": "3 teaspoons Jamaican Jerk Seasoning",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "",
+          "item": "romaine hearts torn into bite-sized pieces",
+          "notes": "2 romaine hearts torn into bite-sized pieces",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "bell pepper",
+          "notes": "1 red bell pepper, chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "large",
+          "item": "mango",
+          "notes": "1 mango, large dice",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "avocado",
+          "notes": "1 avocado, diced",
+          "category": "produce"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "slices",
+          "item": "bacon",
+          "notes": "4 slices bacon, cooked and crumbled",
+          "category": "meat"
+        },
+        {
+          "quantity": 5.0,
+          "unit": "",
+          "item": "scallions",
+          "notes": "5 scallions, white and green parts sliced",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "cup",
+          "item": "macadamia nuts",
+          "notes": "1/4 cup chopped macadamia nuts",
+          "category": "nuts"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "fire-roasted pineapple vinaigrette",
+          "notes": "1/2 cup Fire-Roasted Pineapple Vinaigrette",
+          "category": "canned and jarred"
+        }
+      ],
+      "instructions": [
+        "Heat grill. Coat the chicken breasts liberally with the jerk seasoning and cook the chicken on both sides until cooked through, approximately 10 minutes.",
+        "Transfer to a plate and cover with foil. Allow the chicken to rest for 10 minutes while you prepare the rest of the salad.",
+        "In a large bowl, add the torn romaine hearts and top with the bell pepper, mango, avocado, bacon and scallions.",
+        "Cut the chicken into cubes and add to the salad.",
+        "Sprinkle the salad with the macadamia nuts and serve with the Fire-Roasted Pineapple Vinaigrette on the side or serve with your favorite dressing."
+      ],
+      "source_url": "https://www.foodista.com/recipe/ZKCX6VHS/caribbean-cobb-salad-with-fire-roasted-pineapple-vinaigrette",
+      "image_url": "https://img.spoonacular.com/recipes/637102-312x231.jpg"
+    },
+    {
+      "id": "ginger-garlic-chili-salmon",
+      "name": "Ginger Garlic Chili Salmon",
+      "servings": 2,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 307,
+        "protein": 34.59,
+        "carbs": 14.94,
+        "fat": 10.85,
+        "saturated_fat": 1.68,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 478.03,
+        "potassium": null,
+        "fiber": 0.53,
+        "sugar": 12.41,
+        "vitamin_a": null,
+        "vitamin_c": 3.77,
+        "calcium": 49.01,
+        "iron": 1.8
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner",
+        "gluten free",
+        "dairy free",
+        "pescatarian",
+        "spoonacular",
+        "dessert",
+        "soup"
+      ],
+      "ingredients": [
+        {
+          "quantity": 2.0,
+          "unit": "fillet",
+          "item": "salmon",
+          "notes": "2 salmon fillets (about half pound each)",
+          "category": "seafood"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "Tbs",
+          "item": "ginger",
+          "notes": "1 Tbs minced ginger",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cloves",
+          "item": "garlic",
+          "notes": "2 cloves of crushed garlic",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "Tbs",
+          "item": "brown sugar",
+          "notes": "2 Tbs brown sugar",
+          "category": "baking"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "cup",
+          "item": "rice vinegar",
+          "notes": "1/4 cup of rice vinegar",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tsp",
+          "item": "chili sauce",
+          "notes": "1 tsp of hot chili sauce (add or reduce the amount as you like)",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tsp",
+          "item": "soy sauce",
+          "notes": "1 tsp of soy sauce",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "cup",
+          "item": "water",
+          "notes": "1/4 cup of water",
+          "category": "beverages"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "stalks",
+          "item": "green onions",
+          "notes": "2 stalks of green onions",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "servings",
+          "item": "salt and pepper",
+          "notes": "salt and pepper for seasoning the salmon",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "Season both sides of salmon fillets with salt and pepper. Chop green onions and put them aside. In a bowl, combine minced ginger, crushed garlic, brown sugar, rice vinegar, hot chili sauce, soy sauce and water. This is the sauce for simmering the salmon.",
+        "In a deep skillet, pan sear the salmon on medium high heat for 4-5 minutes or until it's almost half done on the side. Flip the salmon to the other side and sear for 2 minutes.",
+        "Pour in the sauce when the salmon is still slightly raw in the middle, and let it simmer for 10 minutes on medium heat. When the sauce is reduced, add in the chopped green onions. Continuously scoop the sauce over the salmon for at least one minute to let the top side of the salmon absorb the sauce.",
+        "Remove the salmon carefully from the skillet and transfer to a dish. If the sauce is not reduced to the desired consistency, leave it in the skillet and let it continue to reduce.",
+        "Pour the sauce over the salmon and serve."
+      ],
+      "source_url": "https://www.foodista.com/recipe/HY66L25Y/ginger-garlic-chili-salmon",
+      "image_url": "https://img.spoonacular.com/recipes/644581-312x231.jpg"
+    },
+    {
+      "id": "make-ahead-creamy-macaroni-and-cheese",
+      "name": "Make-Ahead Creamy Macaroni and Cheese",
+      "servings": 10,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 742,
+        "protein": 29.2,
+        "carbs": 46.91,
+        "fat": 49.11,
+        "saturated_fat": 29.77,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 797.58,
+        "potassium": null,
+        "fiber": 1.84,
+        "sugar": 3.31,
+        "vitamin_a": null,
+        "vitamin_c": 0,
+        "calcium": 606.59,
+        "iron": 1.87
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner",
+        "spoonacular",
+        "dessert",
+        "soup",
+        "pasta",
+        "baking"
+      ],
+      "ingredients": [
+        {
+          "quantity": 4.0,
+          "unit": "slices",
+          "item": "bread",
+          "notes": "4 slices hearty white bread, torn into pieces",
+          "category": "bakery/bread"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "cup",
+          "item": "parmesan cheese",
+          "notes": "1/4 cup grated Parmesan cheese",
+          "category": "cheese"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "garlic clove",
+          "notes": "1 garlic clove, minced",
+          "category": "produce"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "tablespoons",
+          "item": "butter",
+          "notes": "8 tablespoons (1 stick) unsalted butter, melted",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 10.0,
+          "unit": "servings",
+          "item": "salt and pepper",
+          "notes": "Salt and Pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "pound",
+          "item": "elbow macaroni",
+          "notes": "1 pound elbow macaroni",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 6.0,
+          "unit": "tablespoons",
+          "item": "flour",
+          "notes": "6 tablespoons all-purpose flour",
+          "category": "baking"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "mustard powder",
+          "notes": "1 teaspoon dry mustard powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.125,
+          "unit": "teaspoon",
+          "item": "cayenne pepper",
+          "notes": "1/8 teaspoon cayenne pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 4.5,
+          "unit": "cups",
+          "item": "chicken broth",
+          "notes": "4 1/2 cups low-sodium chicken broth",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 1.5,
+          "unit": "cups",
+          "item": "heavy cream",
+          "notes": "1 1/2 cups heavy cream",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "cups",
+          "item": "colby cheese",
+          "notes": "4 cups shredded colby cheese",
+          "category": "cheese"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "cheddar cheese",
+          "notes": "2 cups shredded extra-sharp cheddar cheese",
+          "category": "cheese"
+        }
+      ],
+      "instructions": [
+        "Process Topping - Pulse bread, Parmesan, garlic and 2 Tbsp. butter in food processor until coarsely ground.  Divide crumb mixture between 2 zip-lock freezer bags and freeze.",
+        "Cook pasta - Bring 4 quarts water to boil in large pot.",
+        "Add 1 Tbsp. salt and macaroni and cook until barely softened, about 3 minutes.",
+        "Drain pasta, then spread out on rimmed baking sheet and let cool.",
+        "Make Sauce -",
+        "Heat remaining butter, flour, mustard, and cayenne in empty pot over medium-high heat, stirring constantly, until golden and fragrant, about 2 minutes.  Slowly whisk in broth and cream and bring to boil.  Reduce heat to medium and simmer until slightly thickened, about 15 minutes.  Off heat, whisk in colby, cheddar, 1 tsp. salt and 1/2 tsp. pepper until smooth.",
+        "Freeze - Stir cooled pasta into sauce, breaking up any clumps, until well combined.  Divide pasta mixture between two 8-in square microwaveable baking dishes.  Cool to room temperature.  Wrap dishes tightly with plastic, cover with foil, and freeze for up to 2 months.",
+        "Bake - Preheat oven to 375 degrees F.",
+        "Remove foil from casserole and reserve.  Microwave casserole until mixture is thawed and beginning to bubble around the edges; 7 to 12 minutes, stirring and replacing plastic halfway through cooking.  Discard plastic and cover plan with reserved foil.",
+        "Bake 20 minutes, then remove foil and sprinkle with 1 bag frozen bread crumbs.  Continue to bake until crumbs are golden brown and crisp, about 20 minutes longer.",
+        "Let cool 10 minutes."
+      ],
+      "source_url": "https://www.foodista.com/recipe/7SX5R2RQ/make-ahead-creamy-macaroni-and-cheese",
+      "image_url": "https://img.spoonacular.com/recipes/650660-312x231.jpg"
+    },
+    {
+      "id": "spicy-vegan-chili",
+      "name": "Spicy Vegan Chili",
+      "servings": 5,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 248,
+        "protein": 12.54,
+        "carbs": 32.36,
+        "fat": 8.59,
+        "saturated_fat": 1.13,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 1689.79,
+        "potassium": null,
+        "fiber": 7.55,
+        "sugar": 6.1,
+        "vitamin_a": null,
+        "vitamin_c": 28.39,
+        "calcium": 225.75,
+        "iron": 3.05
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "soup",
+        "main course",
+        "main dish",
+        "dinner",
+        "gluten free",
+        "dairy free",
+        "lacto ovo vegetarian",
+        "vegan",
+        "spoonacular",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 260.0,
+          "unit": "g",
+          "item": "pinto beans",
+          "notes": "1 cup ( - 260g) canned pinto beans, rinsed",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "tsp",
+          "item": "cayenne pepper",
+          "notes": "1/2 tsp cayenne pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tsp",
+          "item": "chili powder",
+          "notes": "2 tsp chili powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "cups",
+          "item": "collard greens",
+          "notes": "4 cups chopped collard greens",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tsp",
+          "item": "cumin",
+          "notes": "1 tsp cumin",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "",
+          "item": "garlic cloves",
+          "notes": "2 garlic cloves, minced or pressed",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "jalape\u00f1o pepper",
+          "notes": "1 jalape\u00f1o pepper, diced (I kept the seeds for more spice)",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 1.5,
+          "unit": "Tbs",
+          "item": "olive oil",
+          "notes": "1 1/2 Tbs olive oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "medium",
+          "item": "roma tomatoes",
+          "notes": "3 medium roma tomatoes, diced",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tsp",
+          "item": "salt",
+          "notes": "2 tsp salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "medium",
+          "item": "sweet potato",
+          "notes": "1 medium sweet potato, peeled and diced",
+          "category": "produce"
+        },
+        {
+          "quantity": 396.0,
+          "unit": "g",
+          "item": "tofu",
+          "notes": "1 14-ounce package firm tofu (396g), rinsed and drained",
+          "category": "produce"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "cups",
+          "item": "vegetable broth",
+          "notes": "3 cups vegetable broth",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "large",
+          "item": "onion",
+          "notes": "1/2 large yellow onion, diced",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "medium",
+          "item": "yukon potato",
+          "notes": "1 medium yukon potato, diced",
+          "category": "produce"
+        }
+      ],
+      "instructions": [
+        "Heat the olive oil in a pot over medium-high heat. Once the pan is hot, add the onions. When the onions start to turn translucent, add the diced potatoes.",
+        "Let it cook for a minute or two, and add the diced tomatoes, jalapeo, garlic, chili powder, cumin, and cayenne pepper.Cook everything for about another minute and add the vegetable broth. Bring the broth to a boil.While the chili is cooking, remove the rough stem from the collard green leaves. Chop them into strips.Once the chili has boiled, add the beans and chopped collards. Chop the tofu in half, and crumble each half with your hands. I did this right over the boiling pot. Be careful of hot liquids splashing out!Season with the salt and boil for another 5-10 minutes, or until the potatoes can be easily pierced with a fork.Turn off the heat and serve the chili with some ground pepper.Store any leftovers in an airtight container."
+      ],
+      "source_url": "https://www.foodista.com/recipe/QMJ37S4P/spicy-vegan-chili",
+      "image_url": "https://img.spoonacular.com/recipes/661223-312x231.jpg"
+    },
+    {
+      "id": "crab-and-shrimp-burgers-with-garlic-grits-fries",
+      "name": "Crab and Shrimp Burgers With Garlic Grits Fries",
+      "servings": 8,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 367,
+        "protein": 24.45,
+        "carbs": 42.73,
+        "fat": 10.94,
+        "saturated_fat": 4.4,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 1665.18,
+        "potassium": null,
+        "fiber": 2.55,
+        "sugar": 4.37,
+        "vitamin_a": null,
+        "vitamin_c": 10.12,
+        "calcium": 206.48,
+        "iron": 3.25
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner",
+        "pescatarian",
+        "spoonacular",
+        "baking",
+        "grilling"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.5,
+          "unit": "cups",
+          "item": "shrimp",
+          "notes": "1 1/2 cups large shrimp, cleaned, peeled and chopped",
+          "category": "seafood"
+        },
+        {
+          "quantity": 1.5,
+          "unit": "cups",
+          "item": "crab meat",
+          "notes": "1 1/2 cups fresh crab meat",
+          "category": "seafood"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "juice of lemon",
+          "notes": "1 Zest and juice of lemon",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "tabasco sauce",
+          "notes": "1 teaspoon Tabasco sauce",
+          "category": "condiments"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "dijon mustard",
+          "notes": "1 tablespoon Dijon mustard",
+          "category": "condiments"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "mayonnaise",
+          "notes": "2 tablespoons mayonnaise",
+          "category": "condiments"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "jalapeno",
+          "notes": "1 jalapeno, deseeded and minced",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "medium",
+          "item": "onion",
+          "notes": "1 medium onion, chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "tablespoons",
+          "item": "parsley",
+          "notes": "4 tablespoons fresh parsley, chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "pepper",
+          "notes": "1/2 teaspoon white pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.5,
+          "unit": "teaspoons",
+          "item": "kosher salt",
+          "notes": "1 1/2 teaspoons kosher salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "cup",
+          "item": "panko crumbs",
+          "notes": "cup panko crumbs",
+          "category": "baking"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "egg",
+          "notes": "1 egg, lightly whisked",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 1.5,
+          "unit": "cups",
+          "item": "bread crumbs",
+          "notes": "1 1/2 cups bread crumbs",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "cup",
+          "item": "seafood seasoning",
+          "notes": "1/4 cup seafood seasoning (A good friend from New Orleans gifted us with River Road seasonings!)",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "butter",
+          "notes": "2 tablespoons unsalted butter, optional",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "cup",
+          "item": "grits",
+          "notes": "1 cup grits",
+          "category": "cereal"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "cups",
+          "item": "water",
+          "notes": "3 cups water",
+          "category": "beverages"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "cup",
+          "item": "milk",
+          "notes": "1 cup milk",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "kosher salt",
+          "notes": "2 teaspoons kosher salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "mozzarella cheese",
+          "notes": "1/2 cup mozzarella cheese, shredded",
+          "category": "cheese"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "servings",
+          "item": "garlic",
+          "notes": "Dried garlic (Amir had Garlic Gold Nuggets in the back of his pantry!)",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "In a large bowl, carefully mix all of the ingredients except the breadcrumbs, seafood seasoning and butter. Form into 8 patties and set on a baking sheet. Chill for an hour.",
+        "Once chilled, cover all sides of the patties with bread crumbs and lay on a separate baking sheet.",
+        "Bake in an oven preheated to 375 degrees for 15-20 minutes, flipping once.",
+        "If desired, top with a bit of butter and set the burgers onto a vegetable grill basket.",
+        "Heat for 1-2 minutes on a preheated grill just for flavor and a little color.",
+        "Serve on warm buns.",
+        "Cook the grits according to the package directions. Stir in the cheese and salt just before removing from heat.",
+        "Carefully pour the hot grits into a large, shallow plastic container. Allow the grits to cool down to room temperature. Cover, then chill overnight.",
+        "When ready, overturn the grits onto a large cutting board and cut into 1/2 wide pieces.",
+        "Lay them on a parchment paper covered baking sheet and bake in a preheated oven at 425 degrees for 30-40 minutes or until browned. Flip them once to brown all sides."
+      ],
+      "source_url": "https://www.foodista.com/recipe/KG7C6P3L/crab-and-shrimp-burgers-with-garlic-grits-fries",
+      "image_url": "https://img.spoonacular.com/recipes/640266-312x231.jpg"
+    },
+    {
+      "id": "little-italy-burger",
+      "name": "Little Italy Burger",
+      "servings": 4,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 962,
+        "protein": 43.6,
+        "carbs": 35.03,
+        "fat": 71.32,
+        "saturated_fat": 28.25,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 1437.77,
+        "potassium": null,
+        "fiber": 2.13,
+        "sugar": 3.86,
+        "vitamin_a": null,
+        "vitamin_c": 5.12,
+        "calcium": 405.64,
+        "iron": 3.19
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner",
+        "spoonacular",
+        "salad",
+        "grilling"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.0,
+          "unit": "pound",
+          "item": "ground beef",
+          "notes": "1 pound ground beef",
+          "category": "meat"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "slices",
+          "item": "pancetta",
+          "notes": "8 slices pancetta",
+          "category": "meat"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "jar",
+          "item": "pesto",
+          "notes": "1 jar of good pesto",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "large ball",
+          "item": "mozzarella",
+          "notes": "1 large ball smoked mozzarella",
+          "category": "cheese"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "onion",
+          "notes": "1 red onion, cut into thin rounds",
+          "category": "produce"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "tablespoons",
+          "item": "butter",
+          "notes": "3 tablespoons butter",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "tomato paste",
+          "notes": "2 teaspoons tomato paste",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "anchovy paste",
+          "notes": "1 teaspoon anchovy paste",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "servings",
+          "item": "baby arugula",
+          "notes": "Baby arugula",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "slices",
+          "item": "tomato",
+          "notes": "Ripe tomato slices",
+          "category": "produce"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "",
+          "item": "ciabatta buns",
+          "notes": "4 ciabatta buns",
+          "category": "bakery/bread"
+        }
+      ],
+      "instructions": [
+        "Heat the grill to high. Divide the ground beef into 4 portions. Salt and pepper and press into patties.",
+        "Layer each patty with a slice of pancetta on top and bottom. Press the pancetta into the patty.",
+        "Cut the onion and mozzarella into rounds.",
+        "Melt the butter and mix it with the tomato paste and anchovy paste.",
+        "Cut the ciabatta buns and brush the insides with tomato-butter.",
+        "CAREFULLY brush the grill with oil or use non-stick grill spray. Grill the patties and onions at the same time. Grill the patties for 3-5 minutes per side and the onions for 1-2 minutes per side.",
+        "Once you flip the burgers, lay the onion rounds over the top of each patty, followed by the mozzarella slices. The cheese will melt while the burgers finish cooking.",
+        "Place the buns on the open grill and toast for 1 minute.",
+        "Once the buns are toasted, slather them with pesto.",
+        "Layer arugula leaves, tomato slices and a patty on each bun. Top and serve!",
+        "Serves 4."
+      ],
+      "source_url": "https://www.foodista.com/recipe/DXM5KVFD/little-italy-burger",
+      "image_url": "https://img.spoonacular.com/recipes/650181-312x231.jpg"
+    },
+    {
+      "id": "chicken-and-white-bean-chili",
+      "name": "Chicken and White Bean Chili",
+      "servings": 9,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 433,
+        "protein": 24.04,
+        "carbs": 20.55,
+        "fat": 29.44,
+        "saturated_fat": 12.79,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 491.24,
+        "potassium": null,
+        "fiber": 5.12,
+        "sugar": 5.5,
+        "vitamin_a": null,
+        "vitamin_c": 122.86,
+        "calcium": 107.78,
+        "iron": 3.24
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "soup",
+        "main course",
+        "main dish",
+        "dinner",
+        "spoonacular",
+        "baking"
+      ],
+      "ingredients": [
+        {
+          "quantity": 4.0,
+          "unit": "pounds",
+          "item": "chicken",
+          "notes": "4 pounds whole chicken cut into quarters or approximately 1 \u00bd pounds (750g) boneless chicken",
+          "category": "meat"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "liter",
+          "item": "water",
+          "notes": "4 cups (1 liter) water",
+          "category": "beverages"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "chicken soup base",
+          "notes": "2 tablespoons chicken bouillon granules or chicken soup base",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "large",
+          "item": "bay leaf",
+          "notes": "1 large bay leaf",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "medium size",
+          "item": "onion",
+          "notes": "1 medium size yellow onion, finely diced",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "bell pepper",
+          "notes": "1 medium to large size orange, red or yellow bell pepper, with seeds",
+          "category": "produce"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "large",
+          "item": "garlic cloves",
+          "notes": "3 large garlic cloves, finely minced",
+          "category": "produce"
+        },
+        {
+          "quantity": 5.0,
+          "unit": "tablespoons",
+          "item": "flour",
+          "notes": "5 tablespoons all-purpose flour",
+          "category": "baking"
+        },
+        {
+          "quantity": 439.0,
+          "unit": "g",
+          "item": ".5 can cannellini beans",
+          "notes": "1 ounce \u2013 15.5 (439g) tin cannellini beans (or any other white bean), drained and rinsed",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "mild chili powder",
+          "notes": "2 tablespoons mild chili powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "ground coriander",
+          "notes": "1 teaspoon ground coriander",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "ground cumin",
+          "notes": "2 teaspoons ground cumin",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "coriander",
+          "notes": "1 tablespoon chopped fresh coriander",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 250.0,
+          "unit": "ml",
+          "item": "heavy whipping cream",
+          "notes": "1 cup (250ml) single cream or heavy whipping cream",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 187.0,
+          "unit": "ml",
+          "item": "soured cream",
+          "notes": "3/4 cup (187ml) soured cream",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 9.0,
+          "unit": "servings",
+          "item": "bell pepper",
+          "notes": "Pepper to taste",
+          "category": "produce"
+        }
+      ],
+      "instructions": [
+        "Rinse the chicken quarters really well and place them in a stock pot.",
+        "To the chicken in the pot, add the water (water should mostly cover the chicken), bouillon, bay leaf, onion, bell pepper and garlic.",
+        "Place the stock pot over medium high heat and bring to a boil; reduce the heat to medium, cover and simmer until chicken is cooked through, approximately 30 minutes.",
+        "Remove pot from the heat.",
+        "Remove chicken quarters from the pot and transfer them to a cutting board and cool until they can be comfortably handled.",
+        "Remove meat from the bones and chop it into small pieces then shred slightly; set aside.",
+        "Remove approximately 1 cup (250ml) of the liquid from the stock pot and set aside.",
+        "Return the stock pot to medium heat and bring to a simmer.",
+        "Place the flour into a small bowl.",
+        "While stirring constantly, gradually add the reserved liquid to the flour until a smooth paste is formed.",
+        "Pour the paste into the stock pot and stir constantly until the mixture starts to thicken.",
+        "Add the beans, chopped chicken, chili powder, coriander and cumin.",
+        "Increase the heat to medium and, stirring frequently, simmer, uncovered for approximately 15-20 minutes or until the mixture is thick enough to coat the back of a spoon.",
+        "Reduce the heat to low and add the fresh coriander, single cream and soured cream.",
+        "Stir well until the single and soured creams are completely incorporated into the chili.",
+        "Add pepper to taste.",
+        "Serve immediately.",
+        "Garnish with chopped avocado, spring onion, fresh coriander or grated cheese.",
+        "Like most soups, this chili is great refrigerated and served the next day but if you intend on freezing it, leave out the whipping cream and soured cream (they separate when frozen) and add them just before serving.",
+        "If youd like to spice things up a bit, add  -  teaspoon cayenne pepper or red pepper flakes for a slightly hot flavor."
+      ],
+      "source_url": "https://www.foodista.com/recipe/J3VSRLHM/chicken-and-white-bean-chili",
+      "image_url": "https://img.spoonacular.com/recipes/637932-312x231.jpg"
+    },
+    {
+      "id": "tomatillo-turkey-chili",
+      "name": "Tomatillo Turkey Chili",
+      "servings": 6,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 301,
+        "protein": 29.38,
+        "carbs": 30.25,
+        "fat": 7.52,
+        "saturated_fat": 1.73,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 896.93,
+        "potassium": null,
+        "fiber": 9.54,
+        "sugar": 10.1,
+        "vitamin_a": null,
+        "vitamin_c": 27.57,
+        "calcium": 81.25,
+        "iron": 5.0
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "soup",
+        "main course",
+        "main dish",
+        "dinner",
+        "gluten free",
+        "dairy free",
+        "spoonacular"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.5,
+          "unit": "pounds",
+          "item": "tomatillos",
+          "notes": "1 1/2 pounds tomatillos, husks removed and cut in half",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "inches",
+          "item": "jalapeno peppers",
+          "notes": "2 inches jalapeno peppers, seeded and cut half",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "onion",
+          "notes": "1 onion, sliced",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cloves",
+          "item": "garlic",
+          "notes": "2 cloves garlic, peeled",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "inch",
+          "item": "chipotle pepper adobo sauce",
+          "notes": "1 inch chipotle pepper adobo sauce, chopped",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 6.0,
+          "unit": "cups",
+          "item": "turkey",
+          "notes": "6 cups cooked turkey or chicken, shredded",
+          "category": "meat"
+        },
+        {
+          "quantity": 15.0,
+          "unit": "ounces",
+          "item": "black beans",
+          "notes": "15 ounces can black beans, drained and rinsed",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "chicken broth",
+          "notes": "2 cups chicken broth",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "beer - optional",
+          "notes": "1/2 cup gluten-free beer (such as Bard's Tale) \u2013 optional, but it adds a wonderful flavor",
+          "category": "alcoholic beverages"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "tomato puree",
+          "notes": "2 cups diced tomatoes or tomato puree",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "ground cumin",
+          "notes": "1 teaspoon ground cumin",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "ground coriander",
+          "notes": "1 teaspoon ground coriander",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "oregano",
+          "notes": "1 teaspoon dried oregano",
+          "category": "produce"
+        },
+        {
+          "quantity": 6.0,
+          "unit": "servings",
+          "item": "salt and pepper",
+          "notes": "Salt and pepper to taste",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "cilantro",
+          "notes": "1/2 cup chopped cilantro",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "Place the tomatillos and jalapenos cut-side down on a foil-lined baking sheet. Scatter onions and garlic around tomatillos and jalapenos.",
+        "Place under broiler for 5-7 minutes or until skins on tomatillos blacken.",
+        "Remove, and when cool, pour tomatillos, jalapenos, onion and garlic, including any juices, into a food processor. Pulse until well blended.",
+        "Heat a large stockpot to medium heat and add tomatillo mixture and chipotle pepper. Stur around for a minute or two, and add turkey, beans, broth, beer, tomatoes and seasonings. Bring to a boil, and reduce to a simmer. Allow to simmer, stirring occasionally, for 20-30 minutes to allow flavors to blend.",
+        "Immediately before serving, taste and adjust salt and pepper seasonings as necessary, and stir in most of the cilantro, reserving a bit to use as garnish.",
+        "Optional: Top with sour cream and cheese."
+      ],
+      "source_url": "https://www.foodista.com/recipe/27BTX8RS/tomatillo-turkey-chili",
+      "image_url": "https://img.spoonacular.com/recipes/663545-312x231.jpg"
+    },
+    {
+      "id": "slow-cooked-beef-chili",
+      "name": "Slow Cooked Beef Chili",
+      "servings": 5,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 324,
+        "protein": 29.41,
+        "carbs": 41.79,
+        "fat": 6.51,
+        "saturated_fat": 2.35,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 932.14,
+        "potassium": null,
+        "fiber": 12.49,
+        "sugar": 17.83,
+        "vitamin_a": null,
+        "vitamin_c": 27.86,
+        "calcium": 171.6,
+        "iron": 8.1
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "soup",
+        "main course",
+        "main dish",
+        "dinner",
+        "gluten free",
+        "dairy free",
+        "spoonacular",
+        "dessert",
+        "slow-cooker"
+      ],
+      "ingredients": [
+        {
+          "quantity": 28.0,
+          "unit": "ounces",
+          "item": "canned tomatoes",
+          "notes": "28 ounces can crushed tomatoes",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 14.0,
+          "unit": "ounces",
+          "item": "canned tomatoes",
+          "notes": "14 ounces can diced tomatoes",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "chili powder",
+          "notes": "2 tablespoons chili powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "ground cumin",
+          "notes": "1 tablespoon ground cumin",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "paprika",
+          "notes": "2 teaspoons smoked paprika",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "brown sugar",
+          "notes": "1 tablespoon brown sugar",
+          "category": "baking"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "salt",
+          "notes": "1/2 teaspoon salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "",
+          "item": "carrots",
+          "notes": "3 carrots, coarsely chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "stalks",
+          "item": "celery",
+          "notes": "4 stalks celery, coarsely chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "medium",
+          "item": "onion",
+          "notes": "1 medium onion, coarsely chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cloves",
+          "item": "garlic",
+          "notes": "2 cloves garlic, minced",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "pound",
+          "item": "beef chuck",
+          "notes": "1 pound beef chuck, trimmed and cut into 1\" pieces",
+          "category": "meat"
+        },
+        {
+          "quantity": 15.0,
+          "unit": "ounces",
+          "item": "kidney beans",
+          "notes": "15 ounces can kidney beans",
+          "category": "canned and jarred"
+        }
+      ],
+      "instructions": [
+        "In a medium bowl, stir together the crushed tomatoes, diced tomatoes, chili powder, cumin, paprika, brown sugar, and salt. Set aside.",
+        "Place the carrots, celery, onions, garlic, beef, and kidney beans into the base of a slow cooker.",
+        "Pour the tomato sauce mixture evenly over the top of the beef and vegetables. Cover and cook on high for 6 hours.",
+        "Taste and adjust seasoning as necessary- adding more chili powder if you'd prefer more spice."
+      ],
+      "source_url": "https://www.foodista.com/recipe/R6QPSK7Y/slow-cooked-beef-chili",
+      "image_url": "https://img.spoonacular.com/recipes/660273-312x231.jpg"
+    },
+    {
+      "id": "easy-cheeseburger-casserole",
+      "name": "Easy Cheeseburger Casserole",
+      "servings": 6,
+      "prep_time_minutes": 15,
+      "cook_time_minutes": 85,
+      "nutrition_per_serving": {
+        "calories": 436,
+        "protein": 25.2,
+        "carbs": 29.89,
+        "fat": 23.41,
+        "saturated_fat": 10.54,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 889.53,
+        "potassium": null,
+        "fiber": 1.04,
+        "sugar": 0.89,
+        "vitamin_a": null,
+        "vitamin_c": 10.85,
+        "calcium": 132.37,
+        "iron": 2.22
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner",
+        "gluten free",
+        "spoonacular",
+        "breakfast",
+        "baking"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.0,
+          "unit": "can",
+          "item": "cream of mushroom soup",
+          "notes": "1 can cream of mushroom soup",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "cup",
+          "item": "rice",
+          "notes": "1 cup uncooked long grain rice",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "water",
+          "notes": "2 cups water",
+          "category": "beverages"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "bacon",
+          "notes": "1/2 cup cooked, crumbled bacon",
+          "category": "meat"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "bell pepper",
+          "notes": "1/2 cup diced green bell pepper",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "lb",
+          "item": "ground beef",
+          "notes": "1 lb cooked ground beef",
+          "category": "meat"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "small",
+          "item": "onion",
+          "notes": "1 small chopped onion",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tsp",
+          "item": "pepper",
+          "notes": "1 tsp pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "tsp",
+          "item": "celery salt",
+          "notes": "1/4 tsp celery salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tsp",
+          "item": "garlic powder",
+          "notes": "1 tsp garlic powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.75,
+          "unit": "cup",
+          "item": "cheddar cheese",
+          "notes": "3/4 cup shredded cheddar cheese",
+          "category": "cheese"
+        }
+      ],
+      "instructions": [
+        "Heat oven to 35",
+        "Stir together soup, rice, water, onion, bell pepper, seasonings, and beef.\u00a0",
+        "Place in 9 x 13 prepared baking dish.\u00a0",
+        "Bake for 75 minutes.\u00a0",
+        "Top with cheese and crumbled bacon and bake an additional 10 minutes.\u00a0",
+        "Scoop and serve."
+      ],
+      "source_url": "https://www.pinkwhen.com/easy-cheeseburger-casserole/",
+      "image_url": "https://img.spoonacular.com/recipes/1487865-312x231.jpg"
+    },
+    {
+      "id": "slow-cooker-kahlua-pork-with-sweet-chili-pineapple-sauce",
+      "name": "Slow Cooker Kahlua Pork with Sweet Chili Pineapple Sauce",
+      "servings": 12,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 447,
+        "protein": 57.07,
+        "carbs": 11.26,
+        "fat": 17.52,
+        "saturated_fat": 6.08,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 3306.84,
+        "potassium": null,
+        "fiber": 0.37,
+        "sugar": 9.43,
+        "vitamin_a": null,
+        "vitamin_c": 2.05,
+        "calcium": 49.54,
+        "iron": 3.83
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner",
+        "gluten free",
+        "dairy free",
+        "spoonacular",
+        "dessert",
+        "soup",
+        "slow-cooker"
+      ],
+      "ingredients": [
+        {
+          "quantity": 5.0,
+          "unit": "tablespoons",
+          "item": "garlic chili sauce",
+          "notes": "5 tablespoons garlic chili sauce",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 5.0,
+          "unit": "tablespoon",
+          "item": "hoisin sauce",
+          "notes": "5 tablespoon hoisin sauce",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "cup",
+          "item": "honey",
+          "notes": "1/4 cup honey",
+          "category": "nut butters, jams, and honey"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "tablespoons",
+          "item": "liquid smoke",
+          "notes": "4 tablespoons liquid smoke",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "pineapple juice",
+          "notes": "1/2 cup pineapple juice",
+          "category": "beverages"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "lb",
+          "item": "pork butt",
+          "notes": "1 8 lb pork butt",
+          "category": "meat"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "cup",
+          "item": "rice vinegar",
+          "notes": "1/4 cup rice vinegar",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 5.0,
+          "unit": "tablespoons",
+          "item": "regular sea salt",
+          "notes": "5 tablespoons pink hawaiian sea salt or regular sea salt",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "Place the pork, fat side up, in the slow cooker. Using a fork, pierce the roast all over and pour the liquid smoke over it to coat.",
+        "Sprinkle the sea salt evenly over the roast and cover. Cook on low for 10 hours (the roast is done when the meat begins to fall apart when shredded with a fork.)In a small saucepan, whisk together the pineapple juice, rice vinegar, honey, chili sauce and hoisin sauce. Bring the mixture to a boil and cook the sauce until reduced by half stirring with a heat resistant spatula frequently. Set aside.When the roast is done, transfer to a cutting board and shred the meat using two forks. Return the shredded meat back to the slow cooker and serve immediately with the sauce."
+      ],
+      "source_url": "http://www.foodista.com/recipe/NQB678JF/slow-cooker-kahlua-pork-with-sweet-chili-pineapple-sauce",
+      "image_url": "https://img.spoonacular.com/recipes/660288-312x231.jpg"
+    },
+    {
+      "id": "the-unagi-burger",
+      "name": "The Unagi Burger",
+      "servings": 4,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 806,
+        "protein": 53.95,
+        "carbs": 43.3,
+        "fat": 45.53,
+        "saturated_fat": 14.48,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 1309.51,
+        "potassium": null,
+        "fiber": 3.55,
+        "sugar": 5.92,
+        "vitamin_a": null,
+        "vitamin_c": 3.22,
+        "calcium": 106.54,
+        "iron": 16.9
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner",
+        "dairy free",
+        "spoonacular",
+        "baking",
+        "grilling"
+      ],
+      "ingredients": [
+        {
+          "quantity": 2.0,
+          "unit": "pounds",
+          "item": "ground sirloin beef",
+          "notes": "2 pounds ground sirloin beef",
+          "category": "meat"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "panko",
+          "notes": "1/2 cup panko",
+          "category": "baking"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "egg",
+          "notes": "1 egg",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "almonds",
+          "notes": "1/2 cup sliced almonds",
+          "category": "baking"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "cup",
+          "item": "ginger",
+          "notes": "1/4 cup fresh ginger",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "green onions",
+          "notes": "1/2 cup green onions sliced",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "soy sauce",
+          "notes": "2 tablespoons soy sauce",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "salt",
+          "notes": "1/2 teaspoon salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "pepper",
+          "notes": "1/2 teaspoon black pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "sesame oil",
+          "notes": "2 teaspoons of sesame oil",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 0.75,
+          "unit": "cup",
+          "item": "broccoli sprouts",
+          "notes": "3/4 cup broccoli sprouts",
+          "category": "produce"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "pieces",
+          "item": "cucumber ribbons",
+          "notes": "8 pieces shaved cucumber ribbons (2 per burger)",
+          "category": "produce"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "",
+          "item": "baker's rolls",
+          "notes": "4 whole wheat baker's rolls",
+          "category": "bakery/bread"
+        }
+      ],
+      "instructions": [
+        "Wasabi Dressing: 1/2 cup mayonnaise, 1/4 cup sour cream, 2 tablespoons wasabi paste or fresh grated wasabi cream -",
+        "Mix all ingredients well.",
+        "Taste it and add a little wasabi paste more if you like it really spicy. This can be made ahead of time and last in the refrigerator for a week or more. I always make extra because it makes a great dip.",
+        "Mix first 7 ingredients together thoroughly then add salt & pepper.",
+        "Form patties and pat together tightly. Because of the volume of ingredients in these burgers they will fall apart easily on the grill.",
+        "Test one of the patties to see if it is holding up on the grill and not falling apart. These are delicate burgers to cook. Be sure to coat grill with non-stick spray. If its falling apart too much, try browning it in a skillet first so the outside is a little done. B careful not to brown it too much or itll dry out on the grill.",
+        "Brush sesame oil on the inside of the split bakers roll and toast on the upper or outer edges of grill. When rolls are lightly toasted, spread wasabi sauce on top bun and add broccoli sprouts.",
+        "Place meat on bottom bun and 2 cucumber ribbons on top of meat. Carefully fold together and you have The Unagi Burger!"
+      ],
+      "source_url": "https://www.foodista.com/recipe/P7YT5V88/the-unagi-burger",
+      "image_url": "https://img.spoonacular.com/recipes/663357-312x231.jpg"
+    },
+    {
+      "id": "slow-cooker-mexican-pulled-pork",
+      "name": "Slow Cooker Mexican Pulled Pork",
+      "servings": 8,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 304,
+        "protein": 45.5,
+        "carbs": 4.52,
+        "fat": 10.89,
+        "saturated_fat": 2.77,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 1046.66,
+        "potassium": null,
+        "fiber": 1.73,
+        "sugar": 1.82,
+        "vitamin_a": null,
+        "vitamin_c": 0,
+        "calcium": 39.86,
+        "iron": 2.96
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner",
+        "gluten free",
+        "dairy free",
+        "spoonacular",
+        "dessert",
+        "slow-cooker"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.0,
+          "unit": "Tbsp",
+          "item": "brown sugar",
+          "notes": "1 Tbsp brown sugar",
+          "category": "baking"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "cayenne",
+          "notes": "1 teaspoon cayenne",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "Tbsp",
+          "item": "chili powder",
+          "notes": "4 Tbsp chili powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "teaspoon",
+          "item": "cinnamon",
+          "notes": "1/4 teaspoon cinnamon",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "garlic powder",
+          "notes": "1 teaspoon garlic powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "pinch",
+          "item": "ground cloves",
+          "notes": "pinch of ground cloves",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "ground cumin",
+          "notes": "2 teaspoons ground cumin",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "Tbsp",
+          "item": "kosher salt",
+          "notes": "1 Tbsp kosher salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "onion powder",
+          "notes": "1 teaspoon onion powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "ground oregano",
+          "notes": "1 teaspoon ground oregano",
+          "category": "produce"
+        },
+        {
+          "quantity": 3.5,
+          "unit": "pound",
+          "item": "pork shoulder roast",
+          "notes": "3 1/2 pound boneless pork shoulder roast",
+          "category": "meat"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "Tbsp",
+          "item": "vegetable oil",
+          "notes": "2 Tbsp vegetable oil",
+          "category": "oil, vinegar, salad dressing"
+        }
+      ],
+      "instructions": [
+        "Whisk together the rub ingredients in a small bowl.2 If the roast is tied up with butcher string, untie it. Pat the roast dry with paper towels. Rub the spice mix into the roast all over, reserving any leftover spice mix for later.",
+        "Let sit at room temperature at least one hour or chill overnight. 3",
+        "Heat vegetable oil in a frying pan on medium high heat. (If you are using a slow cooker with a removable container that can be used on the stovetop, use that, otherwise use a separate pan.)",
+        "Place the roast in the pan and brown on all sides.4",
+        "Place the roast in a slow cooker, and add any reserved spice rub. Cook on the low setting for 6 to 10 hours, until the pork is fall apart tender. 5",
+        "Remove the roast from the slow cooker and place on a cutting board.",
+        "Cut into large chunks. Then use two forks to pull the meat apart into bite sized shreds. Return the shreds to the slow cooker and toss to coat with the juice from the roast. (Alternatively you can just shred the roast with two forks in the slow cooker itself.)",
+        "Serve with warm tortillas, avocados, shredded cabbage, sliced radishes, cilantro, and a splash of lime juice or salsa."
+      ],
+      "source_url": "https://spoonacular.com/-1436560866727",
+      "image_url": "https://img.spoonacular.com/recipes/667699-312x231.jpg"
+    },
+    {
+      "id": "homestyle-sloppy-joes",
+      "name": "Homestyle Sloppy Joes",
+      "servings": 6,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 440,
+        "protein": 46.79,
+        "carbs": 35.86,
+        "fat": 11.61,
+        "saturated_fat": 4.69,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 1205.45,
+        "potassium": null,
+        "fiber": 3.59,
+        "sugar": 13.32,
+        "vitamin_a": null,
+        "vitamin_c": 27.79,
+        "calcium": 108.98,
+        "iron": 7.49
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner",
+        "dairy free",
+        "spoonacular",
+        "dessert"
+      ],
+      "ingredients": [
+        {
+          "quantity": 2.5,
+          "unit": "pounds",
+          "item": "ground beef",
+          "notes": "2 1/2 pounds Lean ground beef",
+          "category": "meat"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "medium",
+          "item": "sized onion",
+          "notes": "1 medium Sized onion, chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "medium",
+          "item": "sized bell pepper",
+          "notes": "1 medium Sized green bell pepper, chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 30.0,
+          "unit": "ounces",
+          "item": "tomato sauce",
+          "notes": "30 ounces Tomato sauce",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "brown sugar",
+          "notes": "2 tablespoons Light or dark brown sugar",
+          "category": "baking"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "garlic powder",
+          "notes": "1/2 teaspoon Garlic powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "salt",
+          "notes": "1/2 teaspoon Salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "teaspoon",
+          "item": "pepper",
+          "notes": "1/4 teaspoon Black pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 6.0,
+          "unit": "",
+          "item": "hamburger buns",
+          "notes": "6 Sandwich or hamburger buns, split",
+          "category": "bakery/bread"
+        }
+      ],
+      "instructions": [
+        "In a large skillet, brown the ground beef with the onion and green pepper over medium-high heat for 7 to 9 minutes; drain off the excess liquid.",
+        "Add the remaining ingredients except the buns; mix well. Reduce the heat to low and simmer for 8 to 10 minutes, stirring occasionally.",
+        "Serve over the hamburger buns."
+      ],
+      "source_url": "https://www.foodista.com/recipe/864STVSL/homestyle-sloppy-joes",
+      "image_url": "https://img.spoonacular.com/recipes/647148-312x231.jpg"
+    },
+    {
+      "id": "crispy-sweet-sticky-spicy-wings",
+      "name": "Crispy Sweet Sticky Spicy Wings",
+      "servings": 6,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 600,
+        "protein": 29.82,
+        "carbs": 67.68,
+        "fat": 23.76,
+        "saturated_fat": 6.65,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 1765.33,
+        "potassium": null,
+        "fiber": 2.22,
+        "sugar": 32.04,
+        "vitamin_a": null,
+        "vitamin_c": 2.18,
+        "calcium": 65.7,
+        "iron": 4.88
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "antipasti",
+        "main course",
+        "starter",
+        "snack",
+        "appetizer",
+        "main dish",
+        "antipasto",
+        "dinner",
+        "hor d'oeuvre",
+        "spoonacular",
+        "dessert",
+        "baking"
+      ],
+      "ingredients": [
+        {
+          "quantity": 3.0,
+          "unit": "pounds",
+          "item": "chicken wings",
+          "notes": "3 pounds chicken wings, washed, trimmed and cut in pieces",
+          "category": "meat"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "flour",
+          "notes": "2 cups flour",
+          "category": "baking"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "nutmeg",
+          "notes": "2 teaspoons freshly grated nutmeg",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "cayenne pepper",
+          "notes": "1 teaspoon cayenne pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "teaspoons",
+          "item": "five spice powder",
+          "notes": "3 teaspoons chinese five spice powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "teaspoons",
+          "item": "sea salt",
+          "notes": "4 teaspoons sea salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "pepper",
+          "notes": "1 teaspoon freshly ground black pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "tablespoons",
+          "item": "ground ginger",
+          "notes": "3 tablespoons ground ginger",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "",
+          "item": "eggs",
+          "notes": "2 eggs",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "tablespoons",
+          "item": "milk",
+          "notes": "4 tablespoons milk",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "garlic clove",
+          "notes": "1 finely minced garlic clove",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "olive oil",
+          "notes": "2 teaspoons olive oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 0.6666667,
+          "unit": "cup",
+          "item": "honey",
+          "notes": "2/3 cup honey",
+          "category": "nut butters, jams, and honey"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "chili paste",
+          "notes": "2 teaspoons freshly ground chinese chili paste (or use chopped fresh chilis) (adjust to tast",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "pepper",
+          "notes": "1/2 teaspoon freshly ground black pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "teaspoon",
+          "item": "salt",
+          "notes": "1/4 teaspoon salt",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "Crispy Sweet Sticky Spicy Wings",
+        "We had a few friends in last night for sips and nibbles and I was in the mood for something spicy, so I came up with this very simple sweet spicy  glaze to toss with my crispy deep-fried wings. It was fantastic. Crispy, sticky and with great spicy heat; these were irresistable and I ate way too many of them. The heat comes from chinese fresh ground chili paste, so it is very easy to adjust the heat to suit your taste. I think this recipe will become an entertaining favorite at our house.",
+        "Pounds chicken wings, washed, trimmed and cut in pieces.",
+        "Mix together",
+        "Cups flour",
+        "Teaspoons freshly grated nutmeg",
+        "Tsp cayenne pepper",
+        "Tsp chinese five spice powder",
+        "Tsp sea salt",
+        "Tsp freshly ground black pepper",
+        "Tbsp ground ginger",
+        "Dip the chicken wings into an egg wash made from",
+        "Eggs",
+        "Tbsp milk",
+        "Dredge the egg washed wings in the flour mixture and drop them in a canola oil filled and preheated 350 degree F deep fryer for about 8-10 minutes depending upon the size of the wings until a medium golden brown.",
+        "Drain on a wire rack placed on a cookie sheet. Hold in a 175 degree oven if making more than one batch.",
+        "Sweet and Spicey Glaze",
+        "In a small saucepan add",
+        "Finely minced garlic clove",
+        "Tsp olive oil",
+        "Saute over medium heat until the garlic is softened but not browned.",
+        "Cup honey",
+        "Tsp freshly ground chinese chili paste (or use chopped fresh chilis) (adjust to taste)",
+        "Tsp freshly ground black pepper",
+        "Tsp salt",
+        "Simmer for about 5-10 minutes.",
+        "Pour over all the cooked wings in a large bowl and toss well to cover the wings in the glaze before serving. You can also just serve the glaze as a dipping sauce"
+      ],
+      "source_url": "https://www.foodista.com/recipe/64N5RVMK/crispy-sweet-sticky-spicy-wings",
+      "image_url": "https://img.spoonacular.com/recipes/640841-312x231.jpg"
+    },
+    {
+      "id": "macaroni-and-cheese",
+      "name": "Macaroni and Cheese",
+      "servings": 2,
+      "prep_time_minutes": 5,
+      "cook_time_minutes": 15,
+      "nutrition_per_serving": {
+        "calories": 640,
+        "protein": 31.08,
+        "carbs": 54.57,
+        "fat": 32.86,
+        "saturated_fat": 18.18,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 689.91,
+        "potassium": null,
+        "fiber": 2.29,
+        "sugar": 6.4,
+        "vitamin_a": null,
+        "vitamin_c": 0,
+        "calcium": 726.43,
+        "iron": 1.17
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner",
+        "spoonacular",
+        "dessert",
+        "pasta",
+        "quick",
+        "baking",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "pasta",
+          "notes": "2 cups Pasta, any shape",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 0.75,
+          "unit": "cup",
+          "item": "milk",
+          "notes": "3/4 cup Milk ( 1/2 cup + 1/2 cup, divided)",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 1.5,
+          "unit": "cups",
+          "item": "cheese",
+          "notes": "1.5 cups Grated Cheese (Cheddar or any melting cheese)",
+          "category": "cheese"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tbsp",
+          "item": "all purpose flour / maida",
+          "notes": "1 tbsp All Purpose Flour / Maida",
+          "category": "baking"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "serving",
+          "item": "salt",
+          "notes": "Salt to taste",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "serving",
+          "item": "pepper powder",
+          "notes": "Pepper Powder as needed",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "Bring water to a boil in a big vessel with salt.",
+        "Add pasta and boil until cooked.\u00a0",
+        "Do not overcook the pasta. It should be firm to bite, yet cooked through.\u00a0",
+        "Drain water and rinse with cold water.",
+        "Drain and keep it aside.",
+        "Dilute the flour in 1/4 cup of milk and keep it aside.",
+        "Warm 1/2 cup of milk in the saucepan over medium flame.",
+        "Add the flour and milk to the warm milk and continue stirring until the milk thickens slightly.",
+        "Turn the heat to low.",
+        "Add the grated cheese and salt and stir well until the cheese has melted.",
+        "When the sauce is smooth and creamy, remove the pan from the flame.",
+        "Add the cooked pasta to the cheese sauce.",
+        "Combine until well coated.",
+        "Sprinkle some pepper powder and serve immediately while still warm.",
+        "If the sauce is dry after cooing, add little milk and reheat to make it creamy again."
+      ],
+      "source_url": "http://thecuisine.blogspot.com/2016/07/macaroni-and-cheese.html",
+      "image_url": "https://img.spoonacular.com/recipes/1681413-312x231.jpg"
+    },
+    {
+      "id": "pumpkin-almond-burger-patties",
+      "name": "Pumpkin Almond Burger Patties",
+      "servings": 6,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 401,
+        "protein": 14.76,
+        "carbs": 29.23,
+        "fat": 28.7,
+        "saturated_fat": 2.26,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 307.89,
+        "potassium": null,
+        "fiber": 9.29,
+        "sugar": 5.97,
+        "vitamin_a": null,
+        "vitamin_c": 19.68,
+        "calcium": 166.41,
+        "iron": 3.99
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner",
+        "dairy free",
+        "lacto ovo vegetarian",
+        "vegan",
+        "spoonacular",
+        "baking",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 3.0,
+          "unit": "cups",
+          "item": "almond flour",
+          "notes": "3 cups Almond flour",
+          "category": "health foods"
+        },
+        {
+          "quantity": 0.75,
+          "unit": "cup",
+          "item": "style bread crumbs",
+          "notes": "\u00be cup Italian style bread crumbs",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "bell pepper",
+          "notes": "1 whole green pepper (finely chopped)",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "tsp",
+          "item": "pepper",
+          "notes": "\u00bd tsp crushed pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "pumpkin puree",
+          "notes": "2 cups Pumpkin puree",
+          "category": "baking"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "salt",
+          "notes": "1/2 teaspoon salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "tsp",
+          "item": "sriracha sauce",
+          "notes": "\u00bd tsp sriracha sauce",
+          "category": "condiments"
+        }
+      ],
+      "instructions": [
+        "Preheat oven at 360 degree Fahrenheit. Prepare a cookie sheet with a liner.",
+        "In the meantime combine all the ingredients in a mixing bowl.",
+        "Mix well with a spoon or with hands.",
+        "Take a handful of the mix between palms and shape it into a ball.",
+        "Then press between palms just like burger patties and smoothen the sides as much as possible because while baking the patties may crack a bit. So make sure to smoothen them as much as possible.",
+        "Put the patties onto the cookie sheet and put it in the middle rack of the oven.",
+        "Let it bake for 20-25 minutes. Take it out and flip the patties to the other side and bake again for 20 minutes.",
+        "Take it out of the oven when cooked and serve with your favorite burger buns and toppings, or eat it in a wrap. Nutritional information is for patties alone."
+      ],
+      "source_url": "https://www.foodista.com/recipe/G6G5S67G/pumpkin-almond-burger-patties",
+      "image_url": "https://img.spoonacular.com/recipes/657243-312x231.jpg"
+    },
+    {
+      "id": "grilled-turkey-burgers-with-roasted-jalape\u00f1os-and-bbq-sauce",
+      "name": "Grilled Turkey Burgers with Roasted Jalape\u00f1os and BBQ Sauce",
+      "servings": 5,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 173,
+        "protein": 22.93,
+        "carbs": 6.44,
+        "fat": 7.01,
+        "saturated_fat": 1.17,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 255.46,
+        "potassium": null,
+        "fiber": 2.87,
+        "sugar": 2.03,
+        "vitamin_a": null,
+        "vitamin_c": 17.93,
+        "calcium": 17.43,
+        "iron": 1.16
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner",
+        "gluten free",
+        "dairy free",
+        "spoonacular",
+        "salad",
+        "baking",
+        "grilling"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.0,
+          "unit": "slices",
+          "item": "avocado",
+          "notes": "Avocado slices",
+          "category": "produce"
+        },
+        {
+          "quantity": 5.0,
+          "unit": "",
+          "item": "baby bella mushrooms",
+          "notes": "5 baby bella mushrooms, chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 5.0,
+          "unit": "servings",
+          "item": "bbq sauce",
+          "notes": "BBQ Sauce",
+          "category": "condiments"
+        },
+        {
+          "quantity": 0.125,
+          "unit": "cup",
+          "item": "basil",
+          "notes": "1/8 cup fresh basil, finely chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "garlic powder",
+          "notes": "1 teaspoon garlic powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "grapeseed oil",
+          "notes": "1 teaspoon grapeseed oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "pound",
+          "item": "ground turkey",
+          "notes": "1 pound ground turkey",
+          "category": "meat"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "",
+          "item": "jalapenos",
+          "notes": "4 jalapenos, roasted",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "paprika",
+          "notes": "1 teaspoon paprika",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "leaf",
+          "item": "lettuce",
+          "notes": "Red leaf lettuce",
+          "category": "produce"
+        },
+        {
+          "quantity": 5.0,
+          "unit": "servings",
+          "item": "salt",
+          "notes": "Salt to taste",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "slices",
+          "item": "tomato",
+          "notes": "Tomato slices",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "",
+          "item": "onion",
+          "notes": "\u00bd yellow onion, chopped",
+          "category": "produce"
+        }
+      ],
+      "instructions": [
+        "Preheat the oven to 37",
+        "Place whole jalapeos in a casserole dish or baking sheet and roast about 15 minutes or until skin is flaying away from flesh and flesh is soft.",
+        "Remove from oven and allow to cool. Once cool enough to handle, peel the skin from the flesh and discard the skin.",
+        "Cut jalapeos lengthwise, remove the stem and seeds and coarsely chop. Set aside.In a medium sized skillet, heat the grapeseed (or olive) oil. Saut onion on medium high heat until translucent, about 8 to 10 minutes.",
+        "Add the chopped mushrooms and saut until the onion and mushroom are dark brown and soft, about 5 to 8 more minutes.",
+        "Remove from heat and set aside.Fire up the grill to medium high heat. In a mixing bowl, add the ground meat, salt, garlic powder, paprika and basil. Once the sauted onion and mushroom is cool, add it to the mixing bowl as well and mix everything together using your hands. Form 5 patties out of the meat. Once the grill is hot, place patties on and grill until brown and charred on the first side, about 3 minutes for the elk or bison, 5 minutes for the turkey. Flip and grill an additional 3 to 5 minutes, until meat is brown and has nice grill marks. If using elk or bison, cook to desired donness. If using turkey meat, cook all the way through but careful not to over-cook."
+      ],
+      "source_url": "https://www.foodista.com/recipe/2FTWYPY5/grilled-burgers-with-roasted-jalape-os-and-cherry-bbq-sauce",
+      "image_url": "https://img.spoonacular.com/recipes/645608-312x231.jpg"
+    },
+    {
+      "id": "crock-pot-white-chicken-chili",
+      "name": "Crock Pot White Chicken Chili",
+      "servings": 8,
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 240,
+      "nutrition_per_serving": {
+        "calories": 568,
+        "protein": 32.21,
+        "carbs": 56.33,
+        "fat": 26.07,
+        "saturated_fat": 4.98,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 930.85,
+        "potassium": null,
+        "fiber": 17.74,
+        "sugar": 3.2,
+        "vitamin_a": null,
+        "vitamin_c": 31.72,
+        "calcium": 157.57,
+        "iron": 4.14
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "soup",
+        "main course",
+        "main dish",
+        "dinner",
+        "gluten free",
+        "spoonacular",
+        "slow-cooker"
+      ],
+      "ingredients": [
+        {
+          "quantity": 3.0,
+          "unit": "",
+          "item": "chicken breasts",
+          "notes": "3 chicken breasts",
+          "category": "meat"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tsp",
+          "item": "pepper",
+          "notes": "1 tsp white pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tsp",
+          "item": "pepper",
+          "notes": "1 tsp black pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tsp",
+          "item": "garlic salt",
+          "notes": "1 tsp garlic salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "tsp",
+          "item": "cayenne pepper",
+          "notes": "1/2 tsp cayenne pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "oz",
+          "item": "chilis",
+          "notes": "8 oz diced green chilis",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 30.0,
+          "unit": "oz",
+          "item": "northern beans",
+          "notes": "2 15oz can of White Northern Beans",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "onion",
+          "notes": "1/2 cup onion chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "chicken broth",
+          "notes": "2 cups chicken broth",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "servings",
+          "item": "jack cheese",
+          "notes": "jack cheese",
+          "category": "cheese"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "servings",
+          "item": "chilis",
+          "notes": "green chilis",
+          "category": "produce"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "servings",
+          "item": "jalapenos",
+          "notes": "jalapenos",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "servings",
+          "item": "avocado",
+          "notes": "avocado",
+          "category": "produce"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "servings",
+          "item": "lime",
+          "notes": "lime",
+          "category": "produce"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "servings",
+          "item": "cream",
+          "notes": "sour cream",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "servings",
+          "item": "tortilla chips",
+          "notes": "crushed tortilla chips",
+          "category": "savory snacks"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "servings",
+          "item": "cilantro",
+          "notes": "cilantro",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "Place boneless, skinless chicken breasts into Crock Pot set on high.",
+        "Cover chicken with seasonings.",
+        "Top chicken with green chilis.",
+        "Add white beans.",
+        "Top with chicken broth.",
+        "Cover. Cook on high for 4 hours or low for 8 hours.",
+        "Serve alone or with your favorite toppings."
+      ],
+      "source_url": "https://www.pinkwhen.com/crock-pot-white-chicken-chili/",
+      "image_url": "https://img.spoonacular.com/recipes/1157762-312x231.jpg"
+    },
+    {
+      "id": "chicken-ranch-burgers",
+      "name": "Chicken Ranch Burgers",
+      "servings": 3,
+      "prep_time_minutes": 5,
+      "cook_time_minutes": 20,
+      "nutrition_per_serving": {
+        "calories": 365,
+        "protein": 40.71,
+        "carbs": 21.83,
+        "fat": 11.06,
+        "saturated_fat": 2.98,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 947.02,
+        "potassium": null,
+        "fiber": 1.68,
+        "sugar": 3.08,
+        "vitamin_a": null,
+        "vitamin_c": 27.36,
+        "calcium": 58.61,
+        "iron": 2.84
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner",
+        "dairy free",
+        "spoonacular",
+        "quick",
+        "baking"
+      ],
+      "ingredients": [
+        {
+          "quantity": 0.5,
+          "unit": "medium",
+          "item": "bell pepper",
+          "notes": "\u00bd medium bell pepper (chopped)",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "bread crumbs",
+          "notes": "\u00bd cup bread crumbs",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "purple onion",
+          "notes": "\u00bd cup purple onion (chopped)",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "packet",
+          "item": "ranch seasoning",
+          "notes": "1 packet Ranch seasoning",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "lb",
+          "item": "chicken",
+          "notes": "1 lb of lean shredded chicken",
+          "category": "meat"
+        }
+      ],
+      "instructions": [
+        "Heat oven to 40",
+        "Add chicken, onion, pepper, bread crumbs, and ranch seasoning to a mixing bowl.",
+        "Mix ingredients well.",
+        "Scoop and make 3 large burger patties.",
+        "Place in skillet and cook on medium low heat to sear juices and brown the patties.",
+        "Place skillet with patties into the oven and bake for 15 minutes, or until patties are cooked thoroughly.",
+        "Serve with your favorite toppings."
+      ],
+      "source_url": "https://www.pinkwhen.com/chicken-ranch-burgers-recipe/",
+      "image_url": "https://img.spoonacular.com/recipes/991010-312x231.jpg"
+    },
+    {
+      "id": "white-bean-turkey-chili",
+      "name": "White Bean Turkey Chili",
+      "servings": 8,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 387,
+        "protein": 39.15,
+        "carbs": 42.88,
+        "fat": 6.96,
+        "saturated_fat": 1.36,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 773.82,
+        "potassium": null,
+        "fiber": 9.84,
+        "sugar": 9.12,
+        "vitamin_a": null,
+        "vitamin_c": 53.96,
+        "calcium": 117.69,
+        "iron": 6.04
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "soup",
+        "main course",
+        "main dish",
+        "dinner",
+        "dairy free",
+        "spoonacular",
+        "baking"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "olive oil",
+          "notes": "1 tablespoon olive oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "pounds",
+          "item": "tomatillos",
+          "notes": "2 pounds of tomatillos (about 15)",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "onion",
+          "notes": "1 onion, quartered",
+          "category": "produce"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "",
+          "item": "pasilla peppers",
+          "notes": "3 pasilla peppers",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "jalapeno",
+          "notes": "1 jalapeno",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "cloves",
+          "item": "garlic",
+          "notes": "3 cloves of garlic",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "chili powder",
+          "notes": "2 tablespoons chili powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "chipotle powder",
+          "notes": "1 teaspoon chipotle powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "cumin",
+          "notes": "2 teaspoons cumin",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "coriander",
+          "notes": "2 teaspoons coriander",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "salt",
+          "notes": "2 teaspoons salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "pounds",
+          "item": "ground turkey",
+          "notes": "2 pounds ground turkey",
+          "category": "meat"
+        },
+        {
+          "quantity": 12.0,
+          "unit": "ounces",
+          "item": "pale ale",
+          "notes": "12 ounces bottle pale ale",
+          "category": "alcoholic beverages"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "chicken stock",
+          "notes": "2 cups chicken stock",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cans",
+          "item": "cannellini beans",
+          "notes": "2 cans cannellini beans, drained and rinsed",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "cup",
+          "item": "corn",
+          "notes": "1 cup frozen white corn (or more, I think I used about 2 cups)",
+          "category": "canned and jarred"
+        }
+      ],
+      "instructions": [
+        "Preheat oven to 42",
+        "Place tomatillos, onion, peppers, jalapeno and garlic in a large roasting pan.",
+        "Sprinkle with olive oil and roast for 30 minutes, or until vegetables have softened.",
+        "Let vegetables cool. (Note: if the skin on the pasilla peppers isnt blistered, place under broiler for 5-10 more minutes to make peeling the skin off easier.)",
+        "Peel the skin of the pasilla peppers and then place all vegetables in a food processor. Pulse until just chopped up.",
+        "Heat olive oil in a large pot and add spices.",
+        "Heat until fragrant.",
+        "Add turkey and cook until just browned. Deglaze with the pale ale.",
+        "Add chicken stock and vegetables from food processor. Cook for 45 min-1 hour or until thickened. And beans and continue to cook for 1/2 hour longer.",
+        "Add in frozen corn and stir to combine. Take off heat and let cool.",
+        "Serve with cilantro and sour cream."
+      ],
+      "source_url": "https://www.foodista.com/recipe/GHLG67VL/white-bean-turkey-chili",
+      "image_url": "https://img.spoonacular.com/recipes/665146-312x231.jpg"
+    },
+    {
+      "id": "grilled-chuck-burgers-with-extra-sharp-cheddar-and-lemon-garlic-aioli",
+      "name": "Grilled Chuck Burgers with Extra Sharp Cheddar and Lemon Garlic Aioli",
+      "servings": 4,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 802,
+        "protein": 34.82,
+        "carbs": 41.93,
+        "fat": 54.97,
+        "saturated_fat": 18.31,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 934.55,
+        "potassium": null,
+        "fiber": 3.34,
+        "sugar": 9.38,
+        "vitamin_a": null,
+        "vitamin_c": 102.5,
+        "calcium": 318.29,
+        "iron": 13.79
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner",
+        "spoonacular",
+        "salad",
+        "baking",
+        "grilling",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 4.0,
+          "unit": "servings",
+          "item": "arugula",
+          "notes": "arugula, for topping",
+          "category": "produce"
+        },
+        {
+          "quantity": 8.5,
+          "unit": "inch",
+          "item": "cheddar cheese",
+          "notes": "8 \u00bd inch slices of a good extra-sharp cheddar cheese",
+          "category": "cheese"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "garlic clove",
+          "notes": "1 garlic clove, minced",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "pound",
+          "item": "ground chuck",
+          "notes": "1 pound ground chuck (enough for 4 burger patties)",
+          "category": "meat"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "lemon juice",
+          "notes": "1 teaspoon fresh lemon juice",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "cup",
+          "item": "mayonnaise",
+          "notes": "\u00bc cup mayonnaise",
+          "category": "condiments"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "olive oil",
+          "notes": "2 tablespoons olive oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 0.125,
+          "unit": "cup",
+          "item": "parsley",
+          "notes": "1/8 cup chopped parsley",
+          "category": "produce"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "servings",
+          "item": "bell pepper",
+          "notes": "pepper",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "onion",
+          "notes": "1 red onion, cut into \u00bc -inch circular slices",
+          "category": "produce"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "servings",
+          "item": "salt",
+          "notes": "salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "",
+          "item": "kaiser rolls",
+          "notes": "4 honey wheat buns or Kaiser rolls",
+          "category": "bakery/bread"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "worcestershire sauce",
+          "notes": "2 teaspoons Worcestershire sauce",
+          "category": "condiments"
+        }
+      ],
+      "instructions": [
+        "To prep the burgers:  In a medium bowl, toss in the ground meat, 1/2 teaspoon salt, 1/2 teaspoon pepper, and Worcestershire sauce.",
+        "Brush olive oil on both sides of all the slices and then sprinkle with some salt and pepper.For the lemon garlic aioli:  In a small bowl, mix all the ingredients together.",
+        "Place back in refrigerator until burgers are cooked.To cook:  Preheat grill to around 350.If using cast iron grates, use a paper towel or cloth to wipe all grates with canola oil.",
+        "Place burger patties on grill.Close lid and prep the buns by brushing canola oil on insides.After a few minutes, check the patties.  If the bottom half looks just about cooked, roughly 3 minutes, flip over, and place cheese on top.",
+        "Place a handful of arugula leaves on the bottom slice of the bun.",
+        "Place burger with cheese slice on top.",
+        "Add the grilled red onions.Slather the aioli liberally on the top half of the bun."
+      ],
+      "source_url": "https://www.foodista.com/recipe/KLYNPLC4/grilled-chuck-burgers-with-extra-sharp-cheddar-and-lemon-garlic-aioli",
+      "image_url": "https://img.spoonacular.com/recipes/645680-312x231.jpg"
     }
   ]
 }
