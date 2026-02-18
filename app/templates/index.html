@@ -1700,13 +1700,18 @@
 
         <!-- Shopping List Section -->
         <section class="section" id="shopping">
-            {% if current_shopping_list %}
             <div class="section-header">
                 <div>
                     <h2 class="section-title">Shopping List</h2>
-                    <p class="section-subtitle"><span id="shoppingListCount">{{ current_shopping_list.items|length }}</span> items for this week</p>
+                    <p class="section-subtitle" id="shoppingListSubtitle">
+                        {% if current_shopping_list %}
+                            <span id="shoppingListCount">{{ current_shopping_list.items|length }}</span> items for this week
+                        {% else %}
+                            Generate a meal plan to create a shopping list
+                        {% endif %}
+                    </p>
                 </div>
-                <div style="display: flex; gap: 0.75rem;">
+                <div id="shoppingListActions" style="display: {% if current_shopping_list %}flex{% else %}none{% endif %}; gap: 0.75rem;">
                     <button class="btn btn-primary" onclick="openAddItemModal()">
                         <span class="btn-icon">+</span>
                         Add Item
@@ -1717,17 +1722,9 @@
                 </div>
             </div>
 
-            <div id="shoppingListContainer" class="shopping-list">
+            <div id="shoppingListContainer" class="shopping-list" style="display: {% if current_shopping_list %}block{% else %}none{% endif %};">
                 <!-- Will be rendered by JavaScript -->
             </div>
-            {% else %}
-            <div class="section-header">
-                <div>
-                    <h2 class="section-title">Shopping List</h2>
-                    <p class="section-subtitle">Generate a meal plan to create a shopping list</p>
-                </div>
-            </div>
-            {% endif %}
         </section>
 
         <!-- Recipe Library Section -->
@@ -2577,7 +2574,23 @@
         // Render shopping list with edit functionality
         function renderShoppingList() {
             const container = document.getElementById('shoppingListContainer');
-            if (!container || !currentShoppingList) return;
+            if (!container) return;
+
+            const actionsEl = document.getElementById('shoppingListActions');
+            const subtitleEl = document.getElementById('shoppingListSubtitle');
+            const countEl = document.getElementById('shoppingListCount');
+
+            if (!currentShoppingList || currentShoppingList.length === 0) {
+                container.innerHTML = '';
+                container.style.display = 'none';
+                if (actionsEl) actionsEl.style.display = 'none';
+                if (subtitleEl && !countEl) subtitleEl.textContent = 'Generate a meal plan to create a shopping list';
+                return;
+            }
+
+            container.style.display = 'block';
+            if (actionsEl) actionsEl.style.display = 'flex';
+            if (subtitleEl && !countEl) subtitleEl.innerHTML = '<span id="shoppingListCount"></span> items for this week';
 
             const itemsByCategory = {};
             currentShoppingList.forEach(item => {
