@@ -328,6 +328,10 @@ def generate_with_schedule():
     if not schedule:
         return jsonify({"error": "Schedule is required"}), 400
 
+    # Accept optional portions and calorie_limit overrides
+    portions = data.get("portions", config.TOTAL_PORTIONS)
+    calorie_limit = data.get("calorie_limit", config.DAILY_CALORIE_LIMIT)
+
     recipes_file = Path(config.RECIPES_FILE)
     recipes = load_recipes(recipes_file)
 
@@ -369,12 +373,14 @@ def generate_with_schedule():
             "servings": servings
         }
 
-    # Regenerate plan from manual_plan
-    _regenerate_from_manual_plan(recipes)
+    # Regenerate plan from manual_plan with optional overrides
+    _regenerate_from_manual_plan(recipes, calorie_limit=calorie_limit)
 
     return jsonify({
         "success": True,
-        "message": f"Generated plan with {len(meal_slots)} meals"
+        "message": f"Generated plan with {len(meal_slots)} meals",
+        "portions": portions,
+        "calorie_limit": calorie_limit,
     })
 
 
@@ -1652,7 +1658,7 @@ def clear_manual_plan():
     })
 
 
-def _regenerate_from_manual_plan(recipes: list[Recipe]):
+def _regenerate_from_manual_plan(recipes: list[Recipe], calorie_limit: float | None = None):
     """Regenerate current_plan and shopping list from manual_plan."""
     global current_plan, current_shopping_list
     from app.planner import PlannedMeal, WeeklyPlan
@@ -1661,6 +1667,8 @@ def _regenerate_from_manual_plan(recipes: list[Recipe]):
         current_plan = None
         current_shopping_list = None
         return
+
+    effective_calorie_limit = calorie_limit if calorie_limit is not None else config.DAILY_CALORIE_LIMIT
 
     # Build list of PlannedMeal objects from manual_plan
     meals = []
@@ -1682,7 +1690,7 @@ def _regenerate_from_manual_plan(recipes: list[Recipe]):
     # Create WeeklyPlan from manually planned meals
     current_plan = WeeklyPlan(
         meals=meals,
-        daily_calorie_limit=config.DAILY_CALORIE_LIMIT
+        daily_calorie_limit=effective_calorie_limit
     )
 
     # Generate shopping list
