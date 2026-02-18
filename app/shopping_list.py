@@ -94,15 +94,25 @@ _UNIT_DISPLAY: dict[str, str] = {
 }
 
 
-def _normalize_unit(unit: str | None) -> str:
+# Units that convey no useful shopping quantity — ingredients with these
+# units will have quantity set to None (just "buy it").
+_QUANTITY_MEANINGLESS_UNITS = {"to taste", "to serve", "as needed", "as required", "au goût"}
+
+
+def _normalize_unit(unit: str | None) -> str | None:
     """Normalise serving variants to '' and abbreviations to display-friendly names.
 
+    Returns None for units that convey no meaningful quantity (to taste, to serve).
     Fixes BUG-3: the word 'serving' never appears in the shopping list.
     Also canonicalises shorthands like 'T' → 'tbsp' and 'c' → 'cup'.
     """
-    if not unit or unit.lower() in ("serving", "servings"):
+    if not unit:
         return ""
     stripped = unit.strip()
+    if stripped.lower() in ("serving", "servings"):
+        return ""
+    if stripped.lower() in _QUANTITY_MEANINGLESS_UNITS:
+        return None  # signals: include item but drop quantity
     return _UNIT_DISPLAY.get(stripped, stripped)
 
 
@@ -169,7 +179,7 @@ def _combine_entries(entries: list[tuple[float, str]]) -> list[tuple[float, str]
 @dataclass
 class ShoppingListItem:
     item: str
-    quantity: float
+    quantity: float | None  # None = buy it but no meaningful quantity
     unit: str
     category: str
 
@@ -209,18 +219,32 @@ def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
             category = ingredient.get("category", "other")
 
             if name not in item_data:
-                item_data[name] = {"category": category, "entries": []}
-            item_data[name]["entries"].append((qty, norm_unit))
+                item_data[name] = {"category": category, "entries": [], "quantity_meaningless": False}
+
+            if norm_unit is None:
+                # "to taste" / "to serve" — mark as quantityless, don't accumulate
+                item_data[name]["quantity_meaningless"] = True
+            else:
+                item_data[name]["entries"].append((qty, norm_unit))
 
     items: list[ShoppingListItem] = []
     for name, data in item_data.items():
-        for qty, unit in _combine_entries(data["entries"]):
+        if data["quantity_meaningless"] and not data["entries"]:
+            # Only "to taste" appearances — include item but no quantity
             items.append(ShoppingListItem(
                 item=name,
-                quantity=qty,
-                unit=unit,
+                quantity=None,
+                unit="",
                 category=data["category"],
             ))
+        else:
+            for qty, unit in _combine_entries(data["entries"]):
+                items.append(ShoppingListItem(
+                    item=name,
+                    quantity=qty,
+                    unit=unit,
+                    category=data["category"],
+                ))
 
     items.sort(key=lambda x: (x.category, x.item))
     return ShoppingList(items=items)

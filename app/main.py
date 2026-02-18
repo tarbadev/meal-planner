@@ -1,3 +1,5 @@
+import threading
+import uuid
 from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request
@@ -6,7 +8,13 @@ from app import config
 from app.planner import MealPlanner
 from app.recipes import Recipe, RecipeSaveError, load_recipes, save_recipes, update_recipe
 from app.sheets import SheetsError, SheetsWriter
-from app.shopping_list import generate_shopping_list
+from app.shopping_list import ShoppingList, generate_shopping_list
+from app.shopping_normalizer import (
+    apply_exclusions,
+    llm_normalize,
+    load_excluded_ingredients,
+    save_excluded_ingredients,
+)
 from app.tag_inference import TagInferencer
 
 app = Flask(__name__)
@@ -16,6 +24,43 @@ current_plan = None
 current_shopping_list = None
 # Manual meal plan storage: {day: {meal_type: {recipe_id, servings}}}
 manual_plan = {}
+
+# ---------------------------------------------------------------------------
+# Background normalization task tracking
+# ---------------------------------------------------------------------------
+_norm_tasks: dict[str, dict] = {}  # task_id → {status, items}
+_norm_lock = threading.Lock()
+
+
+def _norm_task_run(task_id: str, snapshot: ShoppingList) -> None:
+    """Background thread: LLM-normalize `snapshot` and store the result."""
+    global current_shopping_list
+    try:
+        result = llm_normalize(snapshot)
+        with _norm_lock:
+            current_shopping_list = result
+            _norm_tasks[task_id] = {
+                "status": "done",
+                "items": [
+                    {"item": i.item, "quantity": i.quantity, "unit": i.unit, "category": i.category}
+                    for i in result.items
+                ],
+            }
+    except Exception as e:
+        print(f"[NORM] Background normalization failed: {e}", flush=True)
+        with _norm_lock:
+            _norm_tasks[task_id] = {"status": "failed", "items": None}
+
+
+def _start_normalization() -> str:
+    """Snapshot current_shopping_list, kick off a background thread, return task_id."""
+    task_id = str(uuid.uuid4())
+    snapshot = current_shopping_list  # capture before the thread starts
+    with _norm_lock:
+        _norm_tasks[task_id] = {"status": "pending", "items": None}
+    t = threading.Thread(target=_norm_task_run, args=(task_id, snapshot), daemon=True)
+    t.start()
+    return task_id
 
 
 def _serialize_plan(plan):
@@ -305,11 +350,14 @@ def generate():
         daily_calorie_limit=config.DAILY_CALORIE_LIMIT
     )
     current_plan = planner.generate_weekly_plan(recipes)
-    current_shopping_list = generate_shopping_list(current_plan)
+    raw_list = generate_shopping_list(current_plan)
+    current_shopping_list = apply_exclusions(raw_list, load_excluded_ingredients())
+    norm_task_id = _start_normalization()
 
     return jsonify({
         "success": True,
-        "message": "Weekly plan generated successfully"
+        "message": "Weekly plan generated successfully",
+        "normalization_task_id": norm_task_id,
     })
 
 
@@ -375,12 +423,14 @@ def generate_with_schedule():
 
     # Regenerate plan from manual_plan with optional overrides
     _regenerate_from_manual_plan(recipes, calorie_limit=calorie_limit)
+    norm_task_id = _start_normalization()
 
     return jsonify({
         "success": True,
         "message": f"Generated plan with {len(meal_slots)} meals",
         "portions": portions,
         "calorie_limit": calorie_limit,
+        "normalization_task_id": norm_task_id,
     })
 
 
@@ -1694,7 +1744,8 @@ def _regenerate_from_manual_plan(recipes: list[Recipe], calorie_limit: float | N
     )
 
     # Generate shopping list
-    current_shopping_list = generate_shopping_list(current_plan)
+    raw_list = generate_shopping_list(current_plan)
+    current_shopping_list = apply_exclusions(raw_list, load_excluded_ingredients())
 
 
 @app.route("/current-plan/meals", methods=["PUT"])
@@ -1909,6 +1960,34 @@ def write_to_sheets():
             "success": False,
             "message": f"Unexpected error: {str(e)}"
         }), 500
+
+
+@app.route("/shopping-list/normalize/<task_id>", methods=["GET"])
+def get_normalization_status(task_id: str):
+    """Poll the status of a background normalization task.
+
+    Returns {status: 'pending'|'done'|'failed', items: [...] | null}
+    """
+    with _norm_lock:
+        task = dict(_norm_tasks.get(task_id, {"status": "not_found", "items": None}))
+    return jsonify(task)
+
+
+@app.route("/excluded-ingredients", methods=["GET"])
+def get_excluded_ingredients():
+    """Return the list of excluded ingredients."""
+    return jsonify(load_excluded_ingredients())
+
+
+@app.route("/excluded-ingredients", methods=["POST"])
+def update_excluded_ingredients():
+    """Replace the excluded ingredients list."""
+    data = request.get_json()
+    items = data.get("items", [])
+    if not isinstance(items, list):
+        return jsonify({"success": False, "message": "items must be a list"}), 400
+    save_excluded_ingredients([str(i).strip() for i in items if str(i).strip()])
+    return jsonify({"success": True})
 
 
 if __name__ == "__main__":

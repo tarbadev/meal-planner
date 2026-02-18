@@ -341,6 +341,57 @@
             border-color: var(--color-primary);
         }
 
+        .excluded-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.6rem;
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            border-radius: 999px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+        }
+        .excluded-tag button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--color-primary);
+            font-size: 0.9rem;
+            line-height: 1;
+            padding: 0;
+            opacity: 0.7;
+        }
+        .excluded-tag button:hover { opacity: 1; }
+
+        /* Shopping list normalization loading state */
+        .shopping-loading {
+            padding: 1.25rem 0.5rem;
+        }
+        .shopping-loading-msg {
+            font-size: 0.9375rem;
+            color: var(--color-text-muted);
+            text-align: center;
+            margin-bottom: 1.25rem;
+            transition: opacity 0.3s;
+        }
+        .skeleton-shopping {
+            display: flex;
+            flex-direction: column;
+            gap: 0.625rem;
+        }
+        .skeleton-item {
+            height: 2.75rem;
+            border-radius: var(--radius-md);
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s ease-in-out infinite;
+        }
+        @keyframes shimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
         /* Header */
         .header {
             background: var(--color-surface);
@@ -1841,6 +1892,19 @@
                     <div style="display: grid; gap: 0.625rem;" id="visibleMealsToggles"></div>
                     <button class="btn btn-primary" style="margin-top: 1rem;" onclick="saveVisibleMeals()">Save</button>
                 </div>
+
+                <!-- Excluded Ingredients card -->
+                <div class="settings-card">
+                    <h3>Excluded Ingredients</h3>
+                    <p style="color: var(--color-text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Ingredients that will never appear in the shopping list (e.g. water, salt).</p>
+                    <div id="excludedTagsList" style="display: flex; flex-wrap: wrap; gap: 0.375rem; margin-bottom: 0.75rem;"></div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="excludedIngredientInput" placeholder="Add ingredient…"
+                               style="flex: 1;"
+                               onkeydown="if(event.key==='Enter'){event.preventDefault();addExcludedIngredient();}">
+                        <button class="btn btn-outline" onclick="addExcludedIngredient()">Add</button>
+                    </div>
+                </div>
             </div>
         </section>
     </div><!-- /.container -->
@@ -2173,6 +2237,9 @@
                 if (data.success) {
                     showMessage('Meal plan generated! You can now edit individual meals.', 'success');
                     await loadCurrentPlan();
+                    if (data.normalization_task_id) {
+                        pollNormalization(data.normalization_task_id);
+                    }
                 } else if (data.error) {
                     showMessage('Error: ' + data.error, 'error');
                 }
@@ -2571,6 +2638,88 @@
             saveShoppingListState();
         }
 
+        const _NORM_MESSAGES = [
+            "🍳 Teaching our AI to grocery shop…",
+            "🥕 Merging your duplicates with love…",
+            "🤖 Consulting the robot chef…",
+            "🛒 Making sure you don't need 0.46 T of ketchup…",
+            "🥦 Sorting vegetables by vibe…",
+            "🍖 Negotiating with your chicken breasts…",
+            "🥚 Settling the egg vs large egg debate…",
+            "🧄 Squishing duplicate garlic…",
+            "🔬 Analysing if 0.46 tablespoons is a real thing…",
+            "🤝 Getting burger buns and hamburger buns to agree…",
+            "🧠 Asking GPT if salt counts as an ingredient…",
+            "🛍️ Building the perfect list, one item at a time…",
+        ];
+        let _normMsgIdx = 0;
+        let _normMsgTimer = null;
+
+        function _showShoppingLoadingState() {
+            const container = document.getElementById('shoppingListContainer');
+            const actionsEl  = document.getElementById('shoppingListActions');
+            const subtitleEl = document.getElementById('shoppingListSubtitle');
+            if (!container) return;
+            _normMsgIdx = Math.floor(Math.random() * _NORM_MESSAGES.length);
+            container.style.display = 'block';
+            container.innerHTML = `
+                <div class="shopping-loading">
+                    <div class="shopping-loading-msg" id="shoppingLoadingMsg">${_NORM_MESSAGES[_normMsgIdx]}</div>
+                    <div class="skeleton-shopping">
+                        ${[82, 65, 74, 58, 70].map(w =>
+                            `<div class="skeleton-item" style="width:${w}%"></div>`
+                        ).join('')}
+                    </div>
+                </div>`;
+            if (actionsEl) actionsEl.style.display = 'none';
+            if (subtitleEl) subtitleEl.textContent = 'Organising your shopping list…';
+            // Rotate the message every 2.5 s
+            if (_normMsgTimer) clearInterval(_normMsgTimer);
+            _normMsgTimer = setInterval(() => {
+                const el = document.getElementById('shoppingLoadingMsg');
+                if (!el) { clearInterval(_normMsgTimer); return; }
+                _normMsgIdx = (_normMsgIdx + 1) % _NORM_MESSAGES.length;
+                el.style.opacity = '0';
+                setTimeout(() => {
+                    el.textContent = _NORM_MESSAGES[_normMsgIdx];
+                    el.style.opacity = '1';
+                }, 150);
+            }, 2500);
+        }
+
+        // Poll a normalization task; show skeleton loader while waiting
+        function pollNormalization(taskId) {
+            _showShoppingLoadingState();
+            // Scroll to shopping list so user sees the loader
+            const section = document.getElementById('shopping');
+            if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            const poll = async () => {
+                try {
+                    const res = await fetch(`/shopping-list/normalize/${taskId}`);
+                    if (!res.ok) { _stopLoadingAndRender(); return; }
+                    const data = await res.json();
+                    if (data.status === 'done' && data.items) {
+                        if (_normMsgTimer) { clearInterval(_normMsgTimer); _normMsgTimer = null; }
+                        currentShoppingList = data.items;
+                        renderShoppingList();
+                    } else if (data.status === 'pending') {
+                        setTimeout(poll, 2000);
+                    } else {
+                        _stopLoadingAndRender(); // failed / not_found — show raw list
+                    }
+                } catch (e) {
+                    _stopLoadingAndRender();
+                }
+            };
+            setTimeout(poll, 2000);
+        }
+
+        function _stopLoadingAndRender() {
+            if (_normMsgTimer) { clearInterval(_normMsgTimer); _normMsgTimer = null; }
+            renderShoppingList();
+        }
+
         // Render shopping list with edit functionality
         function renderShoppingList() {
             const container = document.getElementById('shoppingListContainer');
@@ -2623,7 +2772,7 @@
                                 <div class="shopping-item" data-index="${globalIndex}">
                                     <input type="checkbox" onchange="toggleShoppingItem(this)">
                                     <span class="item-text" onclick="editShoppingItem(${globalIndex})">
-                                        ${formatQty(item.quantity)}${item.unit ? ' ' + item.unit : ''} ${item.item}
+                                        ${item.quantity != null ? formatQty(item.quantity) + (item.unit ? ' ' + item.unit : '') + ' ' : ''}${item.item}
                                     </span>
                                     <div class="item-actions">
                                         <button class="item-action-btn" onclick="editShoppingItem(${globalIndex})" title="Edit">✏️</button>
@@ -3455,6 +3604,9 @@
             // Initialize visible meals settings
             renderVisibleMealsSettings();
 
+            // Load excluded ingredients from server
+            loadExcludedIngredients();
+
             // Initialize household settings from localStorage
             const savedPortions = localStorage.getItem('householdPortions');
             const savedCalorieLimit = localStorage.getItem('dailyCalorieLimit');
@@ -3625,6 +3777,61 @@
             saveHiddenMealTypes(hidden);
             renderWeeklyCalendar();
             showMessage('Meal visibility saved.', 'success');
+        }
+
+        // ==============================
+        // Excluded Ingredients Settings
+        // ==============================
+        let excludedIngredients = [];
+
+        async function loadExcludedIngredients() {
+            try {
+                const res = await fetch('/excluded-ingredients');
+                excludedIngredients = await res.json();
+            } catch (e) {
+                excludedIngredients = ['water', 'salt'];
+            }
+            renderExcludedTags();
+        }
+
+        function renderExcludedTags() {
+            const el = document.getElementById('excludedTagsList');
+            if (!el) return;
+            el.innerHTML = excludedIngredients.map((item, i) => `
+                <span class="excluded-tag">
+                    ${item}
+                    <button onclick="removeExcludedIngredient(${i})" title="Remove">×</button>
+                </span>
+            `).join('');
+        }
+
+        async function addExcludedIngredient() {
+            const input = document.getElementById('excludedIngredientInput');
+            const val = input.value.trim().toLowerCase();
+            if (!val || excludedIngredients.includes(val)) { input.value = ''; return; }
+            excludedIngredients = [...excludedIngredients, val];
+            input.value = '';
+            renderExcludedTags();
+            await saveExcludedIngredients();
+        }
+
+        async function removeExcludedIngredient(index) {
+            excludedIngredients = excludedIngredients.filter((_, i) => i !== index);
+            renderExcludedTags();
+            await saveExcludedIngredients();
+        }
+
+        async function saveExcludedIngredients() {
+            try {
+                await fetch('/excluded-ingredients', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: excludedIngredients }),
+                });
+                showMessage('Excluded ingredients saved.', 'success');
+            } catch (e) {
+                showMessage('Failed to save excluded ingredients.', 'error');
+            }
         }
 
         // ==============================
