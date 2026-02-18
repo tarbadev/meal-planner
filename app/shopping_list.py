@@ -11,10 +11,13 @@ from app.planner import WeeklyPlan
 
 _VOLUME_TO_ML: dict[str, float] = {
     "ml": 1, "milliliter": 1, "milliliters": 1, "millilitre": 1, "millilitres": 1,
-    "tsp": 4.92892, "teaspoon": 4.92892, "teaspoons": 4.92892,
-    "tbsp": 14.7868, "tablespoon": 14.7868, "tablespoons": 14.7868,
+    # teaspoon — "t" is a common shorthand in recipes
+    "t": 4.92892, "tsp": 4.92892, "teaspoon": 4.92892, "teaspoons": 4.92892,
+    # tablespoon — "T" and "Tbsp" are common shorthands
+    "T": 14.7868, "tbsp": 14.7868, "Tbsp": 14.7868, "tablespoon": 14.7868, "tablespoons": 14.7868,
     "fl oz": 29.5735, "fluid ounce": 29.5735, "fluid ounces": 29.5735,
-    "cup": 236.588, "cups": 236.588,
+    # cup — "c" is a common shorthand
+    "c": 236.588, "cup": 236.588, "cups": 236.588,
     "pt": 473.176, "pint": 473.176, "pints": 473.176,
     "qt": 946.353, "quart": 946.353, "quarts": 946.353,
     "l": 1000, "liter": 1000, "liters": 1000, "litre": 1000, "litres": 1000,
@@ -29,12 +32,43 @@ _WEIGHT_TO_G: dict[str, float] = {
 }
 
 
+def _best_volume_unit(total_ml: float) -> tuple[float, str]:
+    """Return (quantity, unit) in the most readable volume unit for total_ml."""
+    if total_ml >= 1000:
+        return total_ml / 1000, "l"
+    if total_ml >= 59.1471:   # ≥ ¼ cup (4 tbsp) — prefer cups over a pile of tbsp
+        return total_ml / 236.588, "cup"
+    if total_ml >= 14.7868:   # ≥ 1 tbsp
+        return total_ml / 14.7868, "tbsp"
+    return total_ml / 4.92892, "tsp"
+
+
+def _best_weight_unit(total_g: float) -> tuple[float, str]:
+    """Return (quantity, unit) in the most readable weight unit for total_g."""
+    if total_g >= 1000:
+        return total_g / 1000, "kg"
+    if total_g >= 453.592:    # ≥ 1 lb
+        return total_g / 453.592, "lb"
+    if total_g >= 28.3495:    # ≥ 1 oz
+        return total_g / 28.3495, "oz"
+    return total_g, "g"
+
+
 def _unit_info(unit: str) -> tuple[str, float] | None:
     """Return (family, base_equivalent) or None if the unit is unrecognised.
 
     family is 'volume' (base=ml) or 'weight' (base=g).
+    Case-sensitive lookup first (to distinguish 't'=tsp vs 'T'=tbsp),
+    then falls back to lowercase for convenience.
     """
-    u = unit.lower().strip()
+    stripped = unit.strip()
+    # Case-sensitive first pass (handles t vs T, Tbsp, etc.)
+    if stripped in _VOLUME_TO_ML:
+        return ("volume", _VOLUME_TO_ML[stripped])
+    if stripped in _WEIGHT_TO_G:
+        return ("weight", _WEIGHT_TO_G[stripped])
+    # Case-insensitive fallback
+    u = stripped.lower()
     if u in _VOLUME_TO_ML:
         return ("volume", _VOLUME_TO_ML[u])
     if u in _WEIGHT_TO_G:
@@ -42,14 +76,34 @@ def _unit_info(unit: str) -> tuple[str, float] | None:
     return None
 
 
+# Map shorthand abbreviations to canonical display names
+_UNIT_DISPLAY: dict[str, str] = {
+    "t": "tsp", "tsp": "tsp", "teaspoon": "tsp", "teaspoons": "tsp",
+    "T": "tbsp", "Tbsp": "tbsp", "tbsp": "tbsp", "tablespoon": "tbsp", "tablespoons": "tbsp",
+    "c": "cup", "cups": "cup",
+    "milliliter": "ml", "milliliters": "ml", "millilitre": "ml", "millilitres": "ml",
+    "fluid ounce": "fl oz", "fluid ounces": "fl oz",
+    "pint": "pt", "pints": "pt",
+    "quart": "qt", "quarts": "qt",
+    "liter": "l", "liters": "l", "litre": "l", "litres": "l",
+    "gallon": "gal", "gallons": "gal",
+    "gram": "g", "grams": "g",
+    "kilogram": "kg", "kilograms": "kg",
+    "ounce": "oz", "ounces": "oz",
+    "pound": "lb", "pounds": "lb", "lbs": "lb",
+}
+
+
 def _normalize_unit(unit: str | None) -> str:
-    """Normalise 'serving', 'servings', None and empty string to ''.
+    """Normalise serving variants to '' and abbreviations to display-friendly names.
 
     Fixes BUG-3: the word 'serving' never appears in the shopping list.
+    Also canonicalises shorthands like 'T' → 'tbsp' and 'c' → 'cup'.
     """
     if not unit or unit.lower() in ("serving", "servings"):
         return ""
-    return unit
+    stripped = unit.strip()
+    return _UNIT_DISPLAY.get(stripped, stripped)
 
 
 def _combine_entries(entries: list[tuple[float, str]]) -> list[tuple[float, str]]:
@@ -95,12 +149,19 @@ def _combine_entries(entries: list[tuple[float, str]]) -> list[tuple[float, str]
     for unit, qty in unknown.items():
         result.append((qty, unit))
 
-    for _family, group in family_buckets.items():
+    for family, group in family_buckets.items():
         total_base = sum(qty * mult for _, qty, mult in group)
-        # Use the largest unit from the group (highest multiplier) for display
-        _, _, best_mult = max(group, key=lambda x: x[2])
-        best_unit, _, _ = max(group, key=lambda x: x[2])
-        result.append((total_base / best_mult, best_unit))
+        unique_units = {u for u, _, _ in group}
+        if len(unique_units) == 1:
+            # All entries share the same unit — sum and preserve it
+            orig_unit, _, orig_mult = group[0]
+            result.append((total_base / orig_mult, orig_unit))
+        elif family == "volume":
+            # Multiple different volume units — pick the most readable
+            result.append(_best_volume_unit(total_base))
+        else:
+            # Multiple different weight units — pick the most readable
+            result.append(_best_weight_unit(total_base))
 
     return result
 
