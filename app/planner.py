@@ -49,7 +49,7 @@ class PlannedMeal:
 
         for ingredient in self.recipe.ingredients:
             scaled_ingredient = ingredient.copy()
-            scaled_ingredient["quantity"] = ingredient["quantity"] * scale_factor
+            scaled_ingredient["quantity"] = ingredient.get("quantity", 0) * scale_factor
             scaled.append(scaled_ingredient)
 
         return scaled

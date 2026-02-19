@@ -607,3 +607,29 @@ class TestWeeklyPlan:
         # Two meals per day = 1600 cal
         for day, nutrition in daily_nutrition.items():
             assert abs(nutrition["calories"] - 1600) < 0.01
+
+
+class TestScaledIngredients:
+    def test_scaled_ingredients_normal(self):
+        """Scaling works correctly when quantity is present."""
+        recipe = create_test_recipe(
+            recipe_id="r1",
+            name="R1",
+            servings=4,
+            ingredients=[{"item": "flour", "quantity": 200, "unit": "g", "category": "pantry"}],
+        )
+        meal = PlannedMeal(day="Monday", meal_type="dinner", recipe=recipe, household_portions=2.0)
+        scaled = meal.scaled_ingredients
+        assert scaled[0]["quantity"] == pytest.approx(100.0)  # 200g / 4 servings * 2 portions
+
+    def test_scaled_ingredients_missing_quantity_no_keyerror(self):
+        """Ingredient dict without 'quantity' key must not raise KeyError."""
+        recipe = create_test_recipe(
+            recipe_id="r2",
+            name="R2",
+            servings=4,
+            ingredients=[{"item": "salt", "unit": "to taste", "category": "pantry"}],
+        )
+        meal = PlannedMeal(day="Monday", meal_type="dinner", recipe=recipe, household_portions=4.0)
+        scaled = meal.scaled_ingredients  # must not raise
+        assert scaled[0]["quantity"] == 0  # 0 * scale_factor = 0
