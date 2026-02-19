@@ -1,9 +1,10 @@
+import io
 import json
 from pathlib import Path
 
 import pytest
 
-from app.main import app
+from app.main import _is_valid_image_bytes, app
 from app.recipes import Recipe, save_recipes
 from tests.conftest import create_test_recipe
 
@@ -2082,3 +2083,73 @@ class TestShoppingListIndexSafety:
             content_type='application/json',
         )
         assert response.status_code == 400
+
+
+class TestImageMagicBytes:
+    """_is_valid_image_bytes rejects non-image content regardless of extension."""
+
+    PNG_MAGIC = b"\x89PNG\r\n\x1a\n" + b"\x00" * 100
+    JPEG_MAGIC = b"\xff\xd8\xff\xe0" + b"\x00" * 100
+    GIF_MAGIC = b"GIF89a" + b"\x00" * 100
+    WEBP_MAGIC = b"RIFF\x00\x00\x00\x00WEBP" + b"\x00" * 100
+    FAKE_MAGIC = b"<?php echo 'hello'; ?>" + b"\x00" * 100
+
+    # --- unit tests for the helper ---
+    def test_png_recognised(self):
+        assert _is_valid_image_bytes(self.PNG_MAGIC)
+
+    def test_jpeg_recognised(self):
+        assert _is_valid_image_bytes(self.JPEG_MAGIC)
+
+    def test_gif_recognised(self):
+        assert _is_valid_image_bytes(self.GIF_MAGIC)
+
+    def test_webp_recognised(self):
+        assert _is_valid_image_bytes(self.WEBP_MAGIC)
+
+    def test_php_rejected(self):
+        assert not _is_valid_image_bytes(self.FAKE_MAGIC)
+
+    def test_empty_bytes_rejected(self):
+        assert not _is_valid_image_bytes(b"")
+
+    # --- endpoint integration: spoofed file rejected ---
+    def test_upload_with_php_content_and_png_extension_is_rejected(self, client):
+        """A file named .png whose bytes are PHP source must be rejected with 400."""
+        data = {"image": (io.BytesIO(self.FAKE_MAGIC), "malicious.png")}
+        response = client.post(
+            "/import-recipe-image",
+            data=data,
+            content_type="multipart/form-data",
+        )
+        assert response.status_code == 400
+        body = json.loads(response.data)
+        assert "content" in body.get("error", "").lower() or "image" in body.get("message", "").lower()
+
+    def test_upload_with_valid_png_bytes_passes_magic_check(self, client, monkeypatch):
+        """A real PNG file passes the magic check (further processing may fail without API key)."""
+        from app.image_recipe_extractor import ImageRecipeData, ImageRecipeExtractor
+
+        mock_result = ImageRecipeData(
+            name="Test Recipe", servings=2, ingredients=[], instructions=[],
+            tags=[], prep_time_minutes=None, cook_time_minutes=None,
+            notes=None, confidence=0.9,
+        )
+        monkeypatch.setattr(ImageRecipeExtractor, "extract_recipe", lambda self, d, e: mock_result)
+
+        from app.nutrition_generator import NutritionGenerator
+        monkeypatch.setattr(NutritionGenerator, "generate_from_ingredients", lambda self, n, i: {})
+
+        from app import main
+        monkeypatch.setattr(main, "current_plan", None)
+        monkeypatch.setattr(main, "current_shopping_list", None)
+
+        data = {"image": (io.BytesIO(self.PNG_MAGIC), "photo.png")}
+        response = client.post(
+            "/import-recipe-image",
+            data=data,
+            content_type="multipart/form-data",
+        )
+        # Must NOT be rejected for invalid content (may succeed or fail for other reasons)
+        body = json.loads(response.data)
+        assert body.get("error") != "Invalid file content"

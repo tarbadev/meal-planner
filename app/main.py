@@ -23,6 +23,30 @@ from app.tag_inference import TagInferencer
 configure_logging()
 logger = logging.getLogger(__name__)
 
+# ---------------------------------------------------------------------------
+# Image magic-bytes validation (defence against extension-only spoofing)
+# ---------------------------------------------------------------------------
+
+_IMAGE_MAGIC: list[tuple[bytes, bytes | None, int, int]] = [
+    # (prefix, suffix_at_offset, suffix_offset, suffix_len)
+    (b"\x89PNG\r\n\x1a\n", None, 0, 0),   # PNG
+    (b"\xff\xd8\xff", None, 0, 0),          # JPEG
+    (b"GIF87a", None, 0, 0),                # GIF87a
+    (b"GIF89a", None, 0, 0),                # GIF89a
+    (b"RIFF", b"WEBP", 8, 4),               # WebP: RIFF????WEBP
+]
+
+
+def _is_valid_image_bytes(data: bytes) -> bool:
+    """Return True if *data* starts with magic bytes for a supported image format."""
+    for prefix, suffix, suffix_offset, suffix_len in _IMAGE_MAGIC:
+        if data[: len(prefix)] == prefix:
+            if suffix is None:
+                return True
+            if data[suffix_offset: suffix_offset + suffix_len] == suffix:
+                return True
+    return False
+
 app = Flask(__name__)
 
 # Store the current plan in memory (v1 - simple approach)
@@ -819,7 +843,7 @@ def import_recipe_image():
         }), 400
 
     file = request.files['image']
-    logger.debug("Image file received", extra={"filename": file.filename})
+    logger.debug("Image file received", extra={"upload_filename": file.filename})
 
     if file.filename == '':
         logger.warning("Image import request has empty filename")
@@ -858,6 +882,18 @@ def import_recipe_image():
         if len(image_data) > 10 * 1024 * 1024:
             logger.warning("Large image file uploaded", extra={"size_mb": round(len(image_data) / (1024 * 1024), 2)})
 
+        # Validate magic bytes — reject files whose content doesn't match an image
+        # format even if their extension is valid (e.g. malicious.php.png).
+        if not _is_valid_image_bytes(image_data):
+            logger.warning(
+                "Image upload rejected: magic bytes do not match any supported format",
+                extra={"file_ext": file_ext, "size_bytes": len(image_data)},
+            )
+            return jsonify({
+                "error": "Invalid file content",
+                "message": "File does not appear to be a valid image"
+            }), 400
+
         # Extract recipe from image using Vision API
         from app.image_recipe_extractor import ImageRecipeExtractor
         from app.nutrition_generator import NutritionGenerator
@@ -885,13 +921,13 @@ def import_recipe_image():
         })
 
     except ValueError as e:
-        logger.exception("ValueError during image extraction", extra={"filename": file.filename})
+        logger.exception("ValueError during image extraction", extra={"upload_filename": file.filename})
         return jsonify({
             "error": "Extraction failed",
             "message": str(e)
         }), 422
     except Exception as e:
-        logger.exception("Exception during image extraction", extra={"filename": file.filename})
+        logger.exception("Exception during image extraction", extra={"upload_filename": file.filename})
 
         # Check if it looks like a timeout
         error_str = str(e)
