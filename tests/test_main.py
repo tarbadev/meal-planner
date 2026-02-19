@@ -2025,3 +2025,60 @@ class TestNullQuantitySerialization:
 
         assert salt["quantity"] is None
         assert flour["quantity"] == pytest.approx(2.5)
+
+
+class TestShoppingListIndexSafety:
+    """index TOCTOU: bounds check and item access must use the same list snapshot."""
+
+    @pytest.fixture
+    def client_with_shopping_list(self, client, monkeypatch):
+        from app import main
+        from app.shopping_list import ShoppingList, ShoppingListItem
+
+        sl = ShoppingList(items=[
+            ShoppingListItem(item="flour", quantity=2.0, unit="cup", category="pantry"),
+            ShoppingListItem(item="sugar", quantity=1.0, unit="cup", category="pantry"),
+        ])
+        monkeypatch.setattr(main, "current_shopping_list", sl)
+        return client
+
+    def test_update_item_valid_index(self, client_with_shopping_list):
+        response = client_with_shopping_list.post(
+            '/shopping-list/update-item',
+            data=json.dumps({"index": 0, "quantity": 3.0}),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+
+    def test_update_item_out_of_bounds(self, client_with_shopping_list):
+        response = client_with_shopping_list.post(
+            '/shopping-list/update-item',
+            data=json.dumps({"index": 99}),
+            content_type='application/json',
+        )
+        assert response.status_code == 400
+
+    def test_delete_item_valid_index(self, client_with_shopping_list):
+        response = client_with_shopping_list.post(
+            '/shopping-list/delete-item',
+            data=json.dumps({"index": 0}),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+        assert json.loads(response.data)["deleted_item"] == "flour"
+
+    def test_delete_item_out_of_bounds(self, client_with_shopping_list):
+        response = client_with_shopping_list.post(
+            '/shopping-list/delete-item',
+            data=json.dumps({"index": 5}),
+            content_type='application/json',
+        )
+        assert response.status_code == 400
+
+    def test_delete_item_negative_index(self, client_with_shopping_list):
+        response = client_with_shopping_list.post(
+            '/shopping-list/delete-item',
+            data=json.dumps({"index": -1}),
+            content_type='application/json',
+        )
+        assert response.status_code == 400

@@ -59,10 +59,10 @@ def _norm_task_run(task_id: str, snapshot: ShoppingList) -> None:
 
 
 def _start_normalization() -> str:
-    """Snapshot current_shopping_list, kick off a background thread, return task_id."""
+    """Snapshot current_shopping_list under the lock, kick off a background thread."""
     task_id = str(uuid.uuid4())
-    snapshot = current_shopping_list  # capture before the thread starts
     with _norm_lock:
+        snapshot = current_shopping_list  # atomic snapshot while holding the lock
         _norm_tasks[task_id] = {"status": "pending", "items": None}
     t = threading.Thread(target=_norm_task_run, args=(task_id, snapshot), daemon=True)
     t.start()
@@ -1833,7 +1833,11 @@ def update_shopping_item():
     logger.debug("Updating shopping list item")
     global current_shopping_list
 
-    if current_shopping_list is None:
+    # Snapshot under the lock so the bounds check and item access use the same list.
+    with _norm_lock:
+        sl = current_shopping_list
+
+    if sl is None:
         return jsonify({"error": "No shopping list available"}), 404
 
     try:
@@ -1848,10 +1852,10 @@ def update_shopping_item():
     if item_index is None:
         return jsonify({"error": "Missing item index"}), 400
 
-    if item_index < 0 or item_index >= len(current_shopping_list.items):
+    if item_index < 0 or item_index >= len(sl.items):
         return jsonify({"error": "Invalid item index"}), 400
 
-    item = current_shopping_list.items[item_index]
+    item = sl.items[item_index]
 
     if new_quantity is not None:
         try:
@@ -1880,7 +1884,11 @@ def delete_shopping_item():
     logger.debug("Deleting shopping list item")
     global current_shopping_list
 
-    if current_shopping_list is None:
+    # Snapshot under the lock so the bounds check and pop use the same list.
+    with _norm_lock:
+        sl = current_shopping_list
+
+    if sl is None:
         return jsonify({"error": "No shopping list available"}), 404
 
     try:
@@ -1893,10 +1901,10 @@ def delete_shopping_item():
     if item_index is None:
         return jsonify({"error": "Missing item index"}), 400
 
-    if item_index < 0 or item_index >= len(current_shopping_list.items):
+    if item_index < 0 or item_index >= len(sl.items):
         return jsonify({"error": "Invalid item index"}), 400
 
-    deleted_item = current_shopping_list.items.pop(item_index)
+    deleted_item = sl.items.pop(item_index)
 
     return jsonify({
         "success": True,
@@ -1912,7 +1920,11 @@ def add_shopping_item():
     global current_shopping_list
     from app.shopping_list import ShoppingListItem
 
-    if current_shopping_list is None:
+    # Snapshot under the lock so we operate on a consistent list reference.
+    with _norm_lock:
+        sl = current_shopping_list
+
+    if sl is None:
         return jsonify({"error": "No shopping list available"}), 404
 
     try:
@@ -1942,8 +1954,8 @@ def add_shopping_item():
         category=category
     )
 
-    current_shopping_list.items.append(new_item)
-    current_shopping_list.items.sort(key=lambda x: (x.category, x.item))
+    sl.items.append(new_item)
+    sl.items.sort(key=lambda x: (x.category, x.item))
 
     return jsonify({
         "success": True,
