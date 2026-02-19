@@ -8,6 +8,7 @@ from app.shopping_list import (
     _combine_entries,
     generate_shopping_list,
 )
+from app.shopping_normalizer import apply_exclusions
 from tests.conftest import create_test_recipe
 
 
@@ -427,3 +428,59 @@ class TestUnitConversion:
         assert len(oil_items) == 1, f"Expected 1 combined oil line, got {len(oil_items)}"
         assert oil_items[0].unit == "tbsp"
         assert abs(oil_items[0].quantity - 2.0) < 0.01
+
+
+class TestApplyExclusions:
+    def _make_list(self, *names):
+        items = [ShoppingListItem(item=n, quantity=1.0, unit="", category="other") for n in names]
+        return ShoppingList(items=items)
+
+    def test_exact_match_excluded(self):
+        """An excluded term that exactly matches an item name removes it."""
+        sl = self._make_list("egg", "milk", "butter")
+        result = apply_exclusions(sl, ["egg"])
+        names = [i.item for i in result.items]
+        assert "egg" not in names
+        assert "milk" in names
+
+    def test_plural_excluded(self):
+        """'egg' in the excluded list also removes the item named 'eggs'."""
+        sl = self._make_list("eggs", "milk")
+        result = apply_exclusions(sl, ["egg"])
+        # 'eggs' does NOT contain the whole word 'egg' — word boundary stops at 's'
+        # so 'eggs' should NOT be excluded by the term 'egg'
+        names = [i.item for i in result.items]
+        assert "eggs" in names
+
+    def test_substring_not_excluded(self):
+        """'egg' in the excluded list must NOT remove 'eggplant'."""
+        sl = self._make_list("eggplant", "egg", "scrambled eggs")
+        result = apply_exclusions(sl, ["egg"])
+        names = [i.item for i in result.items]
+        assert "eggplant" in names
+        assert "egg" not in names
+        # "scrambled eggs" contains neither standalone "egg" (it's "eggs") so kept
+        assert "scrambled eggs" in names
+
+    def test_multi_word_excluded_term(self):
+        """Multi-word excluded terms are matched as a whole phrase."""
+        sl = self._make_list("olive oil", "oil", "sunflower oil")
+        result = apply_exclusions(sl, ["olive oil"])
+        names = [i.item for i in result.items]
+        assert "olive oil" not in names
+        assert "oil" in names
+        assert "sunflower oil" in names
+
+    def test_empty_exclusions_keeps_all(self):
+        sl = self._make_list("salt", "pepper", "water")
+        result = apply_exclusions(sl, [])
+        assert len(result.items) == 3
+
+    def test_case_insensitive(self):
+        """Exclusion matching is case-insensitive."""
+        sl = self._make_list("Salt", "Pepper")
+        result = apply_exclusions(sl, ["salt"])
+        names = [i.item for i in result.items]
+        assert "Salt" not in names
+        assert "Pepper" in names
+

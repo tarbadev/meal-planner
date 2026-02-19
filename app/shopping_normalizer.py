@@ -13,6 +13,7 @@ worker long enough to trigger SIGABRT.
 import json
 import logging
 import os
+import re
 import time
 
 from openai import OpenAI
@@ -86,7 +87,10 @@ def apply_exclusions(shopping_list: ShoppingList, excluded: list[str]) -> Shoppi
     kept = [
         item
         for item in shopping_list.items
-        if not any(ex in item.item.lower() for ex in excluded_lower)
+        if not any(
+            re.search(r"\b" + re.escape(ex) + r"\b", item.item.lower())
+            for ex in excluded_lower
+        )
     ]
     return ShoppingList(items=kept)
 
