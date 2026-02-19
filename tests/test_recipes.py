@@ -641,3 +641,41 @@ class TestRecipeCache:
         """After load_recipes(), the cache entry exists for the resolved path."""
         load_recipes(recipes_file)
         assert str(recipes_file.resolve()) in recipes_module._cache
+
+
+class TestRecipeSearchBlob:
+    """Recipe.search_blob pre-computes a lowercase searchable string."""
+
+    def _make_recipe(self, name, tags, ingredients):
+        return create_test_recipe(
+            recipe_id="r1", name=name, servings=2,
+            prep_time_minutes=5, cook_time_minutes=10,
+            calories=200, protein=10, carbs=20, fat=5,
+            tags=tags, ingredients=ingredients,
+        )
+
+    def test_blob_includes_name(self):
+        r = self._make_recipe("Chicken Tikka", [], [])
+        assert "chicken tikka" in r.search_blob
+
+    def test_blob_includes_tags(self):
+        r = self._make_recipe("Soup", ["vegan", "quick"], [])
+        assert "vegan" in r.search_blob
+        assert "quick" in r.search_blob
+
+    def test_blob_includes_ingredient_items(self):
+        r = self._make_recipe(
+            "Salad", [],
+            [{"item": "Romaine Lettuce", "quantity": 1, "unit": "head", "category": "veg"}],
+        )
+        assert "romaine lettuce" in r.search_blob
+
+    def test_blob_is_lowercase(self):
+        r = self._make_recipe("UPPERCASE Name", ["TAG"], [])
+        assert r.search_blob == r.search_blob.lower()
+
+    def test_blob_is_cached(self):
+        r = self._make_recipe("Test", ["t"], [])
+        first = r.search_blob
+        second = r.search_blob
+        assert first is second  # same object — cached_property returns same str instance

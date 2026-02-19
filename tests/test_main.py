@@ -2318,3 +2318,39 @@ class TestNormTaskTTL:
         task_id = main._start_normalization()
 
         assert main._norm_tasks[task_id]["created_at"] == now
+
+
+class TestRecipeSearch:
+    """GET /api/recipes?search= uses search_blob for ingredient/tag/name matching."""
+
+    def test_search_matches_name(self, client):
+        response = client.get("/api/recipes?search=bolognese")
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert any("bolognese" in r["name"].lower() for r in data["recipes"])
+
+    def test_search_matches_ingredient(self, client):
+        response = client.get("/api/recipes?search=ground+beef")
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert len(data["recipes"]) >= 1
+        ids = [r["id"] for r in data["recipes"]]
+        assert "pasta-bolognese" in ids
+
+    def test_search_matches_tag(self, client):
+        response = client.get("/api/recipes?search=italian")
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert any("italian" in r.get("tags", []) for r in data["recipes"])
+
+    def test_search_no_match_returns_empty(self, client):
+        response = client.get("/api/recipes?search=xyzzy-no-such-recipe")
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data["recipes"] == []
+
+    def test_empty_search_returns_all(self, client):
+        response = client.get("/api/recipes?search=")
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert len(data["recipes"]) >= 2

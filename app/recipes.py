@@ -3,6 +3,7 @@ import os
 import tempfile
 import threading
 from dataclasses import asdict, dataclass, field
+from functools import cached_property
 from pathlib import Path
 from typing import Any
 
@@ -58,6 +59,12 @@ class Recipe:
     @property
     def fat_per_serving(self) -> float:
         return self.nutrition_per_serving.get("fat", 0.0)
+
+    @cached_property
+    def search_blob(self) -> str:
+        """Single lowercase string of name + tags + ingredient items for fast search."""
+        parts = [self.name] + self.tags + [ing.get("item", "") for ing in self.ingredients]
+        return " ".join(parts).lower()
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Recipe":

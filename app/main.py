@@ -229,14 +229,9 @@ def api_recipes():
     # Filter recipes
     filtered_recipes = all_recipes
 
-    # Search filter
+    # Search filter — uses a pre-computed blob so each recipe is a single O(1) check
     if search:
-        filtered_recipes = [
-            r for r in filtered_recipes
-            if search in r.name.lower() or
-               any(search in tag.lower() for tag in r.tags) or
-               any(search in ing.get("item", "").lower() for ing in r.ingredients)
-        ]
+        filtered_recipes = [r for r in filtered_recipes if search in r.search_blob]
 
     # Tag filter (AND logic)
     if tags_param:
