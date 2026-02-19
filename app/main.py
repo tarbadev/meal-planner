@@ -75,7 +75,7 @@ _norm_lock = threading.Lock()
 
 
 def _norm_task_run(task_id: str, snapshot: ShoppingList) -> None:
-    """Background thread: LLM-normalize `snapshot` and store the result."""
+    """Background thread: LLM-normalize `snapshot` (parallel per category) and store."""
     global current_shopping_list
     try:
         result = llm_normalize(snapshot)

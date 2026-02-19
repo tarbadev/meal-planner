@@ -15,6 +15,8 @@ import logging
 import os
 import re
 import time
+from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from openai import OpenAI
 
@@ -95,17 +97,13 @@ def apply_exclusions(shopping_list: ShoppingList, excluded: list[str]) -> Shoppi
     return ShoppingList(items=kept)
 
 
-def llm_normalize(shopping_list: ShoppingList) -> ShoppingList:
-    """LLM post-processing pass: merge duplicates, normalize names, fix quantities.
+def _normalize_category(items: list[ShoppingListItem]) -> list[ShoppingListItem]:
+    """Call the LLM for a single category subset and return normalised items.
 
-    Called from the dedicated /shopping-list/normalize endpoint — never inline
-    with plan generation — so a slow or failed API call doesn't block the worker.
-
-    Falls back to the input list unchanged if the LLM call fails.
+    Uses max_retries=0 so a stalled request fails fast — the caller falls back
+    to the original items for that category on any exception.
     """
-    if not shopping_list.items:
-        return shopping_list
-
+    client = OpenAI(api_key=config.OPENAI_API_KEY, timeout=30.0, max_retries=0)
     payload = [
         {
             "item": item.item,
@@ -113,47 +111,98 @@ def llm_normalize(shopping_list: ShoppingList) -> ShoppingList:
             "unit": item.unit,
             "category": item.category,
         }
-        for item in shopping_list.items
+        for item in items
+    ]
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": _NORMALIZE_SYSTEM_PROMPT},
+            {"role": "user", "content": json.dumps(payload)},
+        ],
+        response_format={"type": "json_object"},
+        temperature=0,
+    )
+    result = json.loads(response.choices[0].message.content)
+    return [
+        ShoppingListItem(
+            item=entry["item"],
+            quantity=entry.get("quantity"),
+            unit=entry.get("unit", ""),
+            category=entry.get("category", items[0].category),
+        )
+        for entry in result.get("items", [])
+        if entry.get("item")
     ]
 
-    logger.info("Starting LLM normalization", extra={"item_count": len(shopping_list.items)})
-    t0 = time.monotonic()
-    try:
-        # Background thread — not bound by gunicorn worker timeout, use 60 s
-        client = OpenAI(api_key=config.OPENAI_API_KEY, timeout=60.0)
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": _NORMALIZE_SYSTEM_PROMPT},
-                {"role": "user", "content": json.dumps(payload)},
-            ],
-            response_format={"type": "json_object"},
-            temperature=0,
-        )
-        result = json.loads(response.choices[0].message.content)
-        raw_items = result.get("items", [])
 
-        items = [
-            ShoppingListItem(
-                item=entry["item"],
-                quantity=entry.get("quantity"),
-                unit=entry.get("unit", ""),
-                category=entry.get("category", "other"),
-            )
-            for entry in raw_items
-            if entry.get("item")
-        ]
-        items.sort(key=lambda x: (x.category, x.item))
-        logger.info(
-            "LLM normalization complete",
-            extra={
-                "input_count": len(shopping_list.items),
-                "output_count": len(items),
-                "elapsed_s": round(time.monotonic() - t0, 2),
-            },
-        )
-        return ShoppingList(items=items)
+def llm_normalize(shopping_list: ShoppingList) -> ShoppingList:
+    """LLM post-processing pass: merge duplicates, normalize names, fix quantities.
 
-    except Exception:
-        logger.exception("LLM normalization failed, keeping list as-is", extra={"item_count": len(shopping_list.items)})
+    Splits the list by category and fires one LLM call per category in
+    parallel, so total latency ≈ the slowest single category (~3–5 s) instead
+    of one large sequential call.
+
+    Falls back to the original items for any category whose call fails, so a
+    single API error never wipes the whole list.
+    """
+    if not shopping_list.items:
         return shopping_list
+
+    # Group by category
+    by_category: dict[str, list[ShoppingListItem]] = defaultdict(list)
+    for item in shopping_list.items:
+        by_category[item.category].append(item)
+
+    logger.info(
+        "Starting parallel LLM normalization",
+        extra={"item_count": len(shopping_list.items), "category_count": len(by_category)},
+    )
+    logger.debug(
+        "llm_normalize input",
+        extra={
+            "items": [
+                {"item": i.item, "quantity": i.quantity, "unit": i.unit, "category": i.category}
+                for i in shopping_list.items
+            ]
+        },
+    )
+    t0 = time.monotonic()
+
+    normalised: list[ShoppingListItem] = []
+    with ThreadPoolExecutor(max_workers=len(by_category)) as pool:
+        future_to_cat = {
+            pool.submit(_normalize_category, items): (cat, items)
+            for cat, items in by_category.items()
+        }
+        for future in as_completed(future_to_cat):
+            cat, original_items = future_to_cat[future]
+            try:
+                normalised.extend(future.result())
+            except Exception:
+                logger.exception(
+                    "LLM normalization failed for category, keeping originals",
+                    extra={"category": cat, "item_count": len(original_items)},
+                )
+                normalised.extend(original_items)
+
+    normalised.sort(key=lambda x: (x.category, x.item))
+    elapsed = round(time.monotonic() - t0, 2)
+    logger.info(
+        "Parallel LLM normalization complete",
+        extra={
+            "input_count": len(shopping_list.items),
+            "output_count": len(normalised),
+            "elapsed_s": elapsed,
+        },
+    )
+    logger.debug(
+        "llm_normalize output",
+        extra={
+            "elapsed_s": elapsed,
+            "items": [
+                {"item": i.item, "quantity": i.quantity, "unit": i.unit, "category": i.category}
+                for i in normalised
+            ],
+        },
+    )
+    return ShoppingList(items=normalised)

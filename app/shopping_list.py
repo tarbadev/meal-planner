@@ -1,8 +1,17 @@
 import logging
+import unicodedata
 from collections import defaultdict
 from dataclasses import dataclass
 
+from rapidfuzz import fuzz
+
 from app.planner import WeeklyPlan
+
+# Similarity threshold (0–100) for fuzzy name merging.  Items scoring at or
+# above this are treated as the same ingredient.  85 catches diacritic/plural
+# variants that slip through _normalize_name while being conservative enough
+# to keep e.g. "chicken" and "chicken breast" separate.
+_FUZZY_THRESHOLD = 85
 
 logger = logging.getLogger(__name__)
 
@@ -200,6 +209,61 @@ class ShoppingList:
         return dict(grouped)
 
 
+def _normalize_name(name: str) -> str:
+    """Return a canonical grouping key for an ingredient name.
+
+    1. Strip diacritics (jalapeño → jalapeno).
+    2. Lowercase and trim whitespace.
+    3. Strip a trailing 's' to handle simple plurals (jalapenos → jalapeno,
+       peppers → pepper).  Words ending in 'ss' are left alone (e.g. 'moss').
+    """
+    nfkd = unicodedata.normalize("NFKD", name.strip())
+    s = "".join(c for c in nfkd if not unicodedata.combining(c)).lower()
+    if len(s) > 4 and s.endswith("s") and not s.endswith("ss"):
+        s = s[:-1]
+    return s
+
+
+def _fuzzy_merge_items(item_data: dict[str, dict]) -> dict[str, dict]:
+    """Merge item_data entries whose normalized names score >= _FUZZY_THRESHOLD.
+
+    Uses a greedy pass: the first key in insertion order becomes the canonical
+    representative for its similarity cluster.  Quantities and category are
+    merged into the canonical entry.
+    """
+    if len(item_data) <= 1:
+        return item_data
+
+    keys = list(item_data.keys())
+    canonical_for: dict[str, str] = {}
+
+    for i, key in enumerate(keys):
+        if key in canonical_for:
+            continue
+        canonical_for[key] = key
+        for other in keys[i + 1:]:
+            if other in canonical_for:
+                continue
+            if fuzz.WRatio(key, other) >= _FUZZY_THRESHOLD:
+                canonical_for[other] = key
+
+    result: dict[str, dict] = {}
+    for key, canonical in canonical_for.items():
+        src = item_data[key]
+        if canonical not in result:
+            result[canonical] = {
+                "display_name": item_data[canonical]["display_name"],
+                "category": src["category"],
+                "entries": list(src["entries"]),
+                "quantity_meaningless": src["quantity_meaningless"],
+            }
+        else:
+            result[canonical]["entries"].extend(src["entries"])
+            result[canonical]["quantity_meaningless"] |= src["quantity_meaningless"]
+
+    return result
+
+
 def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
     """Generate a shopping list from a weekly meal plan.
 
@@ -211,32 +275,43 @@ def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
     vs 'head') remain as separate lines.
     """
     logger.debug("Generating shopping list", extra={"meal_count": len(weekly_plan.meals)})
-    # Collect raw entries: item_name → {category, entries: [(qty, unit)]}
+    # Collect raw entries keyed by *normalised* name so diacritic variants and
+    # simple plurals are grouped before the fuzzy-merge pass.
     item_data: dict[str, dict] = {}
 
     for meal in weekly_plan.meals:
         for ingredient in meal.scaled_ingredients:
             name = ingredient["item"]
+            key = _normalize_name(name)
             raw_unit = ingredient.get("unit", "")
             norm_unit = _normalize_unit(raw_unit)
             qty = ingredient.get("quantity", 0.0)
             category = ingredient.get("category", "other")
 
-            if name not in item_data:
-                item_data[name] = {"category": category, "entries": [], "quantity_meaningless": False}
+            if key not in item_data:
+                item_data[key] = {
+                    "display_name": name,   # first-seen original name for display
+                    "category": category,
+                    "entries": [],
+                    "quantity_meaningless": False,
+                }
 
             if norm_unit is None:
                 # "to taste" / "to serve" — mark as quantityless, don't accumulate
-                item_data[name]["quantity_meaningless"] = True
+                item_data[key]["quantity_meaningless"] = True
             else:
-                item_data[name]["entries"].append((qty, norm_unit))
+                item_data[key]["entries"].append((qty, norm_unit))
+
+    # Fuzzy-merge remaining near-duplicates (e.g. "jalapeno" ↔ "jalapeno pepper")
+    item_data = _fuzzy_merge_items(item_data)
 
     items: list[ShoppingListItem] = []
-    for name, data in item_data.items():
+    for _key, data in item_data.items():
+        display = data["display_name"]
         if data["quantity_meaningless"] and not data["entries"]:
             # Only "to taste" appearances — include item but no quantity
             items.append(ShoppingListItem(
-                item=name,
+                item=display,
                 quantity=None,
                 unit="",
                 category=data["category"],
@@ -244,7 +319,7 @@ def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
         else:
             for qty, unit in _combine_entries(data["entries"]):
                 items.append(ShoppingListItem(
-                    item=name,
+                    item=display,
                     quantity=qty,
                     unit=unit,
                     category=data["category"],

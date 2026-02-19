@@ -6,6 +6,7 @@ from app.shopping_list import (
     ShoppingList,
     ShoppingListItem,
     _combine_entries,
+    _normalize_name,
     generate_shopping_list,
 )
 from app.shopping_normalizer import apply_exclusions
@@ -483,4 +484,90 @@ class TestApplyExclusions:
         names = [i.item for i in result.items]
         assert "Salt" not in names
         assert "Pepper" in names
+
+
+class TestNormalizeName:
+    """_normalize_name strips diacritics and simple trailing plurals."""
+
+    def test_strips_diacritics(self):
+        assert _normalize_name("jalapeño") == "jalapeno"
+
+    def test_strips_trailing_s(self):
+        assert _normalize_name("jalapenos") == "jalapeno"
+
+    def test_strips_trailing_s_compound(self):
+        assert _normalize_name("jalapeno peppers") == "jalapeno pepper"
+
+    def test_lowercases(self):
+        assert _normalize_name("Garlic") == "garlic"
+
+    def test_does_not_strip_ss(self):
+        assert _normalize_name("molasses") == "molasse"  # ends in 'es' not 'ss', stripped
+        # but 'moss' ends in 'ss' and is preserved
+        assert _normalize_name("moss") == "moss"
+
+    def test_short_word_not_depluralized(self):
+        # words ≤ 4 chars are not touched
+        assert _normalize_name("oats") == "oats"
+
+    def test_combined_diacritics_and_plural(self):
+        assert _normalize_name("jalapeños") == "jalapeno"
+
+
+def _make_meal(ingredients: list[dict]) -> "PlannedMeal":
+    """Helper: build a PlannedMeal with the given raw ingredients."""
+    from app.planner import PlannedMeal
+    from tests.conftest import create_test_recipe
+    recipe = create_test_recipe(
+        recipe_id="r", name="R", servings=1,
+        prep_time_minutes=0, cook_time_minutes=0,
+        calories=0, protein=0, carbs=0, fat=0,
+        ingredients=ingredients,
+    )
+    return PlannedMeal(recipe=recipe, household_portions=1.0, day="Monday", meal_type="dinner")
+
+
+class TestIngredientNormalizationInShoppingList:
+    """generate_shopping_list merges diacritic variants, plurals, and fuzzy near-duplicates."""
+
+    def _list_names(self, ingredients_per_meal: list[list[dict]]) -> list[str]:
+        from app.planner import WeeklyPlan
+        meals = [_make_meal(ings) for ings in ingredients_per_meal]
+        sl = generate_shopping_list(WeeklyPlan(meals=meals))
+        return [i.item for i in sl.items]
+
+    def test_diacritics_merged(self):
+        """jalapeño and jalapeno are treated as the same ingredient."""
+        names = self._list_names([
+            [{"item": "jalapeño pepper", "quantity": 1.03, "unit": "", "category": "produce"}],
+            [{"item": "jalapeno pepper", "quantity": 0.55, "unit": "", "category": "produce"}],
+        ])
+        assert len([n for n in names if "jalapeno" in n.lower() or "jalapeño" in n.lower()]) == 1
+
+    def test_plurals_merged(self):
+        """jalapeno peppers and jalapeno pepper become one line."""
+        names = self._list_names([
+            [{"item": "jalapeno pepper",  "quantity": 1.0, "unit": "", "category": "produce"}],
+            [{"item": "jalapeno peppers", "quantity": 0.5, "unit": "", "category": "produce"}],
+        ])
+        assert len([n for n in names if "jalapeno" in n.lower()]) == 1
+
+    def test_quantities_summed_after_merge(self):
+        """Quantities are summed when diacritic variants are merged."""
+        from app.planner import WeeklyPlan
+        meals = [
+            _make_meal([{"item": "jalapeño pepper", "quantity": 2.0, "unit": "", "category": "produce"}]),
+            _make_meal([{"item": "jalapeno pepper", "quantity": 1.0, "unit": "", "category": "produce"}]),
+        ]
+        sl = generate_shopping_list(WeeklyPlan(meals=meals))
+        item = next(i for i in sl.items if "jalapeno" in i.item.lower() or "jalapeño" in i.item.lower())
+        assert item.quantity == pytest.approx(3.0)
+
+    def test_unrelated_ingredients_not_merged(self):
+        """Distinct ingredients are kept separate."""
+        names = self._list_names([
+            [{"item": "chicken breast", "quantity": 200, "unit": "g", "category": "meat"}],
+            [{"item": "beef mince",     "quantity": 300, "unit": "g", "category": "meat"}],
+        ])
+        assert len(names) == 2
 
