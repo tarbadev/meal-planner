@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from app.main import _is_valid_image_bytes, app
+from app.main import _NORM_TASK_TTL, _is_valid_image_bytes, app
 from app.recipes import Recipe, save_recipes
 from tests.conftest import create_test_recipe
 
@@ -2251,3 +2251,70 @@ class TestImageMagicBytes:
         # Must NOT be rejected for invalid content (may succeed or fail for other reasons)
         body = json.loads(response.data)
         assert body.get("error") != "Invalid file content"
+
+
+class TestNormTaskTTL:
+    """_norm_tasks stale entries are pruned on the next _start_normalization call."""
+
+    def test_stale_tasks_pruned(self, monkeypatch):
+        """Tasks older than _NORM_TASK_TTL seconds are removed when a new task starts."""
+        from app import main
+
+        old_task_id = "old-task-id"
+        now = 1_000_000.0
+        stale_time = now - _NORM_TASK_TTL - 1  # one second past the TTL
+
+        # Seed the dict with a stale completed task and a fresh pending task.
+        fresh_task_id = "fresh-task-id"
+        monkeypatch.setattr(main, "_norm_tasks", {
+            old_task_id: {"status": "done", "created_at": stale_time, "items": []},
+            fresh_task_id: {"status": "pending", "created_at": now - 10, "items": None},
+        })
+        monkeypatch.setattr(main, "current_shopping_list", None)
+
+        # Freeze time so our TTL arithmetic is deterministic.
+        monkeypatch.setattr(main.time, "time", lambda: now)
+
+        # Prevent the background thread from actually running.
+        started = []
+        def fake_start(self):
+            started.append(True)
+        monkeypatch.setattr(main.threading.Thread, "start", fake_start)
+
+        main._start_normalization()
+
+        # Stale entry must be gone; fresh entry must survive.
+        assert old_task_id not in main._norm_tasks
+        assert fresh_task_id in main._norm_tasks
+
+    def test_fresh_tasks_not_pruned(self, monkeypatch):
+        """Tasks younger than _NORM_TASK_TTL are NOT pruned."""
+        from app import main
+
+        recent_task_id = "recent-task-id"
+        now = 1_000_000.0
+
+        monkeypatch.setattr(main, "_norm_tasks", {
+            recent_task_id: {"status": "done", "created_at": now - 60, "items": []},
+        })
+        monkeypatch.setattr(main, "current_shopping_list", None)
+        monkeypatch.setattr(main.time, "time", lambda: now)
+        monkeypatch.setattr(main.threading.Thread, "start", lambda self: None)
+
+        main._start_normalization()
+
+        assert recent_task_id in main._norm_tasks
+
+    def test_new_task_has_created_at(self, monkeypatch):
+        """The newly created task entry must include a created_at timestamp."""
+        from app import main
+
+        now = 1_000_000.0
+        monkeypatch.setattr(main, "_norm_tasks", {})
+        monkeypatch.setattr(main, "current_shopping_list", None)
+        monkeypatch.setattr(main.time, "time", lambda: now)
+        monkeypatch.setattr(main.threading.Thread, "start", lambda self: None)
+
+        task_id = main._start_normalization()
+
+        assert main._norm_tasks[task_id]["created_at"] == now

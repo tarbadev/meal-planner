@@ -83,6 +83,7 @@ def _norm_task_run(task_id: str, snapshot: ShoppingList) -> None:
             current_shopping_list = result
             _norm_tasks[task_id] = {
                 "status": "done",
+                "created_at": _norm_tasks.get(task_id, {}).get("created_at", time.time()),
                 "items": [
                     {"item": i.item, "quantity": i.quantity, "unit": i.unit, "category": i.category}
                     for i in result.items
@@ -91,15 +92,27 @@ def _norm_task_run(task_id: str, snapshot: ShoppingList) -> None:
     except Exception:
         logger.exception("Background normalization failed", extra={"task_id": task_id})
         with _norm_lock:
-            _norm_tasks[task_id] = {"status": "failed", "items": None}
+            _norm_tasks[task_id] = {
+                "status": "failed",
+                "created_at": _norm_tasks.get(task_id, {}).get("created_at", time.time()),
+                "items": None,
+            }
+
+
+_NORM_TASK_TTL = 3600  # seconds — completed tasks are pruned after this
 
 
 def _start_normalization() -> str:
     """Snapshot current_shopping_list under the lock, kick off a background thread."""
     task_id = str(uuid.uuid4())
+    now = time.time()
     with _norm_lock:
         snapshot = current_shopping_list  # atomic snapshot while holding the lock
-        _norm_tasks[task_id] = {"status": "pending", "items": None}
+        # Prune stale tasks so the dict doesn't grow unboundedly on long-running servers.
+        stale = [k for k, v in _norm_tasks.items() if now - v.get("created_at", now) > _NORM_TASK_TTL]
+        for k in stale:
+            del _norm_tasks[k]
+        _norm_tasks[task_id] = {"status": "pending", "items": None, "created_at": now}
     t = threading.Thread(target=_norm_task_run, args=(task_id, snapshot), daemon=True)
     t.start()
     return task_id
