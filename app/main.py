@@ -5,6 +5,8 @@ import uuid
 from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_wtf.csrf import CSRFProtect
 
 from app import config
@@ -27,6 +29,12 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.config["SECRET_KEY"] = config.SECRET_KEY
 csrf = CSRFProtect(app)
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=[],          # no global limit; apply per-route only
+    storage_uri="memory://",
+)
 
 # ---------------------------------------------------------------------------
 # Image magic-bytes validation (defence against extension-only spoofing)
@@ -475,6 +483,7 @@ def generate_with_schedule():
 
 
 @app.route("/import-recipe", methods=["POST"])
+@limiter.limit("10 per minute")
 def import_recipe():
     """Import a recipe from a URL."""
     logger.info("Importing recipe from URL")
@@ -653,6 +662,7 @@ def import_recipe():
 
 
 @app.route("/import-recipe-text", methods=["POST"])
+@limiter.limit("10 per minute")
 def import_recipe_text():
     """Import a recipe from manually pasted text (Instagram fallback)."""
     logger.info("Importing recipe from text")
@@ -827,6 +837,7 @@ def import_recipe_text():
 
 
 @app.route("/import-recipe-image", methods=["POST"])
+@limiter.limit("10 per minute")
 def import_recipe_image():
     """Import a recipe from a photo."""
     logger.info("Importing recipe from image")

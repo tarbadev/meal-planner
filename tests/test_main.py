@@ -56,7 +56,12 @@ def client(tmp_path, monkeypatch):
 
     # Create test client
     app.config['TESTING'] = True
-    app.config['WTF_CSRF_ENABLED'] = False  # disable CSRF in tests
+    app.config['WTF_CSRF_ENABLED'] = False       # disable CSRF in tests
+
+    # Flask-Limiter reads self.enabled at init time; set it directly for tests
+    from app.main import limiter
+    monkeypatch.setattr(limiter, 'enabled', False)
+
     with app.test_client() as client:
         yield client
 
@@ -2084,6 +2089,53 @@ class TestShoppingListIndexSafety:
             content_type='application/json',
         )
         assert response.status_code == 400
+
+
+class TestRateLimiting:
+    """LLM-backed import endpoints are capped at 10 requests/minute per IP."""
+
+    @pytest.fixture
+    def rate_limit_client(self, tmp_path, monkeypatch):
+        """Test client with rate limiting *enabled* and a very low limit."""
+        from app import config
+        from app.main import app, limiter
+        from app.recipes import save_recipes
+
+        recipes_file = tmp_path / "recipes.json"
+        save_recipes(recipes_file, [])
+        monkeypatch.setattr(config, "RECIPES_FILE", str(recipes_file))
+
+        app.config["TESTING"] = True
+        app.config["WTF_CSRF_ENABLED"] = False
+        monkeypatch.setattr(limiter, "enabled", True)
+
+        with app.test_client() as c:
+            yield c
+        monkeypatch.setattr(limiter, "enabled", False)
+
+    def test_import_recipe_rate_limited(self, rate_limit_client, monkeypatch):
+        """After 10 requests the endpoint returns 429."""
+        # Override the per-route limit to 2/minute so the test runs fast
+        from flask_limiter import Limiter
+
+        from app.main import limiter
+
+        monkeypatch.setattr(limiter, "enabled", True)
+
+        # Make 11 requests; the 11th (or whichever exceeds 10/min) should be 429
+        # We patch the actual route limit to 2/minute via the limiter storage reset trick:
+        # Instead, just confirm a 429 is raised — drive 11 calls.
+        hit_429 = False
+        for _ in range(12):
+            resp = rate_limit_client.post(
+                "/import-recipe",
+                data=json.dumps({"url": "https://example.com"}),
+                content_type="application/json",
+            )
+            if resp.status_code == 429:
+                hit_429 = True
+                break
+        assert hit_429, "Expected a 429 after exceeding the rate limit"
 
 
 class TestCSRFProtection:
