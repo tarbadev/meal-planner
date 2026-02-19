@@ -2704,9 +2704,6 @@
         // Poll a normalization task; show skeleton loader while waiting
         function pollNormalization(taskId) {
             _showShoppingLoadingState();
-            // Scroll to shopping list so user sees the loader
-            const section = document.getElementById('shopping');
-            if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             const poll = async () => {
                 try {
