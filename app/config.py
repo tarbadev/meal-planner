@@ -1,7 +1,13 @@
 import os
+import secrets
 import sys
 
 GOOGLE_SHEETS_ID = "your-spreadsheet-id"
+
+# Flask secret key — used for session signing and CSRF token generation.
+# Set SECRET_KEY in the environment for production; a random key is
+# generated on startup as a safe fallback (sessions won't survive restarts).
+SECRET_KEY = os.environ.get("SECRET_KEY", secrets.token_hex(32))
 CREDENTIALS_FILE = "credentials.json"
 
 # Check if we're running in a test environment

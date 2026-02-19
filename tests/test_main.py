@@ -56,6 +56,7 @@ def client(tmp_path, monkeypatch):
 
     # Create test client
     app.config['TESTING'] = True
+    app.config['WTF_CSRF_ENABLED'] = False  # disable CSRF in tests
     with app.test_client() as client:
         yield client
 
@@ -2083,6 +2084,51 @@ class TestShoppingListIndexSafety:
             content_type='application/json',
         )
         assert response.status_code == 400
+
+
+class TestCSRFProtection:
+    """CSRF token must be required on state-changing endpoints."""
+
+    @pytest.fixture
+    def csrf_client(self, tmp_path, monkeypatch):
+        """Test client with CSRF *enabled* (unlike the default test fixture)."""
+        from app import config
+        from app.main import app
+        from app.recipes import save_recipes
+
+        recipes_file = tmp_path / "recipes.json"
+        save_recipes(recipes_file, [
+            create_test_recipe(
+                recipe_id="pasta-bolognese", name="Pasta Bolognese",
+                tags=["dinner"], ingredients=[],
+            )
+        ])
+        monkeypatch.setattr(config, "RECIPES_FILE", str(recipes_file))
+
+        app.config["TESTING"] = True
+        app.config["WTF_CSRF_ENABLED"] = True
+        app.config["WTF_CSRF_SECRET_KEY"] = "test-csrf-secret"
+        with app.test_client() as c:
+            yield c
+        # Reset for other tests
+        app.config["WTF_CSRF_ENABLED"] = False
+
+    def test_post_without_token_rejected(self, csrf_client):
+        """POST without CSRF token returns 400."""
+        response = csrf_client.post(
+            "/manual-plan/add-meal",
+            data=json.dumps({
+                "day": "Monday", "meal_type": "dinner",
+                "recipe_id": "pasta-bolognese", "servings": 4,
+            }),
+            content_type="application/json",
+        )
+        assert response.status_code == 400
+
+    def test_get_does_not_require_token(self, csrf_client):
+        """GET requests are exempt from CSRF validation."""
+        response = csrf_client.get("/current-plan")
+        assert response.status_code == 200
 
 
 class TestImageMagicBytes:

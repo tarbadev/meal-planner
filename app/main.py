@@ -5,6 +5,7 @@ import uuid
 from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request
+from flask_wtf.csrf import CSRFProtect
 
 from app import config
 from app.logging_config import configure_logging
@@ -22,6 +23,10 @@ from app.tag_inference import TagInferencer
 
 configure_logging()
 logger = logging.getLogger(__name__)
+
+app = Flask(__name__)
+app.config["SECRET_KEY"] = config.SECRET_KEY
+csrf = CSRFProtect(app)
 
 # ---------------------------------------------------------------------------
 # Image magic-bytes validation (defence against extension-only spoofing)
@@ -47,7 +52,6 @@ def _is_valid_image_bytes(data: bytes) -> bool:
                 return True
     return False
 
-app = Flask(__name__)
 
 # Store the current plan in memory (v1 - simple approach)
 current_plan = None

@@ -12,6 +12,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Meals">
 
+    <!-- CSRF token for AJAX requests -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="/static/manifest.json">
 
@@ -2092,6 +2095,17 @@
         let currentPlanData = {% if current_plan %}{{ current_plan | tojson }}{% else %}null{% endif %};
         let currentShoppingList = {% if current_shopping_list %}{{ current_shopping_list.items | tojson }}{% else %}[]{% endif %};
 
+        // CSRF-aware fetch: automatically adds X-CSRFToken header to all
+        // state-changing requests (POST, PUT, PATCH, DELETE).
+        function csrfFetch(url, options = {}) {
+            const method = (options.method || 'GET').toUpperCase();
+            if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+                const token = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                options.headers = { 'X-CSRFToken': token, ...options.headers };
+            }
+            return fetch(url, options);
+        }
+
         // Schedule management functions
         function getCustomSchedule() {
             const stored = localStorage.getItem('customSchedule');
@@ -2223,10 +2237,10 @@
                 const schedule = getCustomSchedule();
 
                 // Clear existing manual plan first
-                await fetch('/manual-plan/clear', { method: 'POST' });
+                await csrfFetch('/manual-plan/clear', { method: 'POST' });
 
                 // Generate plan with custom schedule
-                const response = await fetch('/generate-with-schedule', {
+                const response = await csrfFetch('/generate-with-schedule', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ schedule })
@@ -2256,7 +2270,7 @@
             if (!confirm('Clear all meals for this week?')) return;
 
             try {
-                await fetch('/manual-plan/clear', { method: 'POST' });
+                await csrfFetch('/manual-plan/clear', { method: 'POST' });
                 showMessage('Week cleared', 'success');
                 window.location.reload();
             } catch (error) {
@@ -2267,7 +2281,7 @@
         // Load current plan
         async function loadCurrentPlan() {
             try {
-                const response = await fetch('/current-plan');
+                const response = await csrfFetch('/current-plan');
                 const data = await response.json();
 
                 if (data.plan) {
@@ -2472,7 +2486,7 @@
         // Meal management functions
         async function addMeal(day, mealType, recipeId, servings) {
             try {
-                const response = await fetch('/manual-plan/add-meal', {
+                const response = await csrfFetch('/manual-plan/add-meal', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ day, meal_type: mealType, recipe_id: recipeId, servings })
@@ -2495,7 +2509,7 @@
             if (!confirm('Remove this meal?')) return;
 
             try {
-                const response = await fetch('/manual-plan/remove-meal', {
+                const response = await csrfFetch('/manual-plan/remove-meal', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ day, meal_type: mealType })
@@ -2519,7 +2533,7 @@
             if (!newServings || isNaN(newServings)) return;
 
             try {
-                const response = await fetch('/manual-plan/update-servings', {
+                const response = await csrfFetch('/manual-plan/update-servings', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ day, meal_type: mealType, servings: parseFloat(newServings) })
@@ -2542,7 +2556,7 @@
             if (!confirm(`Regenerate ${mealType} with a different recipe?`)) return;
 
             try {
-                const response = await fetch('/manual-plan/regenerate-meal', {
+                const response = await csrfFetch('/manual-plan/regenerate-meal', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ day, meal_type: mealType })
@@ -2564,7 +2578,7 @@
         async function openRecipeSelector(day, mealType) {
             // Fetch all recipes from API (up to 1000)
             try {
-                const response = await fetch('/api/recipes?per_page=1000');
+                const response = await csrfFetch('/api/recipes?per_page=1000');
                 const data = await response.json();
                 const recipes = data.recipes;
 
@@ -2696,7 +2710,7 @@
 
             const poll = async () => {
                 try {
-                    const res = await fetch(`/shopping-list/normalize/${taskId}`);
+                    const res = await csrfFetch(`/shopping-list/normalize/${taskId}`);
                     if (!res.ok) { _stopLoadingAndRender(); return; }
                     const data = await res.json();
                     if (data.status === 'done' && data.items) {
@@ -2823,7 +2837,7 @@
             }
 
             try {
-                const response = await fetch('/shopping-list/update-item', {
+                const response = await csrfFetch('/shopping-list/update-item', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ index, quantity, name })
@@ -2849,7 +2863,7 @@
             if (!confirm('Delete this item?')) return;
 
             try {
-                const response = await fetch('/shopping-list/delete-item', {
+                const response = await csrfFetch('/shopping-list/delete-item', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ index })
@@ -2885,7 +2899,7 @@
 
         async function addShoppingItem(name, quantity, unit, category) {
             try {
-                const response = await fetch('/shopping-list/add-item', {
+                const response = await csrfFetch('/shopping-list/add-item', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ name, quantity, unit, category })
@@ -3063,7 +3077,7 @@
             statusEl.classList.remove('hidden');
 
             try {
-                const response = await fetch('/import-recipe', {
+                const response = await csrfFetch('/import-recipe', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ url })
@@ -3101,7 +3115,7 @@
             statusEl.classList.remove('hidden');
 
             try {
-                const response = await fetch('/import-recipe-text', {
+                const response = await csrfFetch('/import-recipe-text', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ text, language: 'auto' })
@@ -3164,7 +3178,7 @@
                 formData.append('image', file);
                 console.log('[IMAGE UPLOAD] FormData created, starting upload...');
 
-                const response = await fetch('/import-recipe-image', {
+                const response = await csrfFetch('/import-recipe-image', {
                     method: 'POST',
                     body: formData
                 });
@@ -3330,7 +3344,7 @@
             statusEl.classList.remove('hidden');
 
             try {
-                const response = await fetch('/recipes', {
+                const response = await csrfFetch('/recipes', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(recipeData)
@@ -3399,7 +3413,7 @@
             document.getElementById('recipePagination').style.display = 'none';
 
             try {
-                const response = await fetch(`/api/recipes?${params}`);
+                const response = await csrfFetch(`/api/recipes?${params}`);
                 const data = await response.json();
 
                 currentPage = page;
@@ -3786,7 +3800,7 @@
 
         async function loadExcludedIngredients() {
             try {
-                const res = await fetch('/excluded-ingredients');
+                const res = await csrfFetch('/excluded-ingredients');
                 excludedIngredients = await res.json();
             } catch (e) {
                 excludedIngredients = ['water', 'salt'];
@@ -3823,7 +3837,7 @@
 
         async function saveExcludedIngredients() {
             try {
-                await fetch('/excluded-ingredients', {
+                await csrfFetch('/excluded-ingredients', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ items: excludedIngredients }),
@@ -3855,7 +3869,7 @@
             document.getElementById('recipePickerModal').classList.remove('hidden');
 
             try {
-                const response = await fetch('/api/recipes?per_page=500');
+                const response = await csrfFetch('/api/recipes?per_page=500');
                 const data = await response.json();
                 _pickerRecipes = data.recipes || [];
                 renderPickerList(_pickerRecipes);
