@@ -1887,6 +1887,104 @@ class TestUpdateCurrentPlanMeal:
         assert main.manual_plan['Monday']['dinner']['servings'] == 3
 
 
+class TestServingsValidation:
+    """servings must be a positive number on add-meal and update-servings."""
+
+    def test_add_meal_rejects_zero_servings(self, client):
+        response = client.post(
+            '/manual-plan/add-meal',
+            data=json.dumps({
+                "day": "Monday", "meal_type": "dinner",
+                "recipe_id": "pasta-bolognese", "servings": 0,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == 400
+        assert "servings" in json.loads(response.data).get("error", "").lower()
+
+    def test_add_meal_rejects_negative_servings(self, client):
+        response = client.post(
+            '/manual-plan/add-meal',
+            data=json.dumps({
+                "day": "Monday", "meal_type": "dinner",
+                "recipe_id": "pasta-bolognese", "servings": -2,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == 400
+
+    def test_add_meal_rejects_string_servings(self, client):
+        response = client.post(
+            '/manual-plan/add-meal',
+            data=json.dumps({
+                "day": "Monday", "meal_type": "dinner",
+                "recipe_id": "pasta-bolognese", "servings": "lots",
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == 400
+
+    def test_add_meal_accepts_positive_servings(self, client):
+        response = client.post(
+            '/manual-plan/add-meal',
+            data=json.dumps({
+                "day": "Monday", "meal_type": "dinner",
+                "recipe_id": "pasta-bolognese", "servings": 4,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+
+    def test_update_servings_rejects_zero(self, client):
+        # First add a meal so we can update it
+        client.post(
+            '/manual-plan/add-meal',
+            data=json.dumps({
+                "day": "Monday", "meal_type": "dinner",
+                "recipe_id": "pasta-bolognese", "servings": 4,
+            }),
+            content_type='application/json',
+        )
+        response = client.post(
+            '/manual-plan/update-servings',
+            data=json.dumps({"day": "Monday", "meal_type": "dinner", "servings": 0}),
+            content_type='application/json',
+        )
+        assert response.status_code == 400
+
+    def test_update_servings_rejects_negative(self, client):
+        client.post(
+            '/manual-plan/add-meal',
+            data=json.dumps({
+                "day": "Monday", "meal_type": "dinner",
+                "recipe_id": "pasta-bolognese", "servings": 4,
+            }),
+            content_type='application/json',
+        )
+        response = client.post(
+            '/manual-plan/update-servings',
+            data=json.dumps({"day": "Monday", "meal_type": "dinner", "servings": -1}),
+            content_type='application/json',
+        )
+        assert response.status_code == 400
+
+    def test_update_servings_accepts_positive(self, client):
+        client.post(
+            '/manual-plan/add-meal',
+            data=json.dumps({
+                "day": "Monday", "meal_type": "dinner",
+                "recipe_id": "pasta-bolognese", "servings": 4,
+            }),
+            content_type='application/json',
+        )
+        response = client.post(
+            '/manual-plan/update-servings',
+            data=json.dumps({"day": "Monday", "meal_type": "dinner", "servings": 6}),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+
+
 class TestNullQuantitySerialization:
     """round(item.quantity, 2) raises TypeError when quantity is None (BUG-3)."""
 

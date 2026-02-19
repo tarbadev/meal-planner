@@ -1572,6 +1572,9 @@ def add_meal_to_plan():
     recipe_id = data["recipe_id"]
     servings = data["servings"]
 
+    if not isinstance(servings, (int, float)) or servings <= 0:
+        return jsonify({"error": "servings must be a positive number"}), 400
+
     # Validate recipe exists
     recipes_file = Path(config.RECIPES_FILE)
     recipes = load_recipes(recipes_file)
@@ -1647,6 +1650,9 @@ def update_meal_servings():
 
     if not day or not meal_type or servings is None:
         return jsonify({"error": "Missing required fields"}), 400
+
+    if not isinstance(servings, (int, float)) or servings <= 0:
+        return jsonify({"error": "servings must be a positive number"}), 400
 
     if day not in manual_plan or meal_type not in manual_plan[day]:
         return jsonify({"error": "Meal not found in plan"}), 404
