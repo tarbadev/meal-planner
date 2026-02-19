@@ -88292,6 +88292,3946 @@
       ],
       "source_url": "https://www.foodista.com/recipe/KLYNPLC4/grilled-chuck-burgers-with-extra-sharp-cheddar-and-lemon-garlic-aioli",
       "image_url": "https://img.spoonacular.com/recipes/645680-312x231.jpg"
+    },
+    {
+      "id": "satay-chicken-wings",
+      "name": "Satay Chicken Wings",
+      "servings": 6,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 437,
+        "protein": 27.43,
+        "carbs": 12.43,
+        "fat": 30.99,
+        "saturated_fat": 7.63,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 519.73,
+        "potassium": null,
+        "fiber": 2.71,
+        "sugar": 5.08,
+        "vitamin_a": null,
+        "vitamin_c": 37.66,
+        "calcium": 67.84,
+        "iron": 3.19
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "antipasti",
+        "main course",
+        "starter",
+        "snack",
+        "appetizer",
+        "main dish",
+        "antipasto",
+        "dinner",
+        "hor d'oeuvre",
+        "gluten free",
+        "dairy free",
+        "spoonacular",
+        "dessert",
+        "grilling"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.5,
+          "unit": "kg",
+          "item": "chicken wings",
+          "notes": "Chicken wings (about 12 wings), 1.5kg",
+          "category": "meat"
+        },
+        {
+          "quantity": 6.0,
+          "unit": "",
+          "item": "shallots",
+          "notes": "6-8 Shallots",
+          "category": "produce"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "cloves",
+          "item": "garlic",
+          "notes": "3-4 cloves Garlic",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "",
+          "item": "chilies",
+          "notes": "2-3 Red chilies",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "chilies",
+          "notes": "1-2 Dry chilies (soaked)",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "lemongrass stalk",
+          "notes": "1 Lemongrass stalk (white part)",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "",
+          "item": "cm piece of ginger/galangal",
+          "notes": "3 cm piece of Ginger/Galangal",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tsp",
+          "item": "coriander powder",
+          "notes": "1tsp Coriander powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "cumin powder",
+          "notes": "1 teaspoon Cumin powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "aniseed powder",
+          "notes": "1 teaspoon Aniseed powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "turmeric",
+          "notes": "2 teaspoons Turmeric",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 6.0,
+          "unit": "servings",
+          "item": "pepper",
+          "notes": "White pepper, a dash",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 6.0,
+          "unit": "servings",
+          "item": "salt",
+          "notes": "Salt, to taste",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoons",
+          "item": "sugar",
+          "notes": "1-2 teaspoons Sugar",
+          "category": "baking"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "vegetable oil",
+          "notes": "2tablespoons Vegetable oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "tablespoons",
+          "item": "spice paste",
+          "notes": "3-4 tablespoons Spice paste (as reserved from the marinate)",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 6.0,
+          "unit": "servings",
+          "item": "water",
+          "notes": "Water, some",
+          "category": "beverages"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "vegetable oil",
+          "notes": "1 tablespoon Vegetable oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "tamarind juice",
+          "notes": "2 tablespoons Tamarind juice",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "roasted peanuts",
+          "notes": "2-3 tablespoons Roasted peanuts (ground and keep slightly chunky)",
+          "category": "nuts"
+        },
+        {
+          "quantity": 6.0,
+          "unit": "servings",
+          "item": "salt and sugar",
+          "notes": "Salt and sugar, to taste",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "In a food processor, blend shallots, garlic cloves, red chilies, dry chilies, lemongrass, and ginger/galangal until they become a paste.",
+        "Clean the chicken wings and dry them with kitchen towels.",
+        "In a big mixing bowl, put in the spice paste.",
+        "Mix with coriander powder, cumin powder, aniseed powder, turmeric, white pepper, salt, oil and sugar. Keep some marinate aside in a small bowl, about 3-4 tbsp.",
+        "Put in all chicken wings in the big bowl and mix well. Make sure the chicken wings are well coated with the paste. Cover with cling film and marinate overnight.",
+        "To prepare a quick peanut sauce, heat a pan with oil. Put in the spice paste. Cook on low heat until fragrant and the oil starts to seep out.",
+        "Add in tamarind juice and stir.",
+        "Add in sugar and salt. Adjust the seasoning accordingly.",
+        "Add in some water to dilute the paste as it gets thicken. Then, add in the toasted ground peanuts and mix well. If the sauce gets too thick, thin it down with some water and adjust the seasoning if needed.",
+        "Heat up the grill and cook the marinated chicken wings for about 10-15 minutes on each side.",
+        "Brush the peanut sauce on top before serving."
+      ],
+      "source_url": "https://www.foodista.com/recipe/Q6G4VN7B/satay-chicken-wings",
+      "image_url": "https://img.spoonacular.com/recipes/659290-312x231.jpg"
+    },
+    {
+      "id": "chipotle-cheese-stuffed-black-bean-burgers-with-avocado-creme",
+      "name": "Chipotle Cheese Stuffed Black Bean Burgers with Avocado Creme",
+      "servings": 4,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 658,
+        "protein": 22.47,
+        "carbs": 53.16,
+        "fat": 40.81,
+        "saturated_fat": 12.96,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 1351.75,
+        "potassium": null,
+        "fiber": 12.27,
+        "sugar": 5.75,
+        "vitamin_a": null,
+        "vitamin_c": 10.67,
+        "calcium": 365.78,
+        "iron": 4.93
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "main course",
+        "main dish",
+        "dinner",
+        "spoonacular"
+      ],
+      "ingredients": [
+        {
+          "quantity": 15.0,
+          "unit": "oz",
+          "item": "black beans",
+          "notes": "15oz can black beans, rinsed and drained",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "small",
+          "item": "onion",
+          "notes": "1/2 small yellow onion, diced",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "large",
+          "item": "mushrooms",
+          "notes": "2-3 large mushrooms, diced",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "egg",
+          "notes": "1 egg, beaten",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "panko bread crumbs",
+          "notes": "1/2 cup panko bread crumbs",
+          "category": "baking"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tsp",
+          "item": "cumin",
+          "notes": "1 tsp cumin",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "tsp",
+          "item": "chipotle chili powder",
+          "notes": "1/2 tsp chipotle chili powder (adjust according to how spicy you like it)",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "servings",
+          "item": "salt/pepper",
+          "notes": "salt/pepper, to taste",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "servings",
+          "item": "olive oil",
+          "notes": "olive oil, for saute (I like Devo Olive Oil's Chipotle or Wild Mushroom and Sage flavors)",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "tbsp",
+          "item": "approx cream cheese spread",
+          "notes": "Approx 4 tbsp softened cream cheese spread, chipotle flavor if available",
+          "category": "cheese"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "servings",
+          "item": "hamburger buns",
+          "notes": "hamburger buns, toasted",
+          "category": "bakery/bread"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "slices",
+          "item": "cheese",
+          "notes": "4 slices of cheese, optional",
+          "category": "cheese"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "leaves",
+          "item": "spinach and tomato",
+          "notes": "burgers toppings like lettuce, kale, or spinach leaves and sliced tomato",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "avocado",
+          "notes": "1 ripe avocado, peeled, pitted, and cut into wedges",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "cup",
+          "item": "cream",
+          "notes": "1/4 cup sour cream (start with 2 tbsp then add until you get the consistency you like)",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tbsp",
+          "item": "lime juice",
+          "notes": "1 tbsp lime juice",
+          "category": "produce"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "servings",
+          "item": "sea salt",
+          "notes": "sea salt, to taste",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "Add a swirl of olive oil to a skillet and add diced mushrooms and onions.",
+        "Saute until softened then season with salt and pepper.",
+        "Add drained black beans to a medium bowl and press and mash with a fork.",
+        "Mix in mushrooms and onions then add egg and bread crumbs.",
+        "Finally mix in cumin and chipotle chili powder.",
+        "Roll and form into burger patties (sliders or full size).",
+        "Form a indent in the center of each burger",
+        "Add a spoonful of cream cheese spread to the indent in the burgers and then form the burger over the cream cheese.",
+        "Heat a skillet over medium heat, add a swirl of olive oil.",
+        "Add 2 burgers at a time and sear on each side until cooked and browned, about 4 minutes each side.",
+        "If you want to add sliced cheese on top, add now and cover skillet to steam and melt cheese.",
+        "Remove to a plate, then cook remaining patties.",
+        "For the avocado creme, combine all ingredients in a food processor or blender, and mix until smooth. Taste and add more sour cream or lime juice if needed.",
+        "To plate, add each hot cooked burger to an open toasted bun. Top with lettuce and tomato (optional) and a hearty scoop of avocado creme and then top with bun."
+      ],
+      "source_url": "https://www.foodista.com/recipe/BBKK34SS/chipotle-cheese-stuffed-black-bean-burgers-with-avocado-creme",
+      "image_url": "https://img.spoonacular.com/recipes/638744-312x231.jpg"
+    },
+    {
+      "id": "instant-pot-crack-chicken-chili",
+      "name": "Instant Pot Crack Chicken Chili",
+      "servings": 6,
+      "prep_time_minutes": 6,
+      "cook_time_minutes": 10,
+      "nutrition_per_serving": {
+        "calories": 532,
+        "protein": 30.29,
+        "carbs": 36.53,
+        "fat": 30.13,
+        "saturated_fat": 15.67,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 1624.87,
+        "potassium": null,
+        "fiber": 9.56,
+        "sugar": 1.88,
+        "vitamin_a": null,
+        "vitamin_c": 0,
+        "calcium": 369.82,
+        "iron": 3.34
+      },
+      "tags": [
+        "american",
+        "lunch",
+        "soup",
+        "main course",
+        "main dish",
+        "dinner",
+        "gluten free",
+        "spoonacular",
+        "breakfast",
+        "quick",
+        "instant-pot"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.0,
+          "unit": "tbsp",
+          "item": "olive oil",
+          "notes": "1 tbsp olive oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "medium",
+          "item": "chicken breasts",
+          "notes": "2 medium chicken breasts boneless, skinless",
+          "category": "meat"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "chicken broth",
+          "notes": "2 cups chicken broth",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 15.0,
+          "unit": "oz",
+          "item": "cannellini beans",
+          "notes": "15 oz cannellini beans",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 15.0,
+          "unit": "oz",
+          "item": "tomatoes",
+          "notes": "15 oz diced tomatoes with juice",
+          "category": "other"
+        },
+        {
+          "quantity": 15.0,
+          "unit": "oz",
+          "item": "black beans",
+          "notes": "15 oz black beans rinsed",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "tbsp",
+          "item": "ranch seasoning",
+          "notes": "4 tbsp Ranch seasoning",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "oz",
+          "item": "cream cheese",
+          "notes": "8 oz cream cheese",
+          "category": "cheese"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "pieces",
+          "item": "bacon",
+          "notes": "8 pieces bacon cooked, crumbled",
+          "category": "meat"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "cheddar cheese",
+          "notes": "2 cups cheddar cheese shredded",
+          "category": "cheese"
+        }
+      ],
+      "instructions": [
+        "Hit saute function on Instant Pot and add olive oil.",
+        "Add chicken breasts and cook for 2 minutes on each side. Hit off button twice.\u00a0",
+        "Add ranch seasoning, chicken broth, tomatoes, black beans, and then top with cubed cream cheese. Do not stir.\u00a0",
+        "Secure lid into place, making sure the vent is set to seal. Manual cook for 4 minutes. Allow to natural release for 5 minutes and then carefully manually release, removing the lid once the pin has dropped.\u00a0",
+        "Shred the chicken breasts. Stir the contents well.",
+        "Add the crumbled bacon and cheddar cheese and stir until combined.",
+        "Serve immediately.\u00a0"
+      ],
+      "source_url": "https://www.pinkwhen.com/instant-pot-crack-chicken-chili/",
+      "image_url": "https://img.spoonacular.com/recipes/1516713-312x231.jpg"
+    },
+    {
+      "id": "garlic-lemon-chili-broccoli",
+      "name": "Garlic Lemon Chili Broccoli",
+      "servings": 2,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 453,
+        "protein": 10.25,
+        "carbs": 26.18,
+        "fat": 37.65,
+        "saturated_fat": 5.42,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 354.54,
+        "potassium": null,
+        "fiber": 9.73,
+        "sugar": 6.37,
+        "vitamin_a": null,
+        "vitamin_c": 310.68,
+        "calcium": 177.7,
+        "iron": 3.15
+      },
+      "tags": [
+        "american",
+        "antipasti",
+        "soup",
+        "starter",
+        "snack",
+        "appetizer",
+        "antipasto",
+        "hor d'oeuvre",
+        "gluten free",
+        "dairy free",
+        "paleolithic",
+        "lacto ovo vegetarian",
+        "primal",
+        "vegan",
+        "spoonacular",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.5,
+          "unit": "pounds",
+          "item": "broccoli",
+          "notes": "1 1/2 pounds broccoli",
+          "category": "produce"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "cloves",
+          "item": "garlic",
+          "notes": "3 cloves garlic, mashed",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tbsp",
+          "item": "lemon juice",
+          "notes": "2 tbsp lemon juice",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tbsp",
+          "item": "rice vinegar",
+          "notes": "2 tbsp rice vinegar",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "tsp",
+          "item": "dijon mustard",
+          "notes": "1/2 tsp Dijon mustard",
+          "category": "condiments"
+        },
+        {
+          "quantity": 0.33333334,
+          "unit": "cup",
+          "item": "olive oil",
+          "notes": "1/3 cup olive oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "servings",
+          "item": "red pepper flakes",
+          "notes": "red pepper flakes to taste",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "servings",
+          "item": "salt and pepper",
+          "notes": "salt and pepper to taste",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "Whatch video"
+      ],
+      "source_url": "https://foodwishes.blogspot.com/2010/06/will-this-great-broccoli-salad-become.html",
+      "image_url": "https://img.spoonacular.com/recipes/1132339-312x231.jpg"
+    },
+    {
+      "id": "baked-sweet-potato-fries",
+      "name": "Baked Sweet Potato Fries",
+      "servings": 1,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 496,
+        "protein": 7.31,
+        "carbs": 91.88,
+        "fat": 11.86,
+        "saturated_fat": 2.68,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 381.66,
+        "potassium": null,
+        "fiber": 13.82,
+        "sugar": 19.25,
+        "vitamin_a": null,
+        "vitamin_c": 10.94,
+        "calcium": 142.12,
+        "iron": 2.8
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "gluten free",
+        "dairy free",
+        "whole 30",
+        "spoonacular",
+        "dessert",
+        "baking",
+        "vegetarian",
+        "vegan"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.0,
+          "unit": "T",
+          "item": "margarine",
+          "notes": "1 -T margarine or butter, melted",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "dash",
+          "item": "nutmeg",
+          "notes": "dash nutmeg",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "",
+          "item": "t seasoned salt",
+          "notes": "1/4 -t seasoned salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "lb",
+          "item": "smalls sweet potatoes",
+          "notes": "4 smalls sweet potatoes (about 1 lb)",
+          "category": "produce"
+        }
+      ],
+      "instructions": [
+        "Spray a 15 x 10 x 1 inch baking pan with nonstick coating. Scrub potatoes; cut lengthwise into quarters, then cut each quarter into 2 wedges. Arrange potatoes in a single layer in pan.",
+        "Combine margarine or butter, salt, and nutmeg.",
+        "Brush onto potatoes.",
+        "Bake in a 450 oven 20 minutes or until brown and tender."
+      ],
+      "source_url": "https://www.foodista.com/recipe/HDVQBNZX/baked-sweet-potato-fries",
+      "image_url": "https://img.spoonacular.com/recipes/633837-312x231.jpg"
+    },
+    {
+      "id": "smokey-rainbow-chili",
+      "name": "Smokey Rainbow Chili",
+      "servings": 8,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 218,
+        "protein": 9.43,
+        "carbs": 36.47,
+        "fat": 5.18,
+        "saturated_fat": 0.78,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 683.14,
+        "potassium": null,
+        "fiber": 9.46,
+        "sugar": 8.14,
+        "vitamin_a": null,
+        "vitamin_c": 59.54,
+        "calcium": 93.44,
+        "iron": 3.9
+      },
+      "tags": [
+        "american",
+        "antipasti",
+        "soup",
+        "starter",
+        "snack",
+        "appetizer",
+        "antipasto",
+        "hor d'oeuvre",
+        "gluten free",
+        "dairy free",
+        "lacto ovo vegetarian",
+        "vegan",
+        "spoonacular",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "olive oil",
+          "notes": "2 tablespoons olive oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "small",
+          "item": "zucchini",
+          "notes": "2 small zucchini, halved and cut into small chunks",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "bell pepper",
+          "notes": "1 red bell pepper, chopped (keep the pieces a bit big...helps to keep them crisp)",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "orange bell pepper",
+          "notes": "1 orange bell pepper, chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "jalapeno pepper",
+          "notes": "1 fresh jalapeno pepper, seeded and diced",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "cloves",
+          "item": "garlic",
+          "notes": "4 cloves garlic, minced",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "onion",
+          "notes": "1 onion, chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 28.0,
+          "unit": "ounce",
+          "item": "stewed tomatoes",
+          "notes": "2 (14 ounce) cans stewed tomatoes, with liquid (here is where I would have used fire roasted...they just don't exist here in Saudi)",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 6.0,
+          "unit": "ounce",
+          "item": "tomato paste",
+          "notes": "1 (6 ounce) can tomato paste",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 15.0,
+          "unit": "ounce",
+          "item": "black beans",
+          "notes": "1 (15 ounce) can black beans, drained and rinsed",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 15.0,
+          "unit": "ounce",
+          "item": "kernel corn",
+          "notes": "1 (15 ounce) can whole kernel corn, drained",
+          "category": "produce"
+        },
+        {
+          "quantity": 15.0,
+          "unit": "ounce",
+          "item": "kidney beans",
+          "notes": "1 (15 ounce) can red kidney beans, drained and rinsed",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "tablespoon",
+          "item": "paprika",
+          "notes": "1/2 tablespoon smoked paprika",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "chili powder",
+          "notes": "1 teaspoon chili powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "oregano",
+          "notes": "1/2 teaspoon dried oregano",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "ground pepper",
+          "notes": "1/2 teaspoon ground black pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "teaspoon",
+          "item": "cayenne pepper",
+          "notes": "1/4 teaspoon cayenne pepper, or to taste",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "(if using meat...brown the meat really well, remove and set aside.",
+        "Add the meat after sauteing the veggies)",
+        "Heat oil in a large pot over medium-high heat. Stir in zucchini, red bell pepper, orange bell pepper, jalapeno, garlic, and onion. Cook 5 minutes, just until tender.",
+        "Add tomatoes with liquid, tomato paste, black beans, corn, and kidney beans into the pot. Season with smoked paprika, chili powder, oregano, black pepper, and cayenne pepper. Bring to a boil.",
+        "Reduce heat to low and simmer 1 hour, stirring occasionally.  (depending on how big you cut the veggies, you may want to let it simmer a little longer)"
+      ],
+      "source_url": "https://www.foodista.com/recipe/V62YQQWD/smokey-rainbow-chili",
+      "image_url": "https://img.spoonacular.com/recipes/660395-312x231.jpg"
+    },
+    {
+      "id": "butternut-squash-and-black-bean-chili-with-bulgar",
+      "name": "Butternut Squash and Black Bean Chili with Bulgar",
+      "servings": 6,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 230,
+        "protein": 8.86,
+        "carbs": 45.28,
+        "fat": 3.28,
+        "saturated_fat": 0.51,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 640.21,
+        "potassium": null,
+        "fiber": 11.72,
+        "sugar": 6.23,
+        "vitamin_a": null,
+        "vitamin_c": 29.32,
+        "calcium": 120.6,
+        "iron": 3.53
+      },
+      "tags": [
+        "american",
+        "antipasti",
+        "soup",
+        "starter",
+        "snack",
+        "appetizer",
+        "antipasto",
+        "hor d'oeuvre",
+        "dairy free",
+        "lacto ovo vegetarian",
+        "vegan",
+        "spoonacular",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.0,
+          "unit": "TB",
+          "item": "ancho chili powder",
+          "notes": "1 TB Ancho Chili Powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "bulgur",
+          "notes": "1/2 cup Bulgur",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "butternut squash",
+          "notes": "1 Medium size Butternut Squash, Peeled, seeds removed & medium diced",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "TB",
+          "item": "chipotle chiles in adobo sauce",
+          "notes": "2 TB Chipotle Chiles in Adobo Sauce, chopped",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "black beans",
+          "notes": "2 cups Black Beans, cooked",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 14.0,
+          "unit": "oz",
+          "item": "tomatoes",
+          "notes": "14 oz can Fire Roasted Tomatoes, Diced",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "garlic",
+          "notes": "1 tablespoon garlic",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tsp",
+          "item": "ground coriander",
+          "notes": "1 tsp ground Coriander",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tsp",
+          "item": "ground cumin",
+          "notes": "1 tsp ground Cumin",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "TB",
+          "item": "olive oil",
+          "notes": "1 TB Olive Oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tsp",
+          "item": "mexican oregano",
+          "notes": "1 tsp dried Mexican Oregano",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "onion",
+          "notes": "1 Red Onion, chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 6.0,
+          "unit": "servings",
+          "item": "salt and pepper",
+          "notes": "Salt and pepper to taste",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "vegetable stock",
+          "notes": "2 cups Vegetable Stock",
+          "category": "canned and jarred"
+        }
+      ],
+      "instructions": [
+        "-In a large pot, heat the olive oil over a medium-high flame.",
+        "Add the onion, garlic, chili powder, cumin, coriander &amp; oregano. Sweat until the onions begin the turn translucent.-",
+        "Add the black beans, chipotle chiles, butternut squash, tomato and vegetable stock. Season with salt and pepper. Bring the mixture to a simmer and add the bulgar. Allow the chili to cook about 30-40 minutes until the squash is tender and the bulgar to soft.",
+        "Garnish with your favorite toppings."
+      ],
+      "source_url": "https://www.foodista.com/recipe/6SWWWS5Y/butternut-squash-and-black-bean-chili-with-bulgar",
+      "image_url": "https://img.spoonacular.com/recipes/636573-312x231.jpg"
+    },
+    {
+      "id": "kale-chips-with-parmesan-cheese-and-garlic",
+      "name": "Kale Chips with Parmesan Cheese and Garlic",
+      "servings": 2,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 162,
+        "protein": 7.15,
+        "carbs": 6.85,
+        "fat": 12.67,
+        "saturated_fat": 3.67,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 617.78,
+        "potassium": null,
+        "fiber": 2.81,
+        "sugar": 0.7,
+        "vitamin_a": null,
+        "vitamin_c": 64.05,
+        "calcium": 321.68,
+        "iron": 1.25
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "gluten free",
+        "primal",
+        "ketogenic",
+        "spoonacular",
+        "baking",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.0,
+          "unit": "bunch",
+          "item": "curly kale",
+          "notes": "1 bunch curly kale",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.33333334,
+          "unit": "cup",
+          "item": "parmesan cheese",
+          "notes": "1/3 cup grated Parmesan cheese",
+          "category": "cheese"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "teaspoon",
+          "item": "kosher salt",
+          "notes": "\u00bc teaspoon kosher salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.125,
+          "unit": "teaspoon",
+          "item": "pepper",
+          "notes": "1/8 teaspoon freshly ground black pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "cloves",
+          "item": "garlic",
+          "notes": "3 cloves garlic, minced",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "lemon juice",
+          "notes": "2 teaspoons fresh lemon juice",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "olive oil",
+          "notes": "1 tablespoon olive oil",
+          "category": "oil, vinegar, salad dressing"
+        }
+      ],
+      "instructions": [
+        "Heat oven to 325 degrees.Line a baking sheet with parchment paper or a Silpat for easy cleanup.Chop the leaves of the kale into medium-sized pieces.Wash and dry thoroughly, then place in a large bowl for mixing.In a small bowl, whisk Parmesan cheese, kosher salt, black pepper, and garlic.In another small bowl, mix the lemon juice and olive oil.",
+        "Drizzle the lemon juice and olive oil mixture over the kale in the large bowl.Use tongs to help coat all the pieces.Then sprinkle the Parmesan cheese mixture, and use tongs to help coat the pieces with the mixture.",
+        "Bake in the oven for about 12-15 minutes.You want the pieces to be brown and crispy, but not burnt.I sometimes remove pieces as they become the desired crispness and let some of the less crispy ones stay in the oven longer."
+      ],
+      "source_url": "https://www.foodista.com/recipe/M3SFPSBZ/kale-chips-with-parmesan-cheese-and-garlic",
+      "image_url": "https://img.spoonacular.com/recipes/1096277-312x231.jpg"
+    },
+    {
+      "id": "cashew-chili-portabello",
+      "name": "Cashew-Chili Portabello",
+      "servings": 4,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 460,
+        "protein": 11.79,
+        "carbs": 54.23,
+        "fat": 23.85,
+        "saturated_fat": 3.95,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 216.16,
+        "potassium": null,
+        "fiber": 4.79,
+        "sugar": 5.69,
+        "vitamin_a": null,
+        "vitamin_c": 41.43,
+        "calcium": 44.29,
+        "iron": 3.6
+      },
+      "tags": [
+        "american",
+        "antipasti",
+        "soup",
+        "starter",
+        "snack",
+        "appetizer",
+        "antipasto",
+        "hor d'oeuvre",
+        "gluten free",
+        "dairy free",
+        "lacto ovo vegetarian",
+        "vegan",
+        "spoonacular",
+        "baking",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "arrowroot powder",
+          "notes": "1 tablespoon tsp.- 1 arrowroot powder (push vegetables to side of pan to expose liquid& whisk in to thicken)",
+          "category": "baking"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "bragg's liquid aminos",
+          "notes": "2 tablespoons Nama Shoyu (soy sauce) or Bragg's Liquid Aminos",
+          "category": "condiments"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "cup",
+          "item": "brown rice",
+          "notes": "1 cup uncooked brown rice",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "cup",
+          "item": "cashew nuts",
+          "notes": "1 cup cashew nuts (raw or roasted)",
+          "category": "nuts"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "extra virgin olive oil",
+          "notes": "2 tablespoons extra virgin olive oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "servings",
+          "item": "cilantro",
+          "notes": "fresh cilantro",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "",
+          "item": "garlic cloves",
+          "notes": "2 garlic cloves, minced",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "bunch",
+          "item": "green onions",
+          "notes": "1 bunch green onions (scallions)- cut in 2 inch pieces including greens",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "",
+          "item": "lemon juice",
+          "notes": "1/2 lemon Juice",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "olive oil",
+          "notes": "1 teaspoon olive oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 12.0,
+          "unit": "ounces",
+          "item": "portabello mushrooms",
+          "notes": "12 ounces portabello mushrooms (should be 4 mushrooms - sliced into cubes)",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "bell pepper",
+          "notes": "1 red bell pepper, diced",
+          "category": "produce"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "",
+          "item": "chilies",
+          "notes": "3 dried red chilies, chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "servings",
+          "item": "sea salt& pepper",
+          "notes": "Sea salt& pepper to taste",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "water",
+          "notes": "2 cups filtered water",
+          "category": "beverages"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "sweetner",
+          "notes": "1 tablespoon sweetner",
+          "category": "?"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "sweetner",
+          "notes": "1 tablespoon sweetner",
+          "category": "?"
+        }
+      ],
+      "instructions": [
+        "Fix brown rice by cooking in 1 tsp. olive oil until lightly browned.",
+        "Place 2 basil leaves on top of rice and add 2 cups water all at once.  Quickly put on lid and bring to boil.  Turn down heat to simmer until all water has evaporated (around 40 minutes).  Fluff rice and add juice of 1/2 lemon and lightly salt &amp; pepper to taste.While rice is cooking cut portabello mushrooms into cubes.  Set aside.Preheat a wok and then heat the 2 tbsp. oil.",
+        "Add minced garlic and dried chopped chilies to the wok and stir-fry over a medium heat until golden.  Do not let the garlic burn.",
+        "Add the portabello mushrooms and stir-fry until it is cooked, then add the red bell pepper.Stir in the shoyou (soy sauce) and agave.",
+        "Add the green onions and cashew nuts.  Stir-fry for 1-2 minutes more, until heated through. Push vegetables to side of wok to expose liquid.",
+        "Whisk in 1 tsp. - 1 Tbsp. arrowroot powder to thicken liquid.To serve:  With a very small dipping bowl for a mold, pack with brown rice  and empty onto plate (see picture above).  On top of rice place stir-fry vegetables and garnish with cilantro."
+      ],
+      "source_url": "https://www.foodista.com/recipe/N3RKYKNM/cashew-chili-portabello",
+      "image_url": "https://img.spoonacular.com/recipes/637265-312x231.jpg"
+    },
+    {
+      "id": "macaroni-and-cheese-gratin",
+      "name": "Macaroni and Cheese Gratin",
+      "servings": 6,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 859,
+        "protein": 42.43,
+        "carbs": 85.93,
+        "fat": 37.82,
+        "saturated_fat": 20.21,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 1122.15,
+        "potassium": null,
+        "fiber": 3.8,
+        "sugar": 11.89,
+        "vitamin_a": null,
+        "vitamin_c": 4.81,
+        "calcium": 1031.2,
+        "iron": 2.73
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "spoonacular",
+        "dessert",
+        "pasta",
+        "baking",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.5,
+          "unit": "cups",
+          "item": "herbed bread crumbs",
+          "notes": "1 1/2 cups herbed bread crumbs",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "butter",
+          "notes": "1 tablespoon Butter or margarine",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "cheddar",
+          "notes": "2 cups grated cheddar",
+          "category": "cheese"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "pound",
+          "item": "elbow macaroni",
+          "notes": "1 pound elbow macaroni",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "flour",
+          "notes": "1 tablespoon Flour",
+          "category": "baking"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "gruyere",
+          "notes": "2 cups grated gruyere",
+          "category": "cheese"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "cups",
+          "item": "milk",
+          "notes": "4 cups milk",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "teaspoon",
+          "item": "nutmeg",
+          "notes": "1/4 teaspoon nutmeg",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "cup",
+          "item": "parmesan",
+          "notes": "1/4 cup grated Parmesan",
+          "category": "cheese"
+        },
+        {
+          "quantity": 0.33333334,
+          "unit": "cup",
+          "item": "parsley",
+          "notes": "1/3 cup chopped parsley",
+          "category": "produce"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "drops",
+          "item": "pepper sauce",
+          "notes": "A few drops hot pepper sauce",
+          "category": "condiments"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "salt",
+          "notes": "1/2 teaspoon Salt",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "Bring a pot of water to a boil.",
+        "Add salt and add macaroni and cook until not quite al dente (macaroni will continue to cook in the oven).In another pot melt the butter, add the flour and stir with a whisk or a wooden spoon for a couple of minutes to cook the flour.",
+        "Add the milk, 1/2 cup at a time whisking until the mixture thickens, then add remaining milk and let cook over low heat until the sauce thickens, stirring constantly, scraping from the bottom of the pan and being careful not to burn it at the bottom.When the sauce is thick add the grated cheeses and stir until melted. Stir in the nutmeg, hot pepper sauce and salt, remove from heat and set aside.When the macaroni is cooked drain into colander and return to the pot.",
+        "Pour the cheese sauce over the macaroni and stir with a wooden spoon.",
+        "Pour the macaroni into individual gratins or a large buttered baking dish. You can add a few tomato slices into the macaroni either half way through pouring it into the pan or at the end, tucking them in with a knife. Don't smooth out the top, allow a few peaks here and there, they will become crisp and delicious as you bake it.To make the topping:Melt the butter, pour over the bread crumbs in a bowl and mix to combine.",
+        "Sprinkle topping over macaroni, bake in 400 oven 10-15 minutes or until crumbs are nicely golden.",
+        "Serve immediately."
+      ],
+      "source_url": "https://www.foodista.com/recipe/CNQHCNTM/macaroni-and-cheese-gratin",
+      "image_url": "https://img.spoonacular.com/recipes/650546-312x231.jpg"
+    },
+    {
+      "id": "southwestern-vegetarian-chili",
+      "name": "Southwestern Vegetarian Chili",
+      "servings": 10,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 138,
+        "protein": 6.32,
+        "carbs": 25.59,
+        "fat": 2.16,
+        "saturated_fat": 0.35,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 771.71,
+        "potassium": null,
+        "fiber": 7.74,
+        "sugar": 5.8,
+        "vitamin_a": null,
+        "vitamin_c": 35.67,
+        "calcium": 77.24,
+        "iron": 3.03
+      },
+      "tags": [
+        "american",
+        "antipasti",
+        "soup",
+        "starter",
+        "snack",
+        "appetizer",
+        "antipasto",
+        "hor d'oeuvre",
+        "gluten free",
+        "dairy free",
+        "lacto ovo vegetarian",
+        "vegan",
+        "spoonacular",
+        "dessert",
+        "baking",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "onion",
+          "notes": "1 yellow onion, finely chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "medium",
+          "item": "sweet potato",
+          "notes": "1 medium sweet potato, chopped into \u00bd\u201d pieces (peel on)",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "olive oil",
+          "notes": "1 tablespoon olive oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "bell pepper",
+          "notes": "1 green bell pepper, chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "bell pepper",
+          "notes": "1 red bell pepper, chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "stalks",
+          "item": "corn on the cob",
+          "notes": "2 stalks corn on the cob, shucked, kernels removed",
+          "category": "produce"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "cloves",
+          "item": "garlic",
+          "notes": "3 cloves garlic, minced",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "chili powder",
+          "notes": "1 tablespoon chili powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "cumin",
+          "notes": "1 tablespoon cumin",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "ground pepper",
+          "notes": "\u00bd teaspoon ground red pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "oregano",
+          "notes": "1 teaspoon oregano",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "cocoa powder",
+          "notes": "2 teaspoons unsweetened cocoa powder",
+          "category": "baking"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "pinch",
+          "item": "cinnamon",
+          "notes": "Pinch of cinnamon",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 10.0,
+          "unit": "servings",
+          "item": "salt and ground pepper",
+          "notes": "Salt and ground black pepper to taste",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 29.0,
+          "unit": "ounce",
+          "item": "tomatoes",
+          "notes": "2 14.5-ounce cans of diced tomatoes, un-drained",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 14.5,
+          "unit": "ounce",
+          "item": "kidney beans",
+          "notes": "1 14.5-ounce can kidney beans, drained",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 14.5,
+          "unit": "ounce",
+          "item": "black beans",
+          "notes": "1 14.5-ounce can black beans, drained",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 32.0,
+          "unit": "ounces",
+          "item": "vegetable broth",
+          "notes": "32 ounces vegetable broth",
+          "category": "canned and jarred"
+        }
+      ],
+      "instructions": [
+        "Shuck your corn and using a knife, carefully cut the kernels off the cobs. Set aside.",
+        "In a large Dutch oven or stock pot, heat olive oil to medium high and add the chopped sweet potato.  Saut about 10 minutes before adding the onion.  Saut an additional 8 minutes.",
+        "Add just a splash of the vegetable stock while the sweet potato and onion are sauting to give them a little steam.",
+        "Add the chopped bell pepper and saut another 5 minutes, again adding a splash of vegetable stock to steam the veggies.",
+        "Add the diced tomatoes, drained beans, corn kernels and the remaining veggie stock. Stir.",
+        "Add all of the seasonings (chili powder, oregano, salt, cocoa powder, cinnamon, cumin, red pepper, black pepper).  Stir to combine all ingredients. Bring the chili to a boil then reduce the heat to medium low and cover. Allow the chili to simmer for 30 minutes before serving it in heaping bowls with your favorite toppings!",
+        "See original recipe: http://www.perrysplate.com/2011/01/vegetarian-sweet-potato-chili.html"
+      ],
+      "source_url": "https://www.foodista.com/recipe/7CVDF2FX/southwestern-vegetarian-chili",
+      "image_url": "https://img.spoonacular.com/recipes/660730-312x231.jpg"
+    },
+    {
+      "id": "awesome-no-bake-macaroni-and-cheese",
+      "name": "Awesome! No Bake ~ Macaroni and Cheese",
+      "servings": 16,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 337,
+        "protein": 11.21,
+        "carbs": 27.14,
+        "fat": 20.82,
+        "saturated_fat": 5.38,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 270.34,
+        "potassium": null,
+        "fiber": 1.6,
+        "sugar": 4.44,
+        "vitamin_a": null,
+        "vitamin_c": 15.72,
+        "calcium": 162.68,
+        "iron": 1.08
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "antipasti",
+        "starter",
+        "snack",
+        "appetizer",
+        "antipasto",
+        "hor d'oeuvre",
+        "spoonacular",
+        "dessert",
+        "pasta",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "bell pepper",
+          "notes": "1 bell pepper \u2013 chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "Handful",
+          "item": "cilantro",
+          "notes": "Handful cilantro \u2013 chopped",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 16.0,
+          "unit": "ounces",
+          "item": "cottage cheese",
+          "notes": "16 ounces container cottage cheese",
+          "category": "cheese"
+        },
+        {
+          "quantity": 6.0,
+          "unit": "cloves",
+          "item": "garlic - crushed&",
+          "notes": "6 cloves garlic \u2013 crushed& chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "ketchup",
+          "notes": "1/2 cup ketchup",
+          "category": "condiments"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "pound",
+          "item": "you favorite macaroni",
+          "notes": "1 pound of you favorite macaroni",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "milk",
+          "notes": "1/2 cup milk",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 16.0,
+          "unit": "servings",
+          "item": "olive oil",
+          "notes": "Olive oil for drizzling",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "oz",
+          "item": "cheddar cheese",
+          "notes": "8 oz. cheddar cheese- shredded",
+          "category": "cheese"
+        },
+        {
+          "quantity": 10.0,
+          "unit": "ounces",
+          "item": "creamed spinach",
+          "notes": "10 ounces package frozen creamed spinach",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "",
+          "item": "onion",
+          "notes": "1/2 sweet onion \u2013 chopped",
+          "category": "produce"
+        }
+      ],
+      "instructions": [
+        "Heat a large saucepot with a drizzle of olive oil and add the onion, garlic, bell pepper and cilantro and let saut until the onion is clear.",
+        "Add the frozen creamed spinach and continue to saut until the spinach is thawed.",
+        "Add the ketchup and stir, continuing to saut on low.In a food processor combine the cottage cheese, milk and 4 oz. of the shredded cheddar cheese. Process until the cottage is smooth.Prepare the macaroni as directed.",
+        "Add the cooked macaroni to the saucepot with the sauting spinach and toss add the processed cottage cheese mixture and toss. Turn off heat. Top with the remaining 4 oz. of cheddar cheese. Cover and let the cheddar cheese melt. This takes only a second or two."
+      ],
+      "source_url": "https://www.foodista.com/recipe/DJBXLXPJ/awesome-no-bake-macaroni-and-cheese",
+      "image_url": "https://img.spoonacular.com/recipes/633185-312x231.jpg"
+    },
+    {
+      "id": "try-this-at-home-tomato-gazpacho-to-cool-off-during-the-dog-days-of-summer",
+      "name": "Try This at Home - Tomato Gazpacho to Cool Off During the Dog Days of Summer",
+      "servings": 4,
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 365,
+        "protein": 5.26,
+        "carbs": 25.05,
+        "fat": 28.44,
+        "saturated_fat": 3.96,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 1327.29,
+        "potassium": null,
+        "fiber": 4.63,
+        "sugar": 9.88,
+        "vitamin_a": null,
+        "vitamin_c": 72.09,
+        "calcium": 68.64,
+        "iron": 2.3
+      },
+      "tags": [
+        "american",
+        "antipasti",
+        "starter",
+        "snack",
+        "appetizer",
+        "antipasto",
+        "hor d'oeuvre",
+        "dairy free",
+        "lacto ovo vegetarian",
+        "vegan",
+        "spoonacular",
+        "soup",
+        "quick",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 2.0,
+          "unit": "lbs",
+          "item": "tomatoes",
+          "notes": "2 lbs tomatoes, cored and chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "cucumber",
+          "notes": "1 cucumber, peeled and chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "bell pepper",
+          "notes": "1 red bell pepper, cored, deseeded, and chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "shallot",
+          "notes": "1 shallot, peeled and chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "c",
+          "item": "olive oil",
+          "notes": "1/2 c extra-virgin olive oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "Tbsp",
+          "item": "rice vinegar",
+          "notes": "1 Tbsp rice vinegar",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "slices",
+          "item": "baguette",
+          "notes": "3 slices stale baguette",
+          "category": "bakery/bread"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tsp",
+          "item": "cumin",
+          "notes": "1 tsp cumin",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tsp",
+          "item": "salt",
+          "notes": "2 tsp salt (more to taste)",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "Add tomatoes, cucumber, bell pepper, and shallot to a bowl.",
+        "Soak bread in vinegar, break in pieces, and add to bowl (if not using bread, simply add 1 Tbsp rice vinegar).",
+        "Add cumin and salt.",
+        "Mix all ingredients together and add to food processor (in batches if necessary). Blend for 1 minute.",
+        "Strain, put back in food processor, and slowly add olive oil to emulsify. Taste and add more salt as needed.",
+        "Chill and serve."
+      ],
+      "source_url": "https://maplewoodroad.com/tomato-gazpacho/",
+      "image_url": "https://img.spoonacular.com/recipes/1697717-312x231.jpg"
+    },
+    {
+      "id": "pumpkin-french-toast",
+      "name": "Pumpkin French Toast",
+      "servings": 4,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 425,
+        "protein": 15.92,
+        "carbs": 69.98,
+        "fat": 9.12,
+        "saturated_fat": 2.62,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 478.26,
+        "potassium": null,
+        "fiber": 4.56,
+        "sugar": 31.2,
+        "vitamin_a": null,
+        "vitamin_c": 1.51,
+        "calcium": 213.02,
+        "iron": 4.4
+      },
+      "tags": [
+        "american",
+        "morning meal",
+        "brunch",
+        "breakfast",
+        "lacto ovo vegetarian",
+        "spoonacular",
+        "dessert",
+        "grilling",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 12.0,
+          "unit": "Slices",
+          "item": "bread",
+          "notes": "12 Slices of Bread",
+          "category": "bakery/bread"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "Tbs",
+          "item": "brown sugar",
+          "notes": "4 Tbs. - Brown Sugar",
+          "category": "baking"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "cinnamon",
+          "notes": "1 teaspoon - Cinnamon",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "",
+          "item": "eggs",
+          "notes": "4 Eggs",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "servings",
+          "item": "maple syrup",
+          "notes": "maple syrup",
+          "category": "cereal"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "milk",
+          "notes": "1/2 cup - Milk",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "teaspoon",
+          "item": "nutmeg",
+          "notes": "1/4 teaspoon - Nutmeg",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "teaspoon",
+          "item": "pumpkin pie spice",
+          "notes": "1/4 teaspoon - Pumpkin Pie Spice",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "pumpkin puree",
+          "notes": "1/2 cup - Pumpkin Puree",
+          "category": "baking"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "vanilla",
+          "notes": "1/2 teaspoon - Vanilla",
+          "category": "baking"
+        }
+      ],
+      "instructions": [
+        "Mix the eggs, milk, pumpkin, vanilla, brown sugar and spices into a dish for dipping. Dip the bread into the egg mixture until evenly coated on both sides, cooks on a grill heated to 350 degrees for about 2-3 minutes per side or until golden brown.",
+        "Serve hot with butter and maple syrup or as we did with pumpkin butter."
+      ],
+      "source_url": "https://www.foodista.com/recipe/7GBXXW87/pumpkin-french-toast",
+      "image_url": "https://img.spoonacular.com/recipes/657306-312x231.jpg"
+    },
+    {
+      "id": "lentil-veggie-burgers",
+      "name": "Lentil Veggie Burgers",
+      "servings": 20,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 119,
+        "protein": 5.12,
+        "carbs": 23.03,
+        "fat": 1.16,
+        "saturated_fat": 0.21,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 236.79,
+        "potassium": null,
+        "fiber": 5.85,
+        "sugar": 1.7,
+        "vitamin_a": null,
+        "vitamin_c": 1.73,
+        "calcium": 18.48,
+        "iron": 1.56
+      },
+      "tags": [
+        "american",
+        "antipasti",
+        "starter",
+        "snack",
+        "appetizer",
+        "antipasto",
+        "hor d'oeuvre",
+        "dairy free",
+        "lacto ovo vegetarian",
+        "vegan",
+        "spoonacular",
+        "baking",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.0,
+          "unit": "cup",
+          "item": "lentils",
+          "notes": "1 cup of lentils",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "cup",
+          "item": "flour",
+          "notes": "1 cup of flour (whole wheat)",
+          "category": "baking"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "oats",
+          "notes": "1/2 cup of oats",
+          "category": "cereal"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "brown rice",
+          "notes": "1/2 cup of brown rice (cooked)",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "carrot",
+          "notes": "1 carrot",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "small",
+          "item": "eggplant",
+          "notes": "1 small eggplant",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "small",
+          "item": "onion",
+          "notes": "1 small onion",
+          "category": "produce"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "cloves",
+          "item": "garlic",
+          "notes": "3 cloves of garlic",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "corn",
+          "notes": "1/2 cup of corn (optional)",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "salt",
+          "notes": "2 teaspoons salt (adjust to your taste preference)",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "oregano",
+          "notes": "2 teaspoons of oregano",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.5,
+          "unit": "teaspoons",
+          "item": "coriander",
+          "notes": "1 1/2 teaspoons coriander",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "cumin",
+          "notes": "1/2 teaspoon cumin",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "nutmeg",
+          "notes": "1/2 teaspoon of nutmeg",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "pepper",
+          "notes": "1/2 teaspoon of pepper (optional or adjust to your taste preference)",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 20.0,
+          "unit": "servings",
+          "item": "cornmeal",
+          "notes": "cornmeal to cover the \u201chamburger\u201d patty",
+          "category": "ethnic foods"
+        }
+      ],
+      "instructions": [
+        "Place in a foil and bake for 20 minutes in a 375 degree ovenor until it is soft.",
+        "Cook lentils in boiling water (15 to 25 minutes).",
+        "Cook brown rice.",
+        "Throw carrots, onions, garlic, cooked eggplant and rice in a food processor and process together.",
+        "After the lentils are cooked, add the processed veggies and rice in, smash together with your hands or with a potato masher.  Note: try not to smash all of the lentils.",
+        "Add corn (optional), oats, flour, and seasonings.",
+        "Make burger patties.",
+        "Cover in corn meal.",
+        "Cook in a little bit of oil until the outside is crunchy.",
+        "Place in a whole wheat bun and add your favorite fix ins.",
+        "Enjoy!"
+      ],
+      "source_url": "https://www.foodista.com/recipe/QNJB22ZH/lentil-veggie-burgers",
+      "image_url": "https://img.spoonacular.com/recipes/649940-312x231.jpg"
+    },
+    {
+      "id": "baked-sweet-chili-carrot-fries",
+      "name": "Baked Sweet Chili Carrot Fries",
+      "servings": 4,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 150,
+        "protein": 2.42,
+        "carbs": 28.12,
+        "fat": 4.17,
+        "saturated_fat": 0.57,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 752.66,
+        "potassium": null,
+        "fiber": 7.07,
+        "sugar": 15.2,
+        "vitamin_a": null,
+        "vitamin_c": 15.35,
+        "calcium": 83.65,
+        "iron": 0.88
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "gluten free",
+        "dairy free",
+        "lacto ovo vegetarian",
+        "vegan",
+        "spoonacular",
+        "dessert",
+        "soup",
+        "baking",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 16.0,
+          "unit": "",
+          "item": "carrots",
+          "notes": "16 carrots, peeled and julienned",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "olive oil",
+          "notes": "1 tablespoon olive oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "salt",
+          "notes": "1 teaspoon salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "agave nectar",
+          "notes": "1 tablespoon agave nectar",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "paprika",
+          "notes": "1/2 teaspoon paprika",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "onion powder",
+          "notes": "1/2 teaspoon onion powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "garlic powder",
+          "notes": "1/2 teaspoon garlic powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "teaspoon",
+          "item": "chili powder",
+          "notes": "1/4 teaspoon chili powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "servings",
+          "item": "bell pepper",
+          "notes": "Black pepper, to taste",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "Preheat oven to 425 degrees.",
+        "Place the carrot sticks in a large Tupperware bowl that has a tight-fitting lid.",
+        "Pour oil and remaining ingredients into the bowl, on top of the carrot sticks.",
+        "Secure the lid and shake the ingredients around vigorously until every last carrot stick is coated with flavor.",
+        "Place the carrot sticks, in a single layer, on an ungreased cookie sheet.",
+        "Bake for about 15 minutes. Check the carrot sticks, shake the pan, flip them around, whatever you need to do.",
+        "Continue to bake for an additional 5-15 minutes, until carrot sticks are soft in the middle but nice and crunchy around the edges. Watch them closely."
+      ],
+      "source_url": "https://www.foodista.com/recipe/V87DDC38/baked-sweet-chili-carrot-fries",
+      "image_url": "https://img.spoonacular.com/recipes/633833-312x231.jpg"
+    },
+    {
+      "id": "creamy-vegan-butternut-squash-mac-and-cheese",
+      "name": "Creamy Vegan Butternut Squash Mac and Cheese",
+      "servings": 6,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 314,
+        "protein": 11.31,
+        "carbs": 47.65,
+        "fat": 8.31,
+        "saturated_fat": 2.1,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 324.96,
+        "potassium": null,
+        "fiber": 4.22,
+        "sugar": 4.32,
+        "vitamin_a": null,
+        "vitamin_c": 13.01,
+        "calcium": 169.45,
+        "iron": 2.02
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "antipasti",
+        "starter",
+        "snack",
+        "appetizer",
+        "antipasto",
+        "hor d'oeuvre",
+        "dairy free",
+        "lacto ovo vegetarian",
+        "vegan",
+        "spoonacular",
+        "pasta",
+        "baking",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "breadcrumbs",
+          "notes": "1/2 cup of breadcrumbs",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 1.5,
+          "unit": "cup",
+          "item": "butternut squash",
+          "notes": "1 1/2 cup of pureed butternut squash",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "box",
+          "item": "elbow macaroni",
+          "notes": "1 box of elbow Macaroni",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "tbsp",
+          "item": "nutritional yeast",
+          "notes": "3 tbsp of nutritional yeast",
+          "category": "health foods"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "Dash",
+          "item": "pepper",
+          "notes": "A Dash of black Pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "dash",
+          "item": "salt",
+          "notes": "A dash of salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "soy milk",
+          "notes": "2 cups light soy milk",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoons",
+          "item": "vegan buttery spread",
+          "notes": "1 tablespoons vegan buttery spread",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "cup",
+          "item": "vegan cheddar shreds",
+          "notes": "1 cup Daiya style vegan Cheddar Shreds",
+          "category": "health foods"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "cups",
+          "item": "water",
+          "notes": "4 cups water",
+          "category": "beverages"
+        }
+      ],
+      "instructions": [
+        "Begin by Preheating oven to 350Bring a large pot of salted water to a boil over medium heat, add in elbows and cook until pasta is al dente.While waiting for pasta to cook begin preparing your sauce. In a medium size sauce pan, melt butter over medium heat, add in nutritional yeast and mix together to form a paste",
+        "Add in soy milk, using a whisk combine together ingredients make sure your sauce is lump free, let simmer for 5 minute or until sauce begins to thicken",
+        "Add is pureed butternut squash, thoroughly mix together ingredients to ensure everything is well blended (you may notice that the butternut squash also helps to thicken the sauce).Stir in Cheese, let sit for 1 to 2 minutes or until sauce has a creamy velvety smooth consistency.",
+        "Remove Sauce from heat and let sit",
+        "Drain pasta and add pasta to the cheese sauce, stir together and pour mixture into a greased 9 x 9 baking pan",
+        "Sprinkle breadcrumbs over macaroni and cheese and let bake for 15 minutes or until cheese begins to bubble",
+        "Serve Warm and enjoy this creamy Vegan home-style comfort food!"
+      ],
+      "source_url": "https://www.foodista.com/recipe/W2G2NLXR/creamy-vegan-butternut-squash-mac-and-cheese",
+      "image_url": "https://img.spoonacular.com/recipes/640720-312x231.jpg"
+    },
+    {
+      "id": "chili-gobi",
+      "name": "Chili Gobi",
+      "servings": 4,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 280,
+        "protein": 7.09,
+        "carbs": 29.51,
+        "fat": 15.99,
+        "saturated_fat": 1.62,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 633.92,
+        "potassium": null,
+        "fiber": 5.68,
+        "sugar": 7.78,
+        "vitamin_a": null,
+        "vitamin_c": 117.96,
+        "calcium": 63.88,
+        "iron": 1.86
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "dairy free",
+        "lacto ovo vegetarian",
+        "spoonacular",
+        "dessert",
+        "soup",
+        "baking",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.0,
+          "unit": "medium",
+          "item": "cauliflower",
+          "notes": "1 medium cauliflower",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "chili powder",
+          "notes": "1/2 teaspoon chili powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "chili sauce",
+          "notes": "1 teaspoon chili sauce",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "corn starch",
+          "notes": "1 teaspoon corn starch",
+          "category": "baking"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "servings",
+          "item": "curry leaves",
+          "notes": "curry leaves",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "egg",
+          "notes": "1 egg",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "ginger",
+          "notes": "1 tablespoon ginger, made into a paste",
+          "category": "produce"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "",
+          "item": "chilies",
+          "notes": "3 green chilies",
+          "category": "produce"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "servings",
+          "item": "oil",
+          "notes": "oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "",
+          "item": "onions",
+          "notes": "2 onions, chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "flour",
+          "notes": "1/2 cup plain flour",
+          "category": "baking"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "soy sauce",
+          "notes": "1 tablespoon soy sauce",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "sugar",
+          "notes": "1 teaspoon sugar",
+          "category": "baking"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "tomato sauce",
+          "notes": "1 tablespoon tomato sauce",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "vegetable bouillon cube",
+          "notes": "1 vegetable bouillon cube",
+          "category": "canned and jarred"
+        }
+      ],
+      "instructions": [
+        "Make a batter with chili powder, beaten egg, flour, vegetable stock (or water) and salt. Dip cauliflower pieces in the batter and fry in oil until light brown.",
+        "Heat oil in a pan and add chopped onions, ginger-garlic paste, green chillies, and curry leaves, and saute well.",
+        "Add vegetable stock, soy sauce, chili sauce, and tomato sauce and stir well.",
+        "Mix corn starch with water and add to pan.",
+        "Add fried cauliflower pieces and salt and cook until dry. Stir in sugar."
+      ],
+      "source_url": "https://www.foodista.com/recipe/X6YYBXTZ/chili-gobi",
+      "image_url": "https://img.spoonacular.com/recipes/638557-312x231.jpg"
+    },
+    {
+      "id": "bacon-brownie-cupcakes",
+      "name": "Bacon Brownie Cupcakes",
+      "servings": 6,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 913,
+        "protein": 30.74,
+        "carbs": 43.32,
+        "fat": 72.43,
+        "saturated_fat": 36.15,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 414.57,
+        "potassium": null,
+        "fiber": 4.58,
+        "sugar": 19.4,
+        "vitamin_a": null,
+        "vitamin_c": 0,
+        "calcium": 53.59,
+        "iron": 7.16
+      },
+      "tags": [
+        "american",
+        "spoonacular",
+        "dessert",
+        "breakfast",
+        "baking"
+      ],
+      "ingredients": [
+        {
+          "quantity": 2.0,
+          "unit": "",
+          "item": "crossing over quintessential american desserts",
+          "notes": "2 Crossing over quintessential American desserts, we bake our brownie dough in",
+          "category": "meat"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "oz",
+          "item": "chocolate",
+          "notes": "4 oz unsweetened chocolate",
+          "category": "baking"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "ounce",
+          "item": "chocolate",
+          "notes": "1 ounce sweetened chocolate",
+          "category": "sweet snacks"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "tablespoons",
+          "item": "butter",
+          "notes": "8 tablespoons butter",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "sugar",
+          "notes": "1/2 cup sugar",
+          "category": "baking"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "teaspoon",
+          "item": "salt",
+          "notes": "1/4 teaspoon salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "large",
+          "item": "eggs",
+          "notes": "2 large eggs",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "cup",
+          "item": "ap flour",
+          "notes": "1 cup AP Flour",
+          "category": "baking"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "cocoa",
+          "notes": "2 tablespoons cocoa (not Dutch-processed)",
+          "category": "baking"
+        },
+        {
+          "quantity": 4.0,
+          "unit": "strips",
+          "item": "bacon",
+          "notes": "4 strips bacon",
+          "category": "meat"
+        }
+      ],
+      "instructions": [
+        "Oven: 350F.",
+        "Grease a standard muffin pan (we like jumbo but not mini, they'll get to crispy).",
+        "Fry the bacon, remove and pat dry. The bacon should be crispy but without char- any chunks of fat that are still white should be discarded.",
+        "Melt the unsweetened chocolate and butter in a double broiler.",
+        "Cool slightly, then whisk in the sugar and salt.",
+        "Add the eggs, one at a time.",
+        "Sift the flour and cocoa together, then combine with the chocolate.",
+        "Stir in the pieces of bacon and chocolate.",
+        "Bake ~30 min., making sure to allow brownie cupcakes to cool before removing."
+      ],
+      "source_url": "https://www.foodista.com/recipe/GK2S8GN3/bacon-brownie-cupcakes",
+      "image_url": "https://img.spoonacular.com/recipes/633293-312x231.jpg"
+    },
+    {
+      "id": "curry-leaves-potato-chips",
+      "name": "Curry Leaves Potato Chips",
+      "servings": 3,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 177,
+        "protein": 4.21,
+        "carbs": 34.5,
+        "fat": 3.24,
+        "saturated_fat": 0.3,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 246.89,
+        "potassium": null,
+        "fiber": 4.0,
+        "sugar": 2.81,
+        "vitamin_a": null,
+        "vitamin_c": 58.32,
+        "calcium": 32.69,
+        "iron": 1.72
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "gluten free",
+        "dairy free",
+        "lacto ovo vegetarian",
+        "fodmap friendly",
+        "whole 30",
+        "vegan",
+        "spoonacular",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 3.0,
+          "unit": "",
+          "item": "potatoes - remove skin",
+          "notes": "3 potatoes - remove skin, sliced thinly and soaked in ice water for 10-15 minutes.",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tsp",
+          "item": "chili powder",
+          "notes": "1 tsp plain chili powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "sprigs",
+          "item": "curry leaves",
+          "notes": "3-4 sprigs curry leaves",
+          "category": "ethnic foods"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "servings",
+          "item": "salt",
+          "notes": "Salt for taste",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "servings",
+          "item": "oil",
+          "notes": "Oil for frying",
+          "category": "oil, vinegar, salad dressing"
+        }
+      ],
+      "instructions": [
+        "Wipe/pat dry potatoes.",
+        "Mix in chili powder and salt.",
+        "Heat oil and fry in batches till crunchy and crispy.",
+        "Remove and keep aside.",
+        "In the same oil, fry curry leaves till crispy too.",
+        "Scoop out and add over chips.",
+        "Crush and toss the leaves with the chips."
+      ],
+      "source_url": "https://www.foodista.com/recipe/S6M8SF2T/curry-leaves-potato-chips",
+      "image_url": "https://img.spoonacular.com/recipes/641122-312x231.jpg"
+    },
+    {
+      "id": "vegan-green-bean-casserole",
+      "name": "Vegan Green Bean Casserole",
+      "servings": 6,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 109,
+        "protein": 4.6,
+        "carbs": 19.8,
+        "fat": 2.84,
+        "saturated_fat": 1.98,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 600.51,
+        "potassium": null,
+        "fiber": 6.36,
+        "sugar": 7.1,
+        "vitamin_a": null,
+        "vitamin_c": 23.7,
+        "calcium": 68.72,
+        "iron": 1.77
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "antipasti",
+        "starter",
+        "snack",
+        "appetizer",
+        "antipasto",
+        "hor d'oeuvre",
+        "gluten free",
+        "dairy free",
+        "paleolithic",
+        "lacto ovo vegetarian",
+        "primal",
+        "whole 30",
+        "vegan",
+        "spoonacular",
+        "baking",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 0.25,
+          "unit": "cup",
+          "item": "nutritional yeast",
+          "notes": "\u00bc cup nutritional yeast",
+          "category": "health foods"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "tsp",
+          "item": "pepper",
+          "notes": "\u00bd tsp. red pepper crushed",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "onion",
+          "notes": "1 red onion sliced",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tbsp",
+          "item": "coconut oil",
+          "notes": "1 tbsp Coconut Oil",
+          "category": "baking"
+        },
+        {
+          "quantity": 1.5,
+          "unit": "tsps",
+          "item": "salt",
+          "notes": "1 \u00bd tsps. salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.5,
+          "unit": "cups",
+          "item": "water",
+          "notes": "1 \u00bd cups water",
+          "category": "beverages"
+        },
+        {
+          "quantity": 1.5,
+          "unit": "cups",
+          "item": "mushroom",
+          "notes": "1 \u00bd cups mushroom chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.5,
+          "unit": "lbs",
+          "item": "green beans",
+          "notes": "1 \u00bd lbs. green beans",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "parsnips",
+          "notes": "2 cups parsnips chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "cloves",
+          "item": "garlic",
+          "notes": "3 cloves garlic minced",
+          "category": "produce"
+        },
+        {
+          "quantity": 6.0,
+          "unit": "servings",
+          "item": "bell pepper",
+          "notes": "Black Pepper to taste",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "In a wide-bottomed saucepan, add 1 tablespoon extra virgin coconut oil and set to low heat.",
+        "Add the onions and cook for 30 minutes. Stir occasionally to caramelize. If the onions look dry, splash a bit of water into the pan.While waiting for the onions to cook, steam the parsnip. Set aside and let them cool.After that, prepare the green beans.",
+        "Remove the ends of the beans and cut them into 2 inch pieces. Steam them for 8 minutes. Set them aside in an 8x8 baking dish.Once the onions have caramelized, set them aside. Cook the mushrooms in the same pan and saute for one minute.",
+        "Add garlic. Stir for 5 minutes.",
+        "Add half of the garlic and mushroom mixture to the green beans.Preheat the oven to 350 degrees Fahrenheit.",
+        "Put the other half of the garlic and mushroom mixture, as well as the steamed parsnips in a blender.",
+        "Add the nutritional yeast, salt, pepper, and crushed red pepper.",
+        "Pour the blended mixture over the mushrooms and green beans. Stir to coat. Use the caramelized onions as toppings.",
+        "Bake for another 30 minutes.",
+        "Serve."
+      ],
+      "source_url": "https://www.foodista.com/recipe/2M3K34BV/green-bean-casserole-vegan",
+      "image_url": "https://img.spoonacular.com/recipes/1095892-312x231.jpg"
+    },
+    {
+      "id": "chickpea-and-veggie-burgers",
+      "name": "Chickpea and Veggie Burgers",
+      "servings": 8,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 270,
+        "protein": 10.77,
+        "carbs": 42.32,
+        "fat": 7.27,
+        "saturated_fat": 1.13,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 1052.51,
+        "potassium": null,
+        "fiber": 7.57,
+        "sugar": 7.8,
+        "vitamin_a": null,
+        "vitamin_c": 108.21,
+        "calcium": 112.49,
+        "iron": 3.4
+      },
+      "tags": [
+        "american",
+        "antipasti",
+        "starter",
+        "snack",
+        "appetizer",
+        "antipasto",
+        "hor d'oeuvre",
+        "dairy free",
+        "lacto ovo vegetarian",
+        "vegan",
+        "spoonacular",
+        "baking",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "baby carrots",
+          "notes": "\u00bd cup of baby carrots",
+          "category": "produce"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "",
+          "item": "burger buns",
+          "notes": "8 burger buns",
+          "category": "bakery/bread"
+        },
+        {
+          "quantity": 25.0,
+          "unit": "ounce",
+          "item": "chickpeas",
+          "notes": "1 25 ounce can of chickpeas",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "cayenne pepper",
+          "notes": "1 teaspoon cayenne pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "cumin",
+          "notes": "1 teaspoon cumin",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "cloves",
+          "item": "garlic",
+          "notes": "3 cloves of garlic",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "nutritional yeast",
+          "notes": "2 tablespoons of nutritional yeast",
+          "category": "health foods"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "large",
+          "item": "onion",
+          "notes": "1 large onion \u2013 minced",
+          "category": "produce"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "servings",
+          "item": "bell pepper",
+          "notes": "Pepper to taste",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "",
+          "item": "bell pepper",
+          "notes": "\u00bd red bell pepper",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "salt",
+          "notes": "2 teaspoons of salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "spinach",
+          "notes": "\u00bd cup of spinach",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "vegetable oil",
+          "notes": "2 tablespoons of coconut oil or vegetable oil",
+          "category": "oil, vinegar, salad dressing"
+        }
+      ],
+      "instructions": [
+        "Add all of the ingredients, EXCEPT the onions and the oil, to a food processor and blend until the mixture is firm and moldable.",
+        "Transfer to a medium size bowl and stir in the onions.Measure out 1/3 of a cup of the mixture and roll into a ball, then flatten into a round patty.",
+        "Heat 1 tablespoon of oil on medium-high heat in a large skillet.",
+        "Add patties to the pan and cook until golden brown and then flip and cook the other side until golden brown.",
+        "Add the other tablespoon of oil if needed."
+      ],
+      "source_url": "https://www.foodista.com/recipe/4S68SGG6/chickpea-and-veggie-burgers",
+      "image_url": "https://img.spoonacular.com/recipes/638497-312x231.jpg"
+    },
+    {
+      "id": "country-breakfast-tofu-and-veggie-scramble-with-home-fries",
+      "name": "Country Breakfast: Tofu and Veggie Scramble With Home Fries",
+      "servings": 2,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 493,
+        "protein": 29.75,
+        "carbs": 20.32,
+        "fat": 34.42,
+        "saturated_fat": 4.57,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 1769.95,
+        "potassium": null,
+        "fiber": 6.79,
+        "sugar": 5.02,
+        "vitamin_a": null,
+        "vitamin_c": 9.39,
+        "calcium": 428.37,
+        "iron": 6.89
+      },
+      "tags": [
+        "american",
+        "morning meal",
+        "brunch",
+        "breakfast",
+        "gluten free",
+        "dairy free",
+        "lacto ovo vegetarian",
+        "vegan",
+        "spoonacular",
+        "baking",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 2.0,
+          "unit": "servings",
+          "item": "tofu and veggie scramble",
+          "notes": "Tofu and Veggie Scramble",
+          "category": "refrigerated"
+        },
+        {
+          "quantity": 12.0,
+          "unit": "ounces",
+          "item": "mori-nu tofu",
+          "notes": "12 ounces box Mori-Nu tofu",
+          "category": "refrigerated"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "olive oil",
+          "notes": "1 tablespoon olive oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "cup",
+          "item": "mushrooms",
+          "notes": "1 cup sliced mushrooms",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "cup",
+          "item": "asparagus",
+          "notes": "1 cup asparagus, chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "onions",
+          "notes": "1/2 cup onions, chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "garlic clove",
+          "notes": "1 garlic clove, minced",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.5,
+          "unit": "teaspoons",
+          "item": "seasonings",
+          "notes": "1 1/2 teaspoons Italian seasonings",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.5,
+          "unit": "teaspoons",
+          "item": "tumeric",
+          "notes": "1 1/2 teaspoons tumeric",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "garlic powder",
+          "notes": "1/2 teaspoon garlic powder",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "cayenne pepper",
+          "notes": "1/2 teaspoon cayenne pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "teaspoon",
+          "item": "pepper",
+          "notes": "1/2 teaspoon crushed black pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "water",
+          "notes": "2 tablespoons water",
+          "category": "beverages"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "servings",
+          "item": "home fries",
+          "notes": "Home Fries",
+          "category": "frozen"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "inches",
+          "item": "potatoes",
+          "notes": "3 inches red potatoes, diced \u00bd thick",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "pepper",
+          "notes": "2 teaspoons crushed black pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.5,
+          "unit": "teaspoons",
+          "item": "salt",
+          "notes": "1 1/2 teaspoons salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "olive oil",
+          "notes": "2 tablespoons olive oil",
+          "category": "oil, vinegar, salad dressing"
+        }
+      ],
+      "instructions": [
+        "Tofu and veggie scramble",
+        "Press the tofu for 30 minutes prior to cooking. Chop all the veggies and leave ready to begin cooking process.",
+        "Using a non-stick skillet, heat olive oil on medium heat.",
+        "Add pressed tofu and crumble in large pieces. The tofu will need to cook and dry out a little for 10 to 15 minutes, so meanwhile, add onions and garlic to tofu.",
+        "After those 15 minutes, add asparagus and mushroom and all the rest of the spices plus the water. Cook for 5 minutes and serve hot!",
+        "Home Fries",
+        "Prepare potatoes before starting on tofu scramble.",
+        "Preheat oven to 450F and move oven rack to the next to last highest row. Line a small cookie sheet with parchment paper.",
+        "Wash and scrub potatoes. Dice them and add to a medium bowl.",
+        "Add olive oil, salt and pepper and mix well.",
+        "Pour potatoes on cookie sheet and spread evenly.",
+        "Bake for 20 minutes and serve while hot."
+      ],
+      "source_url": "https://www.foodista.com/recipe/HL3SWS52/country-breakfast-tofu-and-veggie-scramble-with-home-fries",
+      "image_url": "https://img.spoonacular.com/recipes/640194-312x231.jpg"
+    },
+    {
+      "id": "peanut-butter-banana-french-toast",
+      "name": "Peanut Butter Banana French Toast",
+      "servings": 1,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 539,
+        "protein": 20.4,
+        "carbs": 66.72,
+        "fat": 23.93,
+        "saturated_fat": 5.41,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 466.42,
+        "potassium": null,
+        "fiber": 7.46,
+        "sugar": 25.01,
+        "vitamin_a": null,
+        "vitamin_c": 26.69,
+        "calcium": 124.02,
+        "iron": 3.78
+      },
+      "tags": [
+        "american",
+        "morning meal",
+        "brunch",
+        "breakfast",
+        "dairy free",
+        "lacto ovo vegetarian",
+        "spoonacular",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 2.0,
+          "unit": "slices",
+          "item": "bread",
+          "notes": "2 slices bread",
+          "category": "bakery/bread"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "Tablespoons",
+          "item": "peanut butter",
+          "notes": "Peanut Butter, 2 Tablespoons",
+          "category": "nut butters, jams, and honey"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "serving",
+          "item": "half of banana",
+          "notes": "Half of Banana, sliced in rounds or length wise",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "egg",
+          "notes": "1 whole egg, whisked",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 0.125,
+          "unit": "cup",
+          "item": "orange juice",
+          "notes": "1/8 cup orange juice",
+          "category": "beverages"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "pinch",
+          "item": "ground nutmeg",
+          "notes": "pinch of ground nutmeg",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "pinch",
+          "item": "ground cinnamon",
+          "notes": "pinch of ground cinnamon",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "pinch",
+          "item": "cayenne",
+          "notes": "pinch of cayenne",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "Prepare a Peanut Butter and Banana Sandwich",
+        "Mix whisked egg, orange juice, nutmeg and cinnamon and cayenne in a bowl",
+        "Heat a skillet and place One (",
+        "Tablespoon in same",
+        "Dip Sandwich in egg mixture coating both sides",
+        "Cook in skillet for one minute on each side",
+        "Ladle with syrup, sprinkle with confectioners sugar and garnish with more bananas"
+      ],
+      "source_url": "https://www.foodista.com/recipe/6RMLP5LZ/peanut-butter-banana-french-toast",
+      "image_url": "https://img.spoonacular.com/recipes/655239-312x231.jpg"
+    },
+    {
+      "id": "healthy-spinach-parmesan-dip-and-pita-chips",
+      "name": "Healthy Spinach Parmesan Dip and Pita Chips",
+      "servings": 8,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 197,
+        "protein": 8.57,
+        "carbs": 24.38,
+        "fat": 7.57,
+        "saturated_fat": 2.05,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 456.8,
+        "potassium": null,
+        "fiber": 2.15,
+        "sugar": 4.58,
+        "vitamin_a": null,
+        "vitamin_c": 2.85,
+        "calcium": 173.99,
+        "iron": 2.1
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "spoonacular",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "basil leaves",
+          "notes": "1/2 cup basil leaves, loosely packed",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.125,
+          "unit": "teaspoon",
+          "item": "pepper",
+          "notes": "1/8 teaspoon black pepper",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 10.0,
+          "unit": "ounce",
+          "item": "spinach",
+          "notes": "1 package (10 -ounce) frozen spinach",
+          "category": "frozen"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "",
+          "item": "garlic cloves",
+          "notes": "3 garlic cloves, grated",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "olive oil",
+          "notes": "1 teaspoon olive oil",
+          "category": "oil, vinegar, salad dressing"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "ounce",
+          "item": "parmesan cheese",
+          "notes": "1/4 cup (1 ounce) grated fresh Parmesan cheese",
+          "category": "cheese"
+        },
+        {
+          "quantity": 8.0,
+          "unit": "servings",
+          "item": "pita chips",
+          "notes": "pita chips",
+          "category": "savory snacks"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "ounces",
+          "item": "reduced fat cream cheese",
+          "notes": "1 cup (about 3 ounces) reduced fat cream cheese, softened",
+          "category": "cheese"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "teaspoon",
+          "item": "salt",
+          "notes": "1/4 teaspoon salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "cup",
+          "item": "yogurt",
+          "notes": "cup plain fat-free yogurt (can substitute Greek yogurt)",
+          "category": "milk, eggs, other dairy"
+        }
+      ],
+      "instructions": [
+        "Defrost spinach and squeeze out excess water.",
+        "Heat olive oil in a large skillet over medium-high heat.",
+        "Add garlic; saute 1 minute.",
+        "Add salt and spinach; saute 3 minutes or until the spinach is warmed through.",
+        "Place spinach mixture, basil, cream cheese, and pepper in a food processor; process until smooth. Spoon spinach mixture into a medium bowl.",
+        "Add yogurt and Parmesan; stir to combine. Chill.",
+        "Serve with pita chips."
+      ],
+      "source_url": "https://www.foodista.com/recipe/LXRPPGBW/healthy-spinach-parmesan-dip-and-pita-chips",
+      "image_url": "https://img.spoonacular.com/recipes/646518-312x231.jpg"
+    },
+    {
+      "id": "skillet-sweet-potato-casserole-with-bacon-brown-sugar-crumble",
+      "name": "Skillet Sweet Potato Casserole with Bacon, Brown Sugar Crumble",
+      "servings": 6,
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 40,
+      "nutrition_per_serving": {
+        "calories": 351,
+        "protein": 6.28,
+        "carbs": 33.73,
+        "fat": 22.38,
+        "saturated_fat": 5.66,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 235.64,
+        "potassium": null,
+        "fiber": 5.42,
+        "sugar": 5.86,
+        "vitamin_a": null,
+        "vitamin_c": 2.99,
+        "calcium": 57.52,
+        "iron": 1.69
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "spoonacular",
+        "dessert",
+        "breakfast",
+        "baking"
+      ],
+      "ingredients": [
+        {
+          "quantity": 3.0,
+          "unit": "slices",
+          "item": "bacon",
+          "notes": "3 slices fully cooked crispy bacon chopped",
+          "category": "meat"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "flour",
+          "notes": "1/2 cup flour",
+          "category": "baking"
+        },
+        {
+          "quantity": 0.33333334,
+          "unit": "cup",
+          "item": "heavy cream",
+          "notes": "1/3 cup heavy cream",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "cup",
+          "item": "pecans",
+          "notes": "1 cup chopped pecans",
+          "category": "savory snacks"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "teaspoon",
+          "item": "sea salt",
+          "notes": "1/4 teaspoon fine sea salt",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "",
+          "item": "sweet potatoes",
+          "notes": "3 sweet potatoes peeled and cut into 1-inch cubes",
+          "category": "produce"
+        }
+      ],
+      "instructions": [
+        "Preheat your oven to 350 degrees F and have a cast iron skillet or oven-safe baking dish ready.",
+        "Place the cubed sweet potatoes in a large pot and cover with water. Bring them to a boil over high heat and cook until tender, about 10-15 minutes.",
+        "Remove from heat and drain.",
+        "Transfer to a large bowl and mash.To the bowl with mashed sweet potatoes, stir in 1/2 cup of the melted butter, heavy cream, 1/4 cup of the brown sugar, and the salt until fully incorporated.",
+        "Pour the mixture into the cast iron skillet.In a medium bowl, combine the 1/3 cup melted butter, 1/2 cup brown sugar, flour, pecans, and bacon. Fold the ingredients together until moist crumbles form.",
+        "Sprinkle the mixture on top of the sweet potato mash.",
+        "Place the skillet in the oven and bake for 35 minutes or until golden brown.",
+        "Remove from heat and let stand for 5 minutes before serving.Enjoy!"
+      ],
+      "source_url": "https://www.pinkwhen.com/skillet-sweet-potato-casserole-with-bacon-brown-sugar-crumble/",
+      "image_url": "https://img.spoonacular.com/recipes/1043339-312x231.jpg"
+    },
+    {
+      "id": "tater-tot-chili-cheese-casserole",
+      "name": "Tater Tot Chili Cheese Casserole",
+      "servings": 6,
+      "prep_time_minutes": 5,
+      "cook_time_minutes": 35,
+      "nutrition_per_serving": {
+        "calories": 176,
+        "protein": 6.19,
+        "carbs": 16.0,
+        "fat": 10.54,
+        "saturated_fat": 4.27,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 320.1,
+        "potassium": null,
+        "fiber": 1.77,
+        "sugar": 2.84,
+        "vitamin_a": null,
+        "vitamin_c": 74.79,
+        "calcium": 146.13,
+        "iron": 0.76
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "antipasti",
+        "starter",
+        "snack",
+        "appetizer",
+        "antipasto",
+        "hor d'oeuvre",
+        "gluten free",
+        "spoonacular",
+        "soup",
+        "baking",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "chili",
+          "notes": "2 cups chili",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "tater tots",
+          "notes": "2 cups tater tots",
+          "category": "frozen"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "cup",
+          "item": "cheddar cheese",
+          "notes": "1 cup shredded cheddar cheese",
+          "category": "cheese"
+        }
+      ],
+      "instructions": [
+        "Heat oven to 35",
+        "Add chili to cover the bottom of a casserole dish.",
+        "Top the chili with frozen tater tots. Cook in oven for 20 minutes.",
+        "Carefully top casserole with shredded cheese and cook for an additional 10 minutes or until cheese is melted.",
+        "Serve.",
+        "FREEZER MEAL INSTRUCTIONS",
+        "Add the chili to a freezer safe container. Top with tater tots and remove as much air as possible before freezing. Leave in the freezer for up to 3 months.",
+        "Remove from freezer and bake at 350 degrees Fahrenheit for 45 minutes.",
+        "Remove foil, top with cheese, and then bake for an additional 10 minutes.",
+        "Serve.",
+        "CROCKPOT FREEZER MEAL INSTRUCTIONS",
+        "Add chili to freezer safe bag.",
+        "Remove air and freeze for up to 3 months.",
+        "To cook: Thaw chili in refrigerator overnight.",
+        "Add chili to the crockpot and cook on low for 4 hours. Stir.",
+        "Top chili with tater tots and cook for an additional 2 hours. Cover with cheese, and cook for an additional hour.",
+        "Serve."
+      ],
+      "source_url": "https://www.pinkwhen.com/tater-tot-chili-cheese-casserole/",
+      "image_url": "https://img.spoonacular.com/recipes/1416203-312x231.jpg"
+    },
+    {
+      "id": "blackberry-and-figs-chutney-compote",
+      "name": "Blackberry and Figs Chutney / Compote",
+      "servings": 4,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 96,
+        "protein": 2.03,
+        "carbs": 23.78,
+        "fat": 0.69,
+        "saturated_fat": 0.07,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 294.36,
+        "potassium": null,
+        "fiber": 6.65,
+        "sugar": 17.06,
+        "vitamin_a": null,
+        "vitamin_c": 52.82,
+        "calcium": 54.48,
+        "iron": 0.98
+      },
+      "tags": [
+        "american",
+        "sauce",
+        "gluten free",
+        "dairy free",
+        "paleolithic",
+        "lacto ovo vegetarian",
+        "primal",
+        "whole 30",
+        "vegan",
+        "spoonacular",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 2.0,
+          "unit": "cups",
+          "item": "blackberry",
+          "notes": "Blackberry : 2 cups (fresh or 2/3 cup dried)",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "",
+          "item": "chili : 1/ soaked",
+          "notes": "Dry whole chili : 1/2 soaked with figs",
+          "category": "produce"
+        },
+        {
+          "quantity": 6.0,
+          "unit": "",
+          "item": "figs : soaked in",
+          "notes": "Dry Figs : 6 soaked in 1/2 cup of water for 3-4 hours",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "",
+          "item": "lemon rind : 1/ lemon",
+          "notes": "Lemon rind : 1/2 lemon large",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "tsp",
+          "item": "salt : or",
+          "notes": "Salt : 1/2 tsp or to taste",
+          "category": "spices and seasonings"
+        }
+      ],
+      "instructions": [
+        "Grind blackberries, figs and red chili in a coarse paste in the grinder with the water in which figs and chili were soaked.",
+        "Pour the paste out in a pan.",
+        "Put the pan on medium heat.",
+        "Add all the above ingredients to the paste.",
+        "Let the ingredients simmer together for 4-5 minutes.Your sweet and spicy blackberry and fig chutney/compote is ready  .Enjoy on top of the toast or crackers.",
+        "Serve as a side/dip for pretzels, celery sticks, breadsticks. For more fun, top a bit over your vanilla ice cream  . Enjoy it with chopped nuts as well!Note : it can be stored in an air tight jar in the fridge for upto 10-12 days.Yield : approximately 1 cup",
+        "Serve size : 1 tbsp"
+      ],
+      "source_url": "https://www.foodista.com/recipe/CBWH7DQ4/blackberry-and-figs-chutney-compote",
+      "image_url": "https://img.spoonacular.com/recipes/635179-312x231.jpg"
+    },
+    {
+      "id": "fruit-salsa-cinnamon-chips",
+      "name": "Fruit Salsa & Cinnamon Chips",
+      "servings": 5,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 254,
+        "protein": 2.29,
+        "carbs": 65.2,
+        "fat": 1.06,
+        "saturated_fat": 0.13,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 21.96,
+        "potassium": null,
+        "fiber": 9.41,
+        "sugar": 51.45,
+        "vitamin_a": null,
+        "vitamin_c": 124.64,
+        "calcium": 82.26,
+        "iron": 0.76
+      },
+      "tags": [
+        "american",
+        "side dish",
+        "dairy free",
+        "lacto ovo vegetarian",
+        "vegan",
+        "spoonacular",
+        "dessert",
+        "baking",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "brown sugar",
+          "notes": "2 tablespoons brown sugar",
+          "category": "baking"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "teaspoons",
+          "item": "cinnamon",
+          "notes": "2 teaspoons cinnamon",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "bag",
+          "item": "flour tortillas",
+          "notes": "1 bag large flour tortillas",
+          "category": "pasta and rice"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "cup",
+          "item": "granulated sugar",
+          "notes": "1/4 cup granulated sugar",
+          "category": "baking"
+        },
+        {
+          "quantity": 5.0,
+          "unit": "medium size",
+          "item": "apples",
+          "notes": "5 medium size green apples",
+          "category": "produce"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "jelly",
+          "notes": "1/2 cup jelly (strawberry or apple)",
+          "category": "produce"
+        },
+        {
+          "quantity": 5.0,
+          "unit": "",
+          "item": "kiwis",
+          "notes": "5 kiwis, peeled and chopped",
+          "category": "produce"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "tablespoons",
+          "item": "lemon juice",
+          "notes": "2 tablespoons lemon juice",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "mango",
+          "notes": "1 Mango, pitted and cut into very thin slices",
+          "category": "produce"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "medium",
+          "item": "orange",
+          "notes": "1 medium orange",
+          "category": "produce"
+        },
+        {
+          "quantity": 6.0,
+          "unit": "",
+          "item": "strawberries",
+          "notes": "6 Strawberries, trimmed and each one thinly sliced",
+          "category": "produce"
+        },
+        {
+          "quantity": 5.0,
+          "unit": "servings",
+          "item": "water",
+          "notes": "water",
+          "category": "beverages"
+        }
+      ],
+      "instructions": [
+        "Peel and chop green apples.In large bowl, toss green apples with lemon juice.Chop strawberries, mango, and kiwis, adding to apple mixture as prepared.Grate approximately 2 tablespoons of orange zest from orange and add to mixture.",
+        "Cut orange in half and squeeze juice over mixture.In small bowl, mix jelly and brown sugar.",
+        "Combine jelly mixture with fruit.Chill fruit while preparing cinnamon chips.",
+        "Combine granulated sugar and cinnamon.Fill a clean spray bottle with water.Spray water on each tortilla, then sprinkle with cinnamon and sugar mixture.",
+        "Cut each tortilla into eighths.",
+        "Bake tortilla chips in 400 degree oven for six minutes.Cool chips on rack.",
+        "Serve chips with fruit salsa."
+      ],
+      "source_url": "https://www.foodista.com/recipe/7RJGZK36/fruit-salsa-cinnamon-chips",
+      "image_url": "https://img.spoonacular.com/recipes/644020-312x231.jpg"
+    },
+    {
+      "id": "raw-vegan-chocolate-ice-cream-cupcakes",
+      "name": "Raw Vegan Chocolate Ice Cream Cupcakes",
+      "servings": 3,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 317,
+        "protein": 4.8,
+        "carbs": 64.46,
+        "fat": 8.98,
+        "saturated_fat": 0.74,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 4.83,
+        "potassium": null,
+        "fiber": 11.15,
+        "sugar": 42.65,
+        "vitamin_a": null,
+        "vitamin_c": 22.15,
+        "calcium": 57.99,
+        "iron": 1.66
+      },
+      "tags": [
+        "american",
+        "gluten free",
+        "dairy free",
+        "paleolithic",
+        "lacto ovo vegetarian",
+        "primal",
+        "whole 30",
+        "vegan",
+        "spoonacular",
+        "dessert",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 2.0,
+          "unit": "",
+          "item": "bananas",
+          "notes": "2 frozen bananas",
+          "category": "produce"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "servings",
+          "item": "blueberries - if you have",
+          "notes": "blueberries \u2013 if you have, I think it would have looked great with a lovely blueberry in the middle.",
+          "category": "produce"
+        },
+        {
+          "quantity": 3.0,
+          "unit": "tbsp",
+          "item": "carob powder",
+          "notes": "3 tbsp carob powder",
+          "category": "health foods"
+        },
+        {
+          "quantity": 10.0,
+          "unit": "",
+          "item": "dates",
+          "notes": "10 dates, pitted",
+          "category": "dried fruits"
+        },
+        {
+          "quantity": 0.33333334,
+          "unit": "cup",
+          "item": "hazelnuts",
+          "notes": "1/3 cup raw hazelnuts, soaked for at least 2 hours",
+          "category": "baking"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "cloves",
+          "item": "ground",
+          "notes": "ground cloves, sprinkled",
+          "category": "?"
+        }
+      ],
+      "instructions": [
+        "Go to my blog for the full instructions: http://gourmandelle.com/raw-vegan-chocolate-ice-cream-cupcakes/"
+      ],
+      "source_url": "https://www.foodista.com/recipe/W377CGJG/raw-vegan-chocolate-ice-cream-cupcakes",
+      "image_url": "https://img.spoonacular.com/recipes/658005-312x231.jpg"
+    },
+    {
+      "id": "apple-pie-smoothie",
+      "name": "Apple Pie Smoothie",
+      "servings": 2,
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "nutrition_per_serving": {
+        "calories": 238,
+        "protein": 7.23,
+        "carbs": 38.2,
+        "fat": 7.58,
+        "saturated_fat": 1.68,
+        "polyunsaturated_fat": null,
+        "monounsaturated_fat": null,
+        "sodium": 65.25,
+        "potassium": null,
+        "fiber": 3.49,
+        "sugar": 31.09,
+        "vitamin_a": null,
+        "vitamin_c": 4.72,
+        "calcium": 214.16,
+        "iron": 0.71
+      },
+      "tags": [
+        "american",
+        "morning meal",
+        "brunch",
+        "beverage",
+        "breakfast",
+        "drink",
+        "lacto ovo vegetarian",
+        "spoonacular",
+        "dessert",
+        "vegetarian"
+      ],
+      "ingredients": [
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "almond butter",
+          "notes": "1 tablespoon unsalted almond butter",
+          "category": "nut butters, jams, and honey"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "apple sauce",
+          "notes": "1 tablespoon apple sauce",
+          "category": "canned and jarred"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "vanilla yogurt",
+          "notes": "1/2 cup vanilla fat free yogurt",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "tablespoon",
+          "item": "grain granola",
+          "notes": "1 tablespoon 7 grain granola",
+          "category": "cereal"
+        },
+        {
+          "quantity": 0.25,
+          "unit": "teaspoon",
+          "item": "ground cinnamon",
+          "notes": "1/4 teaspoon Ground cinnamon",
+          "category": "spices and seasonings"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "honey",
+          "notes": "1 teaspoon honey",
+          "category": "nut butters, jams, and honey"
+        },
+        {
+          "quantity": 2.0,
+          "unit": "servings",
+          "item": "ice cubes",
+          "notes": "ice cubes",
+          "category": "frozen"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "teaspoon",
+          "item": "maple syrup",
+          "notes": "1 teaspoon Maple syrup",
+          "category": "cereal"
+        },
+        {
+          "quantity": 0.5,
+          "unit": "cup",
+          "item": "milk",
+          "notes": "1/2 cup milk",
+          "category": "milk, eggs, other dairy"
+        },
+        {
+          "quantity": 1.0,
+          "unit": "",
+          "item": "delicious apple",
+          "notes": "1 red delicious apple, cut into pieces",
+          "category": "produce"
+        }
+      ],
+      "instructions": [
+        "Combine all ingredients in a blender and pulse until smooth.",
+        "Serve immediately."
+      ],
+      "source_url": "https://www.foodista.com/recipe/HJPJ6D56/apple-pie-smoothie",
+      "image_url": "https://img.spoonacular.com/recipes/632575-312x231.jpg"
     }
   ]
 }
