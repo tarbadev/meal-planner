@@ -6,10 +6,13 @@ unstructured recipe text in both English and French.
 """
 
 import json
+import logging
 from dataclasses import dataclass
 from typing import Any
 
 from openai import OpenAI
+
+logger = logging.getLogger(__name__)
 
 
 class AIExtractionError(Exception):
@@ -190,6 +193,9 @@ Now extract the recipe from the following text:"""
         Raises:
             AIExtractionError: If extraction fails
         """
+        import time
+        logger.info("Starting AI recipe extraction", extra={"text_length": len(text), "source_hint": source_hint})
+        t0 = time.monotonic()
         try:
             # Build prompt
             system_prompt = self._build_extraction_prompt(text)
@@ -227,7 +233,7 @@ Now extract the recipe from the following text:"""
                 )
 
             # Build ExtractedRecipeData
-            return ExtractedRecipeData(
+            extracted = ExtractedRecipeData(
                 name=result.get("name", "Unknown Recipe"),
                 servings=result.get("servings"),
                 prep_time_minutes=result.get("prep_time_minutes"),
@@ -238,10 +244,21 @@ Now extract the recipe from the following text:"""
                 language=result.get("language", "en"),
                 confidence=result.get("confidence", 0.5)
             )
+            logger.info(
+                "AI recipe extraction complete",
+                extra={
+                    "recipe_name": extracted.name,
+                    "confidence": extracted.confidence,
+                    "elapsed_s": round(time.monotonic() - t0, 2),
+                },
+            )
+            return extracted
 
         except json.JSONDecodeError as e:
+            logger.exception("Failed to parse AI response as JSON", extra={"source_hint": source_hint})
             raise AIExtractionError(f"Failed to parse AI response as JSON: {str(e)}") from e
         except Exception as e:
             if isinstance(e, AIExtractionError):
                 raise
+            logger.exception("AI extraction failed", extra={"source_hint": source_hint})
             raise AIExtractionError(f"AI extraction failed: {str(e)}") from e

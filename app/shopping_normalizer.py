@@ -11,12 +11,16 @@ worker long enough to trigger SIGABRT.
 """
 
 import json
+import logging
 import os
+import time
 
 from openai import OpenAI
 
 import app.config as config
 from app.shopping_list import ShoppingList, ShoppingListItem
+
+logger = logging.getLogger(__name__)
 
 EXCLUDED_INGREDIENTS_FILE = "data/excluded_ingredients.json"
 
@@ -108,6 +112,8 @@ def llm_normalize(shopping_list: ShoppingList) -> ShoppingList:
         for item in shopping_list.items
     ]
 
+    logger.info("Starting LLM normalization", extra={"item_count": len(shopping_list.items)})
+    t0 = time.monotonic()
     try:
         # Background thread — not bound by gunicorn worker timeout, use 60 s
         client = OpenAI(api_key=config.OPENAI_API_KEY, timeout=60.0)
@@ -134,12 +140,16 @@ def llm_normalize(shopping_list: ShoppingList) -> ShoppingList:
             if entry.get("item")
         ]
         items.sort(key=lambda x: (x.category, x.item))
-        print(
-            f"[SHOPPING NORMALIZER] Normalized {len(shopping_list.items)} → {len(items)} items",
-            flush=True,
+        logger.info(
+            "LLM normalization complete",
+            extra={
+                "input_count": len(shopping_list.items),
+                "output_count": len(items),
+                "elapsed_s": round(time.monotonic() - t0, 2),
+            },
         )
         return ShoppingList(items=items)
 
-    except Exception as e:
-        print(f"[SHOPPING NORMALIZER] LLM call failed, keeping list as-is: {e}", flush=True)
+    except Exception:
+        logger.exception("LLM normalization failed, keeping list as-is", extra={"item_count": len(shopping_list.items)})
         return shopping_list

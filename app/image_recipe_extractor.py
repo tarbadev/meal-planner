@@ -1,9 +1,12 @@
 """Extract recipes from images using OpenAI Vision API."""
 
 import base64
+import logging
 from dataclasses import dataclass
 
 import openai
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -40,24 +43,26 @@ class ImageRecipeExtractor:
         Raises:
             ValueError: If recipe cannot be extracted
         """
-        print(f"[IMAGE EXTRACTOR] Starting extraction, image size: {len(image_data)} bytes, format: {image_format}", flush=True)
+        logger.info("Starting image recipe extraction", extra={"size_bytes": len(image_data), "image_format": image_format})
 
         # Encode image to base64
         try:
-            print("[IMAGE EXTRACTOR] Encoding image to base64...", flush=True)
+            logger.debug("Encoding image to base64")
             base64_image = base64.b64encode(image_data).decode('utf-8')
             image_url = f"data:image/{image_format};base64,{base64_image}"
-            print(f"[IMAGE EXTRACTOR] Base64 encoded, length: {len(base64_image)}", flush=True)
+            logger.debug("Image base64 encoded", extra={"base64_length": len(base64_image)})
         except Exception as e:
-            print(f"[IMAGE EXTRACTOR ERROR] Failed to encode image: {type(e).__name__}: {str(e)}", flush=True)
+            logger.exception("Failed to encode image to base64", extra={"image_format": image_format})
             raise ValueError(f"Failed to encode image: {e}") from e
 
         # Create prompt for recipe extraction
         prompt = self._build_extraction_prompt()
 
+        import time
         try:
             # Call GPT-4 Vision API with a specific timeout
-            print("[IMAGE EXTRACTOR] Calling OpenAI Vision API (model: gpt-4o, timeout: 90s)...", flush=True)
+            logger.info("Calling OpenAI Vision API", extra={"model": "gpt-4o", "timeout_s": 90})
+            t0 = time.monotonic()
             response = self.client.chat.completions.create(
                 model="gpt-4o",  # gpt-4o has vision capabilities
                 messages=[
@@ -81,38 +86,31 @@ class ImageRecipeExtractor:
                 temperature=0.1,  # Low temperature for consistent extraction
                 timeout=90.0      # Explicit timeout for the API call
             )
-            print("[IMAGE EXTRACTOR] OpenAI API call successful", flush=True)
+            elapsed = round(time.monotonic() - t0, 2)
+            logger.info("OpenAI Vision API call successful", extra={"elapsed_s": elapsed})
 
             # Parse response
             content = response.choices[0].message.content
-            print(f"[IMAGE EXTRACTOR] Response received, length: {len(content)} chars", flush=True)
-            print(f"[IMAGE EXTRACTOR] Response preview: {content[:200]}...", flush=True)
+            logger.debug("Vision API response received", extra={"response_length": len(content)})
 
             result = self._parse_response(content)
-            print(f"[IMAGE EXTRACTOR] Parsing successful: {result.name}, confidence: {result.confidence}", flush=True)
+            logger.info("Image recipe extraction complete", extra={"recipe_name": result.name, "confidence": result.confidence})
             return result
 
         except openai.APIError as e:
-            error_msg = f"OpenAI API error: {type(e).__name__}: {str(e)}"
-            print(f"[IMAGE EXTRACTOR ERROR] {error_msg}", flush=True)
+            logger.exception("OpenAI API error during image extraction")
             raise ValueError(f"API error: {e}") from e
         except openai.APITimeoutError as e:
-            error_msg = f"OpenAI API timeout: {str(e)}"
-            print(f"[IMAGE EXTRACTOR ERROR] {error_msg}", flush=True)
+            logger.exception("OpenAI API timeout during image extraction")
             raise ValueError(f"API timeout after 90 seconds: {e}") from e
         except openai.APIConnectionError as e:
-            error_msg = f"OpenAI API connection error: {str(e)}"
-            print(f"[IMAGE EXTRACTOR ERROR] {error_msg}", flush=True)
+            logger.exception("OpenAI API connection error during image extraction")
             raise ValueError(f"API connection error: {e}") from e
         except openai.RateLimitError as e:
-            error_msg = f"OpenAI API rate limit: {str(e)}"
-            print(f"[IMAGE EXTRACTOR ERROR] {error_msg}", flush=True)
+            logger.exception("OpenAI API rate limit hit during image extraction")
             raise ValueError(f"API rate limit exceeded: {e}") from e
         except Exception as e:
-            error_msg = f"Unexpected error: {type(e).__name__}: {str(e)}"
-            print(f"[IMAGE EXTRACTOR ERROR] {error_msg}", flush=True)
-            import traceback
-            print(f"[IMAGE EXTRACTOR ERROR] Traceback: {traceback.format_exc()}", flush=True)
+            logger.exception("Unexpected error during image extraction")
             raise ValueError(f"Failed to extract recipe from image: {e}") from e
 
     def _build_extraction_prompt(self) -> str:
@@ -167,7 +165,7 @@ Important:
         """
         import json
 
-        print("[IMAGE EXTRACTOR] Parsing response...", flush=True)
+        logger.debug("Parsing image extraction response")
 
         # Extract JSON from response (handles markdown code blocks)
         content = content.strip()
@@ -180,30 +178,28 @@ Important:
         content = content.strip()
 
         try:
-            print("[IMAGE EXTRACTOR] Loading JSON...", flush=True)
+            import json
             data = json.loads(content)
-            print(f"[IMAGE EXTRACTOR] JSON loaded, keys: {list(data.keys())}", flush=True)
+            logger.debug("Image extraction JSON parsed", extra={"keys": list(data.keys())})
         except json.JSONDecodeError as e:
-            print(f"[IMAGE EXTRACTOR ERROR] JSON decode error: {str(e)}", flush=True)
-            print(f"[IMAGE EXTRACTOR ERROR] Content that failed to parse: {content[:500]}", flush=True)
+            logger.exception("JSON decode error parsing image extraction response", extra={"content_preview": content[:200]})
             raise ValueError(f"Failed to parse JSON response: {e}") from e
 
         # Validate required fields
         required_fields = ["name", "servings", "ingredients", "instructions"]
         for field in required_fields:
             if field not in data:
-                print(f"[IMAGE EXTRACTOR ERROR] Missing required field: {field}", flush=True)
-                print(f"[IMAGE EXTRACTOR ERROR] Available fields: {list(data.keys())}", flush=True)
+                logger.error("Missing required field in image extraction response", extra={"missing_field": field, "available_fields": list(data.keys())})
                 raise ValueError(f"Missing required field: {field}")
 
-        print("[IMAGE EXTRACTOR] All required fields present", flush=True)
+        logger.debug("All required fields present in image extraction response")
 
         # Create ImageRecipeData object
         try:
             # Handle null servings by defaulting to 4
             servings = data.get("servings")
             if servings is None:
-                print("[IMAGE EXTRACTOR] Warning: servings is null, defaulting to 4", flush=True)
+                logger.warning("Servings is null in image extraction response, defaulting to 4")
                 servings = 4
             else:
                 servings = int(servings)
@@ -219,8 +215,8 @@ Important:
                 notes=data.get("notes"),
                 confidence=float(data.get("confidence", 0.8))
             )
-            print("[IMAGE EXTRACTOR] ImageRecipeData created successfully", flush=True)
+            logger.debug("ImageRecipeData created", extra={"recipe_name": result.name})
             return result
         except Exception as e:
-            print(f"[IMAGE EXTRACTOR ERROR] Failed to create ImageRecipeData: {type(e).__name__}: {str(e)}", flush=True)
+            logger.exception("Failed to create ImageRecipeData object")
             raise ValueError(f"Failed to create recipe data object: {e}") from e

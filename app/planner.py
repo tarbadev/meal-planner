@@ -1,8 +1,11 @@
+import logging
 import random
 from dataclasses import dataclass
 from typing import Any
 
 from app.recipes import Recipe
+
+logger = logging.getLogger(__name__)
 
 DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
@@ -334,6 +337,8 @@ class MealPlanner:
         meal_slots = get_meal_slots_from_schedule(self.meal_schedule)
         num_meals = len(meal_slots)
 
+        logger.info("Generating weekly plan", extra={"recipe_pool_size": len(available_recipes), "meal_slots": num_meals})
+
         # Validate enough recipes
         if len(available_recipes) < num_meals:
             raise ValueError(
@@ -352,6 +357,7 @@ class MealPlanner:
         slots_filled_today: dict[str, int] = {}
 
         for day, meal_type in meal_slots:
+            logger.debug("Filling meal slot", extra={"day": day, "meal_type": meal_type})
             # Filter recipes that have this meal type tag AND haven't been used
             suitable_recipes = [
                 r for r in available_recipes
@@ -360,6 +366,7 @@ class MealPlanner:
 
             # Fallback: if no suitable recipes, use any unused recipe
             if not suitable_recipes:
+                logger.warning("No suitable recipes for meal type, using fallback", extra={"day": day, "meal_type": meal_type})
                 suitable_recipes = [
                     r for r in available_recipes
                     if r.id not in used_recipes
@@ -384,4 +391,5 @@ class MealPlanner:
                 household_portions=self.household_portions
             ))
 
+        logger.info("Weekly plan generated", extra={"total_meals": len(meals)})
         return WeeklyPlan(meals=meals, daily_calorie_limit=self.daily_calorie_limit)

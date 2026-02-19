@@ -4,11 +4,14 @@ Main orchestrator for Instagram recipe import.
 Combines fetching, AI extraction, and normalization to parse Instagram recipes.
 """
 
+import logging
 
 from app.ai_recipe_extractor import AIExtractionError, AIRecipeExtractor
 from app.ingredient_normalizer import normalize_ingredient
 from app.instagram_fetcher import InstagramFetcher, InstagramFetchError
 from app.recipe_parser import ParsedRecipe
+
+logger = logging.getLogger(__name__)
 
 
 class InstagramParser:
@@ -40,10 +43,14 @@ class InstagramParser:
             AIExtractionError: If AI extraction fails
         """
         # Step 1: Fetch Instagram post
+        logger.info("Fetching Instagram post", extra={"url": url})
         try:
             post = self.fetcher.fetch_post(url)
         except InstagramFetchError:
+            logger.exception("Failed to fetch Instagram post", extra={"url": url})
             raise
+
+        logger.info("Instagram post fetched successfully", extra={"url": url, "has_owner_comments": post.has_owner_comments})
 
         # Step 2: Extract recipe using AI
         try:
@@ -52,6 +59,7 @@ class InstagramParser:
                 source_hint="instagram"
             )
         except AIExtractionError:
+            logger.exception("AI extraction failed for Instagram post", extra={"url": url})
             raise
 
         # Step 3: Normalize ingredients
@@ -105,12 +113,14 @@ class InstagramParser:
             AIExtractionError: If AI extraction fails
         """
         # Step 1: Extract recipe using AI
+        logger.info("Parsing recipe from manually pasted text", extra={"text_length": len(text), "language": language})
         try:
             extracted = self.extractor.extract_recipe(
                 text=text,
                 source_hint="manual_paste"
             )
         except AIExtractionError:
+            logger.exception("AI extraction failed for manually pasted text", extra={"text_length": len(text)})
             raise
 
         # Step 2: Normalize ingredients

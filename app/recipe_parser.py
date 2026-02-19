@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 from dataclasses import dataclass
 
@@ -6,6 +7,8 @@ import requests
 from bs4 import BeautifulSoup
 
 from app.ingredient_parser import IngredientParser
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -106,11 +109,12 @@ class RecipeParser:
 
     def parse_from_url(self, url: str) -> ParsedRecipe:
         """Main entry point - parse recipe from URL."""
+        logger.info("Parsing recipe from URL", extra={"url": url})
         # Check if this is an Instagram URL
         if self._is_instagram_url(url):
             from app import config
             from app.instagram_parser import InstagramParser
-            print("Init of instagram_parser")
+            logger.debug("Detected Instagram URL, using InstagramParser")
             instagram_parser = InstagramParser(
                 openai_api_key=config.OPENAI_API_KEY,
                 instagram_session_file=config.INSTAGRAM_SESSION_FILE
@@ -123,6 +127,7 @@ class RecipeParser:
             headers = {
                 'User-Agent': 'Mozilla/5.0 (compatible; RecipeImporter/1.0)'
             }
+            logger.debug("Fetching recipe URL", extra={"url": url})
             response = requests.get(url, headers=headers, timeout=10)
             response.raise_for_status()
             html = response.text
@@ -139,11 +144,16 @@ class RecipeParser:
                 raise RecipeParseError("Could not extract recipe data from URL")
 
             recipe.source_url = url
+            logger.info("Recipe parsed successfully from URL", extra={"url": url, "recipe_name": recipe.name})
             return recipe
 
         except requests.RequestException as e:
+            logger.exception("Failed to fetch URL for recipe parsing", extra={"url": url})
             raise RecipeParseError(f"Failed to fetch URL: {str(e)}") from e
         except Exception as e:
+            if isinstance(e, RecipeParseError):
+                raise
+            logger.exception("Unexpected error during URL recipe parsing", extra={"url": url})
             raise RecipeParseError(f"Failed to fetch URL: {str(e)}") from e
 
     def _parse_schema_org(self, html: str) -> ParsedRecipe | None:
@@ -166,6 +176,7 @@ class RecipeParser:
                     return self._extract_from_schema_org(data)
 
             except (json.JSONDecodeError, KeyError):
+                logger.debug("Failed to parse JSON-LD script tag, skipping")
                 continue
 
         return None

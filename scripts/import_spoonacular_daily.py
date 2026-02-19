@@ -10,16 +10,15 @@ subsequent runs continue where the previous one left off instead of re-scanning
 already-imported recipes from position 0.
 """
 
+import json
+import logging
 import sys
+import time
+from datetime import datetime
 from pathlib import Path
 
 # Add parent directory to path to import app modules
 sys.path.insert(0, str(Path(__file__).parent.parent))
-
-import json
-import random
-import time
-from datetime import datetime
 
 import requests
 
@@ -27,6 +26,13 @@ from app import config
 from app.recipe_parser import ParsedRecipe, generate_recipe_id
 from app.recipes import Recipe, load_recipes, save_recipes
 from app.tag_inference import TagInferencer
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    stream=sys.stdout,
+)
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Variety configuration — rotated across runs
@@ -216,6 +222,7 @@ def main():
     existing_recipes = load_recipes(recipes_file)
     existing_ids = {r.id for r in existing_recipes}
     existing_names = {r.name.lower() for r in existing_recipes}
+    logger.info("Loaded existing recipe DB", extra={"recipe_count": len(existing_recipes), "tracked_ids": len(imported_ids)})
     print(f"Existing recipes in DB: {len(existing_recipes)}")
     print(f"Previously tracked Spoonacular IDs: {len(imported_ids)}")
     print()
@@ -267,14 +274,18 @@ def main():
         offset = search_offsets.get(key, 0)
 
         filters = []
-        if c:  filters.append(f"cuisine={c}")
-        if mt: filters.append(f"type={mt}")
-        if d:  filters.append(f"diet={d}")
+        if c:
+            filters.append(f"cuisine={c}")
+        if mt:
+            filters.append(f"type={mt}")
+        if d:
+            filters.append(f"diet={d}")
         label = ", ".join(filters) if filters else "no filters"
         print(f"── Strategy {search_idx + 1}/{len(search_attempts)}: [{label}]  (starting at offset {offset})")
 
         while imported_count < TARGET:
             try:
+                logger.info("Searching Spoonacular", extra={"offset": offset, "cuisine": c, "meal_type": mt, "diet": d})
                 print(f"   Searching offset {offset}…", flush=True)
                 results = search_spoonacular_recipes(
                     api_key=api_key,
@@ -285,6 +296,7 @@ def main():
                     offset=offset,
                 )
             except Exception as e:
+                logger.exception("Spoonacular API error", extra={"offset": offset, "cuisine": c, "meal_type": mt, "diet": d})
                 print(f"   ❌ API error: {e}")
                 break
 
@@ -292,9 +304,11 @@ def main():
             total_avail = results.get("totalResults", 0)
 
             if not recipes:
+                logger.warning("No Spoonacular results returned", extra={"offset": offset, "total_avail": total_avail})
                 print(f"   No results returned (total available: {total_avail})")
                 break
 
+            logger.info("Spoonacular search returned results", extra={"count": len(recipes), "total_avail": total_avail})
             print(f"   Got {len(recipes)} results (total pool: {total_avail})")
 
             for recipe_data in recipes:
@@ -314,6 +328,7 @@ def main():
                     continue
 
                 try:
+                    logger.info("Importing recipe from Spoonacular", extra={"recipe_name": name, "spoonacular_id": spoonacular_id})
                     print(f"   📥 Importing: {name}")
                     parsed, spoon_id = parse_spoonacular_recipe(recipe_data)
 
@@ -335,9 +350,11 @@ def main():
                     imported_ids.add(spoonacular_id)
                     imported_count += 1
 
+                    logger.info("Recipe imported successfully", extra={"recipe_id": recipe_id, "recipe_name": name, "imported_count": imported_count})
                     print(f"      ✅ Done  ({imported_count}/{TARGET})  tags: {', '.join(parsed.tags[:5])}")
 
                 except Exception as e:
+                    logger.exception("Failed to import recipe from Spoonacular", extra={"recipe_name": name, "spoonacular_id": spoonacular_id})
                     print(f"      ❌ Error: {e}")
                     failed_count += 1
 
@@ -347,6 +364,7 @@ def main():
 
             # All results for this combination exhausted → next strategy
             if offset >= total_avail:
+                logger.info("Exhausted all results for this search strategy", extra={"total_avail": total_avail, "cuisine": c, "meal_type": mt, "diet": d})
                 print(f"   Exhausted all {total_avail} results for this strategy")
                 break
 
@@ -365,6 +383,7 @@ def main():
     state["search_offsets"] = search_offsets
     save_state(state)
 
+    logger.info("Spoonacular import run complete", extra={"imported": imported_count, "skipped": skipped_count, "failed": failed_count, "total_in_db": len(existing_recipes)})
     print(f"✅ Saved {len(existing_recipes)} total recipes")
     print(f"✅ Tracked {len(imported_ids)} Spoonacular IDs")
     print()

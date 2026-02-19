@@ -10,19 +10,21 @@ Usage:
     python import_themealdb.py --limit 5    # Import only 5 recipes (for testing)
 """
 
-import sys
 import argparse
+import sys
 from pathlib import Path
 
 # Add parent directory to path to import app modules
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-import requests
 import time
+
+import requests
+
 from app import config
+from app.nutrition_generator import NutritionGenerator
 from app.recipe_parser import ParsedRecipe, generate_recipe_id
 from app.recipes import Recipe, load_recipes, save_recipes
-from app.nutrition_generator import NutritionGenerator
 from app.tag_inference import TagInferencer
 
 
@@ -61,7 +63,7 @@ def fetch_all_themealdb_recipes(limit=None):
             meals = response.json().get("meals", [])
 
             if not meals:
-                print(f"   ⚠️  No recipes found")
+                print("   ⚠️  No recipes found")
                 continue
 
             print(f"   Found {len(meals)} recipes", flush=True)

@@ -1,10 +1,13 @@
+import logging
 import threading
+import time
 import uuid
 from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request
 
 from app import config
+from app.logging_config import configure_logging
 from app.planner import MealPlanner
 from app.recipes import Recipe, RecipeSaveError, load_recipes, save_recipes, update_recipe
 from app.sheets import SheetsError, SheetsWriter
@@ -16,6 +19,9 @@ from app.shopping_normalizer import (
     save_excluded_ingredients,
 )
 from app.tag_inference import TagInferencer
+
+configure_logging()
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -46,8 +52,8 @@ def _norm_task_run(task_id: str, snapshot: ShoppingList) -> None:
                     for i in result.items
                 ],
             }
-    except Exception as e:
-        print(f"[NORM] Background normalization failed: {e}", flush=True)
+    except Exception:
+        logger.exception("Background normalization failed", extra={"task_id": task_id})
         with _norm_lock:
             _norm_tasks[task_id] = {"status": "failed", "items": None}
 
@@ -139,6 +145,7 @@ def _serialize_plan(plan):
 @app.route("/")
 def index():
     """Render the web UI."""
+    logger.debug("Rendering index page")
     return render_template(
         "index.html",
         current_plan=_serialize_plan(current_plan),
@@ -151,6 +158,7 @@ def index():
 @app.route("/api/recipes")
 def api_recipes():
     """API endpoint for paginated, searchable, filterable recipe listing."""
+    logger.debug("Fetching paginated recipe list")
     import math
 
     from flask import request
@@ -270,6 +278,7 @@ def api_recipes():
 @app.route("/recipe/<recipe_id>")
 def recipe_detail(recipe_id: str):
     """Display detailed recipe page."""
+    logger.debug("Rendering recipe detail page", extra={"recipe_id": recipe_id})
     from app.ingredient_substitutions import get_substitutions
 
     recipes_file = Path(config.RECIPES_FILE)
@@ -309,6 +318,7 @@ def share_recipe():
     This endpoint receives shared content from the browser's share menu
     (Android Chrome, iOS Safari with Web Share Target API).
     """
+    logger.info("Received PWA share-recipe request")
     from urllib.parse import quote
 
     from flask import redirect, url_for
@@ -339,6 +349,7 @@ def share_recipe():
 @app.route("/generate", methods=["POST"])
 def generate():
     """Generate a new weekly meal plan."""
+    logger.info("Generating weekly meal plan")
     global current_plan, current_shopping_list
 
     recipes_file = Path(config.RECIPES_FILE)
@@ -364,6 +375,7 @@ def generate():
 @app.route("/generate-with-schedule", methods=["POST"])
 def generate_with_schedule():
     """Generate a meal plan with custom schedule and per-meal servings."""
+    logger.info("Generating weekly plan with schedule")
     global manual_plan, current_plan, current_shopping_list
     import random
 
@@ -437,6 +449,7 @@ def generate_with_schedule():
 @app.route("/import-recipe", methods=["POST"])
 def import_recipe():
     """Import a recipe from a URL."""
+    logger.info("Importing recipe from URL")
     global current_plan, current_shopping_list
 
     try:
@@ -469,8 +482,11 @@ def import_recipe():
         from app.nutrition_generator import NutritionGenerator
         from app.recipe_parser import RecipeParseError, RecipeParser, generate_recipe_id
 
+        logger.info("Parsing recipe from URL", extra={"url": url})
+        t0 = time.monotonic()
         parser = RecipeParser()
         parsed_recipe = parser.parse_from_url(url)
+        logger.info("LLM call completed", extra={"elapsed_s": round(time.monotonic() - t0, 2), "recipe_name": parsed_recipe.name})
 
         # Generate nutrition if missing
         nutrition_gen = NutritionGenerator(api_key=config.USDA_API_KEY)
@@ -543,6 +559,8 @@ def import_recipe():
         current_plan = None
         current_shopping_list = None
 
+        logger.info("Recipe imported successfully", extra={"recipe_id": new_recipe.id, "recipe_name": new_recipe.name})
+
         # Build response with optional AI confidence
         response_data = {
             "success": True,
@@ -567,33 +585,39 @@ def import_recipe():
         return jsonify(response_data)
 
     except InstagramFetchError as e:
+        logger.exception("Instagram fetch error during import", extra={"url": url})
         return jsonify({
             "error": "Instagram fetch error",
             "message": str(e),
             "suggestion": "Try using 'Import from Text' by copying the post description manually"
         }), 400
     except AIExtractionError as e:
+        logger.exception("AI extraction error during import", extra={"url": url})
         return jsonify({
             "error": "AI extraction error",
             "message": str(e),
             "suggestion": "The recipe text may be unclear or incomplete. Please try a different post or add manually."
         }), 400
     except RecipeParseError as e:
+        logger.exception("Recipe parse error during import", extra={"url": url})
         return jsonify({
             "error": "Parse error",
             "message": str(e)
         }), 400
     except ValueError as e:
+        logger.exception("Validation error during import", extra={"url": url})
         return jsonify({
             "error": "Validation error",
             "message": str(e)
         }), 400
     except RecipeSaveError as e:
+        logger.exception("Save error during import", extra={"url": url})
         return jsonify({
             "error": "Save error",
             "message": f"Failed to save recipe: {str(e)}"
         }), 500
     except Exception as e:
+        logger.exception("Unexpected error during recipe import", extra={"url": url})
         return jsonify({
             "error": "Import error",
             "message": f"Unexpected error: {str(e)}"
@@ -603,6 +627,7 @@ def import_recipe():
 @app.route("/import-recipe-text", methods=["POST"])
 def import_recipe_text():
     """Import a recipe from manually pasted text (Instagram fallback)."""
+    logger.info("Importing recipe from text")
     global current_plan, current_shopping_list
 
     try:
@@ -635,12 +660,14 @@ def import_recipe_text():
         from app.nutrition_generator import NutritionGenerator
         from app.recipe_parser import RecipeParseError, generate_recipe_id
 
-        print("Init of instagram_parser")
+        logger.debug("Initialising InstagramParser")
         instagram_parser = InstagramParser(
             openai_api_key=config.OPENAI_API_KEY
         )
-        print("Init of instagram_parser")
+        logger.info("Calling LLM to parse recipe from text", extra={"text_length": len(text), "language": language})
+        t0 = time.monotonic()
         parsed_recipe = instagram_parser.parse_from_text(text, language)
+        logger.info("LLM call completed", extra={"elapsed_s": round(time.monotonic() - t0, 2), "recipe_name": parsed_recipe.name})
 
         # Generate nutrition if missing
         nutrition_gen = NutritionGenerator(api_key=config.USDA_API_KEY)
@@ -713,6 +740,8 @@ def import_recipe_text():
         current_plan = None
         current_shopping_list = None
 
+        logger.info("Recipe imported successfully from text", extra={"recipe_id": new_recipe.id, "recipe_name": new_recipe.name})
+
         # Build response with AI confidence
         response_data = {
             "success": True,
@@ -737,27 +766,32 @@ def import_recipe_text():
         return jsonify(response_data)
 
     except AIExtractionError as e:
+        logger.exception("AI extraction error during text import", extra={"text_length": len(text)})
         return jsonify({
             "error": "AI extraction error",
             "message": str(e),
             "suggestion": "The recipe text may be unclear or incomplete. Please try different text or add manually."
         }), 400
     except RecipeParseError as e:
+        logger.exception("Recipe parse error during text import", extra={"text_length": len(text)})
         return jsonify({
             "error": "Parse error",
             "message": str(e)
         }), 400
     except ValueError as e:
+        logger.exception("Validation error during text import", extra={"text_length": len(text)})
         return jsonify({
             "error": "Validation error",
             "message": str(e)
         }), 400
     except RecipeSaveError as e:
+        logger.exception("Save error during text import", extra={"text_length": len(text)})
         return jsonify({
             "error": "Save error",
             "message": f"Failed to save recipe: {str(e)}"
         }), 500
     except Exception as e:
+        logger.exception("Unexpected error during text import", extra={"text_length": len(text)})
         return jsonify({
             "error": "Import error",
             "message": f"Unexpected error: {str(e)}"
@@ -767,27 +801,28 @@ def import_recipe_text():
 @app.route("/import-recipe-image", methods=["POST"])
 def import_recipe_image():
     """Import a recipe from a photo."""
+    logger.info("Importing recipe from image")
     global current_plan, current_shopping_list
 
-    print(f"[IMAGE IMPORT] Request received - Content-Type: {request.content_type}", flush=True)
-    print(f"[IMAGE IMPORT] Request files: {list(request.files.keys())}", flush=True)
-    print(f"[IMAGE IMPORT] Request form: {list(request.form.keys())}", flush=True)
+    logger.debug("Image import request received", extra={
+        "content_type": request.content_type,
+        "files": list(request.files.keys()),
+        "form_keys": list(request.form.keys()),
+    })
 
     # Check if image file is present
     if 'image' not in request.files:
-        error_msg = "No image provided - image file is required"
-        print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
+        logger.warning("Image import request missing image file")
         return jsonify({
             "error": "No image provided",
             "message": "Image file is required"
         }), 400
 
     file = request.files['image']
-    print(f"[IMAGE IMPORT] File object received: {file}, filename: {file.filename}", flush=True)
+    logger.debug("Image file received", extra={"filename": file.filename})
 
     if file.filename == '':
-        error_msg = "No file selected"
-        print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
+        logger.warning("Image import request has empty filename")
         return jsonify({
             "error": "No file selected",
             "message": "Please select an image file"
@@ -796,11 +831,10 @@ def import_recipe_image():
     # Validate file type
     allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
     file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
-    print(f"[IMAGE IMPORT] File extension: {file_ext}", flush=True)
+    logger.debug("Image file extension detected", extra={"file_ext": file_ext})
 
     if file_ext not in allowed_extensions:
-        error_msg = f"Invalid file type: {file_ext}"
-        print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
+        logger.warning("Invalid image file type", extra={"file_ext": file_ext})
         return jsonify({
             "error": "Invalid file type",
             "message": f"Allowed types: {', '.join(allowed_extensions)}"
@@ -808,14 +842,13 @@ def import_recipe_image():
 
     try:
         # Read image data
-        print("[IMAGE IMPORT] Reading image data...", flush=True)
+        logger.debug("Reading image data")
         image_data = file.read()
-        print(f"[IMAGE IMPORT] Image data read successfully: {len(image_data)} bytes", flush=True)
+        logger.debug("Image data read", extra={"size_bytes": len(image_data)})
 
         # Check for empty file
         if len(image_data) == 0:
-            error_msg = "Image file is empty"
-            print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
+            logger.warning("Uploaded image file is empty")
             return jsonify({
                 "error": "Empty file",
                 "message": "The uploaded image file is empty"
@@ -823,45 +856,42 @@ def import_recipe_image():
 
         # Check file size (log warning if > 10MB)
         if len(image_data) > 10 * 1024 * 1024:
-            print(f"[IMAGE IMPORT WARNING] Large file size: {len(image_data) / (1024*1024):.2f}MB", flush=True)
+            logger.warning("Large image file uploaded", extra={"size_mb": round(len(image_data) / (1024 * 1024), 2)})
 
         # Extract recipe from image using Vision API
         from app.image_recipe_extractor import ImageRecipeExtractor
         from app.nutrition_generator import NutritionGenerator
         from app.recipe_parser import ParsedRecipe, generate_recipe_id
 
-        print("[IMAGE IMPORT] Checking OpenAI API key configuration...", flush=True)
         if not config.OPENAI_API_KEY:
-            error_msg = "OpenAI API key not configured"
-            print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
+            logger.error("OpenAI API key not configured for image import")
             return jsonify({
                 "error": "Configuration error",
                 "message": "Image import is not configured on the server"
             }), 500
-        print(f"[IMAGE IMPORT] API key configured: {config.OPENAI_API_KEY[:8]}...", flush=True)
+        logger.info("OpenAI API key configured")
 
-        print("[IMAGE IMPORT] Initializing ImageRecipeExtractor...", flush=True)
+        logger.debug("Initialising ImageRecipeExtractor")
         extractor = ImageRecipeExtractor(api_key=config.OPENAI_API_KEY)
 
-        print("[IMAGE IMPORT] Starting OpenAI Vision API call...", flush=True)
+        logger.info("Starting OpenAI Vision API call", extra={"size_bytes": len(image_data), "file_ext": file_ext})
+        t0 = time.monotonic()
         extracted_data = extractor.extract_recipe(image_data, file_ext)
-        print(f"[IMAGE IMPORT] Successfully extracted recipe data: {extracted_data.name}", flush=True)
-        print(f"[IMAGE IMPORT] Confidence: {extracted_data.confidence}, Ingredients: {len(extracted_data.ingredients)}", flush=True)
+        logger.info("LLM call completed", extra={
+            "elapsed_s": round(time.monotonic() - t0, 2),
+            "recipe_name": extracted_data.name,
+            "confidence": extracted_data.confidence,
+            "ingredient_count": len(extracted_data.ingredients),
+        })
 
     except ValueError as e:
-        error_msg = f"ValueError during extraction: {str(e)}"
-        print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
-        import traceback
-        print(f"[IMAGE IMPORT ERROR] Traceback: {traceback.format_exc()}", flush=True)
+        logger.exception("ValueError during image extraction", extra={"filename": file.filename})
         return jsonify({
             "error": "Extraction failed",
             "message": str(e)
         }), 422
     except Exception as e:
-        error_msg = f"Exception during extraction: {type(e).__name__}: {str(e)}"
-        print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
-        import traceback
-        print(f"[IMAGE IMPORT ERROR] Traceback: {traceback.format_exc()}", flush=True)
+        logger.exception("Exception during image extraction", extra={"filename": file.filename})
 
         # Check if it looks like a timeout
         error_str = str(e)
@@ -885,7 +915,7 @@ def import_recipe_image():
 
     try:
         # Convert to ParsedRecipe format
-        print("[IMAGE IMPORT] Converting extracted data to ParsedRecipe...", flush=True)
+        logger.debug("Converting extracted data to ParsedRecipe", extra={"recipe_name": extracted_data.name})
         # Build tags list - include notes as a tag if present
         tags = extracted_data.tags + ["photo-imported"]
         if extracted_data.notes:
@@ -910,20 +940,19 @@ def import_recipe_image():
             fat_per_serving=None
         )
         parsed_recipe.ai_confidence = extracted_data.confidence
-        print("[IMAGE IMPORT] ParsedRecipe created successfully", flush=True)
+        logger.debug("ParsedRecipe created", extra={"recipe_name": parsed_recipe.name})
 
         # Generate nutrition if missing
-        print("[IMAGE IMPORT] Checking if nutrition generation is needed...", flush=True)
         nutrition_gen = NutritionGenerator(api_key=config.USDA_API_KEY)
         if nutrition_gen.should_generate_nutrition(parsed_recipe):
-            print("[IMAGE IMPORT] Generating nutrition data...", flush=True)
+            logger.info("Generating nutrition data for image-imported recipe", extra={"recipe_name": parsed_recipe.name})
             generated_nutrition = nutrition_gen.generate_from_ingredients(
                 parsed_recipe.ingredients,
                 parsed_recipe.servings or 4
             )
 
             if generated_nutrition:
-                print(f"[IMAGE IMPORT] Nutrition generated: {generated_nutrition.calories} cal", flush=True)
+                logger.info("Nutrition generated for image-imported recipe", extra={"calories": generated_nutrition.calories})
                 parsed_recipe.calories_per_serving = int(generated_nutrition.calories)
                 parsed_recipe.protein_per_serving = generated_nutrition.protein
                 parsed_recipe.carbs_per_serving = generated_nutrition.carbs
@@ -951,12 +980,11 @@ def import_recipe_image():
                         parsed_recipe.tags = []
                     parsed_recipe.tags.append("nutrition-generated")
             else:
-                print("[IMAGE IMPORT] No nutrition data generated", flush=True)
+                logger.warning("No nutrition data generated for image-imported recipe", extra={"recipe_name": parsed_recipe.name})
         else:
-            print("[IMAGE IMPORT] Nutrition generation not needed", flush=True)
+            logger.debug("Nutrition generation not needed for image-imported recipe", extra={"recipe_name": parsed_recipe.name})
 
         # Infer additional tags
-        print("[IMAGE IMPORT] Inferring tags...", flush=True)
         tag_inferencer = TagInferencer()
         parsed_recipe.tags = tag_inferencer.enhance_tags(
             name=parsed_recipe.name,
@@ -966,33 +994,28 @@ def import_recipe_image():
             cook_time_minutes=parsed_recipe.cook_time_minutes or 0,
             existing_tags=parsed_recipe.tags or []
         )
-        print(f"[IMAGE IMPORT] Tags inferred: {parsed_recipe.tags}", flush=True)
+        logger.debug("Tags inferred for image-imported recipe", extra={"recipe_name": parsed_recipe.name, "tags": parsed_recipe.tags})
 
         # Load existing recipes
-        print("[IMAGE IMPORT] Loading existing recipes...", flush=True)
         recipes_file = Path(config.RECIPES_FILE)
         existing_recipes = load_recipes(recipes_file)
         existing_ids = {r.id for r in existing_recipes}
-        print(f"[IMAGE IMPORT] Found {len(existing_recipes)} existing recipes", flush=True)
+        logger.debug("Loaded existing recipes", extra={"recipe_count": len(existing_recipes)})
 
         # Generate unique ID
-        print("[IMAGE IMPORT] Generating recipe ID...", flush=True)
         recipe_id = generate_recipe_id(parsed_recipe.name, existing_ids)
-        print(f"[IMAGE IMPORT] Recipe ID: {recipe_id}", flush=True)
+        logger.debug("Generated recipe ID", extra={"recipe_id": recipe_id})
 
         # Convert to Recipe dict
-        print("[IMAGE IMPORT] Converting to Recipe dict...", flush=True)
         recipe_dict = parsed_recipe.to_recipe_dict(recipe_id)
 
         # Validate using Recipe.from_dict
-        print("[IMAGE IMPORT] Validating recipe...", flush=True)
         new_recipe = Recipe.from_dict(recipe_dict)
 
         # Add to recipes list and save
-        print("[IMAGE IMPORT] Saving recipe to file...", flush=True)
         updated_recipes = existing_recipes + [new_recipe]
         save_recipes(recipes_file, updated_recipes)
-        print("[IMAGE IMPORT] Recipe saved successfully!", flush=True)
+        logger.info("Image-imported recipe saved", extra={"recipe_id": new_recipe.id, "recipe_name": new_recipe.name})
 
         # Clear current plan
         current_plan = None
@@ -1020,29 +1043,20 @@ def import_recipe_image():
         return jsonify(response_data)
 
     except ValueError as e:
-        error_msg = f"ValueError during recipe conversion/saving: {str(e)}"
-        print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
-        import traceback
-        print(f"[IMAGE IMPORT ERROR] Traceback: {traceback.format_exc()}", flush=True)
+        logger.exception("ValueError during image recipe conversion/saving", extra={"recipe_name": extracted_data.name})
         return jsonify({
             "error": "Extraction error",
             "message": str(e),
             "suggestion": "The image may be unclear or not contain a recipe. Please try a clearer photo."
         }), 400
     except RecipeSaveError as e:
-        error_msg = f"RecipeSaveError: {str(e)}"
-        print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
-        import traceback
-        print(f"[IMAGE IMPORT ERROR] Traceback: {traceback.format_exc()}", flush=True)
+        logger.exception("RecipeSaveError during image recipe saving", extra={"recipe_name": extracted_data.name})
         return jsonify({
             "error": "Save error",
             "message": f"Failed to save recipe: {str(e)}"
         }), 500
     except Exception as e:
-        error_msg = f"Unexpected exception during recipe conversion/saving: {type(e).__name__}: {str(e)}"
-        print(f"[IMAGE IMPORT ERROR] {error_msg}", flush=True)
-        import traceback
-        print(f"[IMAGE IMPORT ERROR] Traceback: {traceback.format_exc()}", flush=True)
+        logger.exception("Unexpected error during image recipe conversion/saving", extra={"recipe_name": extracted_data.name})
         return jsonify({
             "error": "Import error",
             "message": f"Unexpected error: {str(e)}"
@@ -1052,6 +1066,7 @@ def import_recipe_image():
 @app.route("/recipes", methods=["GET"])
 def recipes():
     """List all available recipes."""
+    logger.debug("Listing all recipes")
     recipes_file = Path(config.RECIPES_FILE)
     all_recipes = load_recipes(recipes_file)
 
@@ -1076,6 +1091,7 @@ def recipes():
 @app.route("/recipes", methods=["POST"])
 def create_recipe():
     """Create a new recipe manually."""
+    logger.info("Creating new recipe manually")
     global current_plan, current_shopping_list
 
     # Parse request JSON
@@ -1272,6 +1288,7 @@ def create_recipe():
 @app.route("/recipes/<recipe_id>", methods=["GET"])
 def get_recipe(recipe_id: str):
     """Fetch single recipe for editing."""
+    logger.debug("Fetching single recipe", extra={"recipe_id": recipe_id})
     recipes_file = Path(config.RECIPES_FILE)
     all_recipes = load_recipes(recipes_file)
 
@@ -1311,6 +1328,7 @@ def get_recipe(recipe_id: str):
 @app.route("/recipes/<recipe_id>", methods=["PUT"])
 def update_recipe_endpoint(recipe_id: str):
     """Update existing recipe."""
+    logger.info("Updating recipe", extra={"recipe_id": recipe_id})
     global current_plan, current_shopping_list
 
     # Parse request JSON
@@ -1430,6 +1448,7 @@ def update_recipe_endpoint(recipe_id: str):
 @app.route("/current-plan")
 def get_current_plan():
     """Get the current weekly plan."""
+    logger.debug("Fetching current plan")
     if current_plan is None:
         return jsonify({
             "plan": None,
@@ -1534,6 +1553,7 @@ def get_current_plan():
 @app.route("/manual-plan/add-meal", methods=["POST"])
 def add_meal_to_plan():
     """Add a meal to the manual meal plan."""
+    logger.info("Adding meal to manual plan")
     global manual_plan, current_plan, current_shopping_list
 
     try:
@@ -1579,6 +1599,7 @@ def add_meal_to_plan():
 @app.route("/manual-plan/remove-meal", methods=["POST"])
 def remove_meal_from_plan():
     """Remove a meal from the manual meal plan."""
+    logger.info("Removing meal from manual plan")
     global manual_plan, current_plan, current_shopping_list
 
     try:
@@ -1612,6 +1633,7 @@ def remove_meal_from_plan():
 @app.route("/manual-plan/update-servings", methods=["POST"])
 def update_meal_servings():
     """Update servings for a meal in the manual plan."""
+    logger.info("Updating meal servings in manual plan")
     global manual_plan, current_plan, current_shopping_list
 
     try:
@@ -1646,6 +1668,7 @@ def update_meal_servings():
 @app.route("/manual-plan/regenerate-meal", methods=["POST"])
 def regenerate_meal():
     """Regenerate a specific meal with a new random recipe."""
+    logger.info("Regenerating a specific meal")
     global manual_plan, current_plan, current_shopping_list
     import random
 
@@ -1696,6 +1719,7 @@ def regenerate_meal():
 @app.route("/manual-plan/clear", methods=["POST"])
 def clear_manual_plan():
     """Clear the entire manual meal plan."""
+    logger.info("Clearing manual meal plan")
     global manual_plan, current_plan, current_shopping_list
 
     manual_plan = {}
@@ -1751,6 +1775,7 @@ def _regenerate_from_manual_plan(recipes: list[Recipe], calorie_limit: float | N
 @app.route("/current-plan/meals", methods=["PUT"])
 def update_current_plan_meal():
     """Update a specific meal slot in the current plan."""
+    logger.info("Updating meal slot in current plan")
     global manual_plan, current_plan, current_shopping_list
 
     try:
@@ -1799,6 +1824,7 @@ def update_current_plan_meal():
 @app.route("/shopping-list/update-item", methods=["POST"])
 def update_shopping_item():
     """Update quantity or name of a shopping list item."""
+    logger.debug("Updating shopping list item")
     global current_shopping_list
 
     if current_shopping_list is None:
@@ -1845,6 +1871,7 @@ def update_shopping_item():
 @app.route("/shopping-list/delete-item", methods=["POST"])
 def delete_shopping_item():
     """Delete an item from the shopping list."""
+    logger.debug("Deleting shopping list item")
     global current_shopping_list
 
     if current_shopping_list is None:
@@ -1875,6 +1902,7 @@ def delete_shopping_item():
 @app.route("/shopping-list/add-item", methods=["POST"])
 def add_shopping_item():
     """Add a custom item to the shopping list."""
+    logger.debug("Adding custom item to shopping list")
     global current_shopping_list
     from app.shopping_list import ShoppingListItem
 
@@ -1926,6 +1954,7 @@ def add_shopping_item():
 @app.route("/write-to-sheets", methods=["POST"])
 def write_to_sheets():
     """Write the current plan to Google Sheets."""
+    logger.info("Writing current plan to Google Sheets")
     if current_plan is None or current_shopping_list is None:
         return jsonify({
             "success": False,
@@ -1951,11 +1980,13 @@ def write_to_sheets():
         return jsonify(result)
 
     except SheetsError as e:
+        logger.exception("Google Sheets write error")
         return jsonify({
             "success": False,
             "message": f"Error writing to Google Sheets: {str(e)}"
         }), 500
     except Exception as e:
+        logger.exception("Unexpected error writing to Google Sheets")
         return jsonify({
             "success": False,
             "message": f"Unexpected error: {str(e)}"
@@ -1968,6 +1999,7 @@ def get_normalization_status(task_id: str):
 
     Returns {status: 'pending'|'done'|'failed', items: [...] | null}
     """
+    logger.debug("Polling normalization status", extra={"task_id": task_id})
     with _norm_lock:
         task = dict(_norm_tasks.get(task_id, {"status": "not_found", "items": None}))
     return jsonify(task)
@@ -1976,12 +2008,14 @@ def get_normalization_status(task_id: str):
 @app.route("/excluded-ingredients", methods=["GET"])
 def get_excluded_ingredients():
     """Return the list of excluded ingredients."""
+    logger.debug("Fetching excluded ingredients")
     return jsonify(load_excluded_ingredients())
 
 
 @app.route("/excluded-ingredients", methods=["POST"])
 def update_excluded_ingredients():
     """Replace the excluded ingredients list."""
+    logger.info("Updating excluded ingredients list")
     data = request.get_json()
     items = data.get("items", [])
     if not isinstance(items, list):

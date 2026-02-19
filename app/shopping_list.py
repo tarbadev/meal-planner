@@ -1,7 +1,10 @@
+import logging
 from collections import defaultdict
 from dataclasses import dataclass
 
 from app.planner import WeeklyPlan
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Unit conversion tables
@@ -207,6 +210,7 @@ def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
     Incompatible units (e.g. volume vs weight, or unknown units like 'clove'
     vs 'head') remain as separate lines.
     """
+    logger.debug("Generating shopping list", extra={"meal_count": len(weekly_plan.meals)})
     # Collect raw entries: item_name → {category, entries: [(qty, unit)]}
     item_data: dict[str, dict] = {}
 
@@ -247,4 +251,8 @@ def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
                 ))
 
     items.sort(key=lambda x: (x.category, x.item))
+    logger.info(
+        "Shopping list generated",
+        extra={"item_count": len(items), "category_count": len({i.category for i in items})},
+    )
     return ShoppingList(items=items)

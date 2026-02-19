@@ -1,9 +1,13 @@
 """Automatic nutrition generation from ingredients using USDA FoodData Central API."""
 
+import logging
 import re
+import time
 from dataclasses import dataclass
 
 import requests
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -202,6 +206,7 @@ class USDAFoodDataClient:
             if self.api_key:
                 params['api_key'] = self.api_key
 
+            t0 = time.monotonic()
             response = self.session.get(
                 f'{self.BASE_URL}/foods/search',
                 params=params,
@@ -209,9 +214,13 @@ class USDAFoodDataClient:
             )
             response.raise_for_status()
             data = response.json()
+            logger.debug(
+                "USDA food search completed",
+                extra={"query": query, "result_count": len(data.get('foods', [])), "elapsed_s": round(time.monotonic() - t0, 2)},
+            )
             return data.get('foods', [])
-        except requests.RequestException as e:
-            print(f"USDA API search error: {e}")
+        except requests.RequestException:
+            logger.exception("USDA API search error", extra={"query": query, "endpoint": f"{self.BASE_URL}/foods/search"})
             return []
 
     def get_food_details(self, fdc_id: int) -> dict | None:
@@ -232,15 +241,20 @@ class USDAFoodDataClient:
             if self.api_key:
                 params['api_key'] = self.api_key
 
+            t0 = time.monotonic()
             response = self.session.get(
                 f'{self.BASE_URL}/food/{fdc_id}',  # Note: singular 'food', not 'foods'
                 params=params if params else None,
                 timeout=10
             )
             response.raise_for_status()
+            logger.debug(
+                "USDA food details fetched",
+                extra={"fdc_id": fdc_id, "elapsed_s": round(time.monotonic() - t0, 2)},
+            )
             return response.json()
-        except requests.RequestException as e:
-            print(f"USDA API details error: {e}")
+        except requests.RequestException:
+            logger.exception("USDA API details error", extra={"fdc_id": fdc_id, "endpoint": f"{self.BASE_URL}/food/{fdc_id}"})
             return None
 
     def extract_nutrition(self, food_data: dict) -> NutritionData | None:
@@ -463,6 +477,7 @@ class NutritionGenerator:
         # Search USDA database
         search_results = self.usda_client.search_foods(clean_item)
         if not search_results:
+            logger.warning("Ingredient not found in USDA database", extra={"item": item, "clean_item": clean_item})
             return IngredientNutrition(
                 item=item,
                 nutrition=None,

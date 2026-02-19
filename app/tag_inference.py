@@ -1,5 +1,8 @@
 """Automatic tag inference for recipes based on content."""
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class TagInferencer:
@@ -182,4 +185,8 @@ class TagInferencer:
 
         # Combine and deduplicate
         all_tags = existing_tags + [tag for tag in inferred if tag not in existing_tags]
+        logger.debug(
+            "Tags inferred",
+            extra={"recipe": name, "tags_added": list(set(inferred) - set(existing_tags))},
+        )
         return all_tags
