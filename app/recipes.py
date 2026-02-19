@@ -1,9 +1,17 @@
 import json
 import os
 import tempfile
+import threading
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
+
+# ---------------------------------------------------------------------------
+# Module-level mtime cache so repeated load_recipes() calls within the same
+# request burst hit memory instead of disk.
+# ---------------------------------------------------------------------------
+_cache: dict[str, tuple[float, list["Recipe"]]] = {}  # path → (mtime, recipes)
+_cache_lock = threading.Lock()
 
 
 class RecipeLoadError(Exception):
@@ -112,10 +120,17 @@ class Recipe:
 
 
 def load_recipes(file_path: Path | str) -> list[Recipe]:
-    file_path = Path(file_path)
+    file_path = Path(file_path).resolve()
+    key = str(file_path)
 
     if not file_path.exists():
         raise RecipeLoadError(f"Recipe file not found: {file_path}")
+
+    mtime = file_path.stat().st_mtime
+
+    with _cache_lock:
+        if key in _cache and _cache[key][0] == mtime:
+            return list(_cache[key][1])  # shallow copy — callers must not mutate Recipe objects
 
     try:
         with open(file_path) as f:
@@ -126,7 +141,12 @@ def load_recipes(file_path: Path | str) -> list[Recipe]:
     if "recipes" not in data:
         raise RecipeLoadError("Recipe file must contain a 'recipes' key")
 
-    return [Recipe.from_dict(r) for r in data["recipes"]]
+    recipes = [Recipe.from_dict(r) for r in data["recipes"]]
+
+    with _cache_lock:
+        _cache[key] = (mtime, recipes)
+
+    return list(recipes)
 
 
 def save_recipes(file_path: Path | str, recipes: list[Recipe]) -> None:
@@ -139,7 +159,7 @@ def save_recipes(file_path: Path | str, recipes: list[Recipe]) -> None:
     Raises:
         RecipeSaveError: If the file cannot be written
     """
-    file_path = Path(file_path)
+    file_path = Path(file_path).resolve()
 
     # Ensure parent directory exists
     file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -177,6 +197,10 @@ def save_recipes(file_path: Path | str, recipes: list[Recipe]) -> None:
 
     except (OSError, PermissionError) as e:
         raise RecipeSaveError(f"Failed to save recipes to {file_path}: {e}") from e
+
+    # Invalidate the cache so the next load_recipes() sees the new file.
+    with _cache_lock:
+        _cache.pop(str(file_path), None)
 
 
 def update_recipe(recipes: list[Recipe], updated_recipe: Recipe) -> list[Recipe]:

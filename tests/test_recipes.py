@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+import app.recipes as recipes_module
 from app.recipes import (
     Recipe,
     RecipeLoadError,
@@ -13,6 +14,14 @@ from app.recipes import (
     update_recipe,
 )
 from tests.conftest import create_test_recipe
+
+
+@pytest.fixture(autouse=True)
+def clear_recipe_cache():
+    """Ensure the module-level recipe cache is empty before and after every test."""
+    recipes_module._cache.clear()
+    yield
+    recipes_module._cache.clear()
 
 
 @pytest.fixture
@@ -574,3 +583,61 @@ class TestUpdateRecipe:
         # New list should have updated values
         assert result[0].name == "Updated Recipe 1"
         assert result[0].servings == 4
+
+
+class TestRecipeCache:
+    """load_recipes() uses an mtime-keyed cache to avoid redundant disk reads."""
+
+    def test_second_load_hits_cache(self, recipes_file, monkeypatch):
+        """A second load_recipes() call with the same mtime skips json.load."""
+        read_count = [0]
+        original_open = open
+
+        def counting_open(path, *args, **kwargs):
+            read_count[0] += 1
+            return original_open(path, *args, **kwargs)
+
+        monkeypatch.setattr("builtins.open", counting_open)
+
+        load_recipes(recipes_file)   # first call — reads from disk
+        load_recipes(recipes_file)   # second call — should hit cache
+
+        assert read_count[0] == 1
+
+    def test_cache_invalidated_on_mtime_change(self, recipes_file, sample_recipes_data):
+        """load_recipes() re-reads the file after it is modified."""
+        load_recipes(recipes_file)  # warm the cache
+
+        # Append a new recipe and overwrite the file (mtime changes)
+        extra = {**sample_recipes_data["recipes"][0], "id": "new-recipe", "name": "New Recipe"}
+        new_data = {"recipes": sample_recipes_data["recipes"] + [extra]}
+        recipes_file.write_text(json.dumps(new_data))
+
+        recipes = load_recipes(recipes_file)
+        assert len(recipes) == 3
+        assert any(r.id == "new-recipe" for r in recipes)
+
+    def test_save_recipes_invalidates_cache(self, recipes_file):
+        """save_recipes() clears the cache entry so the next load sees new content."""
+        original = load_recipes(recipes_file)  # warm the cache
+        assert len(original) == 2
+
+        # Save a single-recipe list, which should bust the cache
+        save_recipes(recipes_file, [original[0]])
+
+        reloaded = load_recipes(recipes_file)
+        assert len(reloaded) == 1
+        assert reloaded[0].id == original[0].id
+
+    def test_returns_shallow_copy(self, recipes_file):
+        """Mutating the returned list must not corrupt the cached list."""
+        first = load_recipes(recipes_file)
+        first.clear()  # wipe the caller's copy
+
+        second = load_recipes(recipes_file)
+        assert len(second) == 2  # cache is intact
+
+    def test_cache_populated_after_load(self, recipes_file):
+        """After load_recipes(), the cache entry exists for the resolved path."""
+        load_recipes(recipes_file)
+        assert str(recipes_file.resolve()) in recipes_module._cache
