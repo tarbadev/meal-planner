@@ -1885,3 +1885,45 @@ class TestUpdateCurrentPlanMeal:
         assert response.status_code == 200
         assert main.manual_plan['Monday']['dinner']['recipe_id'] == 'chicken-stir-fry'
         assert main.manual_plan['Monday']['dinner']['servings'] == 3
+
+
+class TestNullQuantitySerialization:
+    """round(item.quantity, 2) raises TypeError when quantity is None (BUG-3)."""
+
+    def test_current_plan_with_null_quantity_item(self, client, monkeypatch):
+        """Shopping list items with quantity=None must serialise to null, not crash."""
+        from app import main
+        from app.planner import PlannedMeal, WeeklyPlan
+        from app.recipes import Recipe
+        from app.shopping_list import ShoppingList, ShoppingListItem
+
+        # Build a minimal plan so get_current_plan has a current_plan to render.
+        recipe = create_test_recipe(
+            recipe_id="pasta-bolognese",
+            name="Pasta Bolognese",
+            servings=4,
+            ingredients=[{"item": "salt", "unit": "to taste", "category": "pantry"}],
+        )
+        plan = WeeklyPlan(meals=[
+            PlannedMeal(day="Monday", meal_type="dinner", recipe=recipe, household_portions=4.0)
+        ])
+
+        # Inject a shopping list that contains a None-quantity item.
+        sl = ShoppingList(items=[
+            ShoppingListItem(item="salt", quantity=None, unit="", category="pantry"),
+            ShoppingListItem(item="flour", quantity=2.5, unit="cup", category="pantry"),
+        ])
+
+        monkeypatch.setattr(main, "current_plan", plan)
+        monkeypatch.setattr(main, "current_shopping_list", sl)
+
+        response = client.get("/current-plan")
+        assert response.status_code == 200
+
+        data = json.loads(response.data)
+        items = data["shopping_list"]["items"]
+        salt = next(i for i in items if i["item"] == "salt")
+        flour = next(i for i in items if i["item"] == "flour")
+
+        assert salt["quantity"] is None
+        assert flour["quantity"] == pytest.approx(2.5)

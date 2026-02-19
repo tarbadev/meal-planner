@@ -1529,7 +1529,7 @@ def get_current_plan():
             "items": [
                 {
                     "item": item.item,
-                    "quantity": round(item.quantity, 2),
+                    "quantity": round(item.quantity, 2) if item.quantity is not None else None,
                     "unit": item.unit,
                     "category": item.category
                 }
@@ -1539,7 +1539,7 @@ def get_current_plan():
                 category: [
                     {
                         "item": item.item,
-                        "quantity": round(item.quantity, 2),
+                        "quantity": round(item.quantity, 2) if item.quantity is not None else None,
                         "unit": item.unit
                     }
                     for item in items
