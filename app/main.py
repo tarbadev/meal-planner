@@ -12,6 +12,7 @@ from flask_wtf.csrf import CSRFProtect
 
 from app import config
 from app.logging_config import configure_logging
+from app.nutrition_generator import NutritionGenerator
 from app.planner import MealPlanner
 from app.recipes import Recipe, RecipeSaveError, load_recipes, save_recipes, update_recipe
 from app.sheets import SheetsError, SheetsWriter
@@ -61,6 +62,9 @@ def _is_valid_image_bytes(data: bytes) -> bool:
                 return True
     return False
 
+
+# Module-level service singletons (stateless, created once to avoid per-request overhead)
+_nutrition_gen = NutritionGenerator(api_key=config.USDA_API_KEY)
 
 # Store the current plan in memory (v1 - simple approach)
 current_plan = None
@@ -521,7 +525,6 @@ def import_recipe():
         # Parse recipe from URL
         from app.ai_recipe_extractor import AIExtractionError
         from app.instagram_fetcher import InstagramFetchError
-        from app.nutrition_generator import NutritionGenerator
         from app.recipe_parser import RecipeParseError, RecipeParser, generate_recipe_id
 
         logger.info("Parsing recipe from URL", extra={"url": url})
@@ -531,7 +534,7 @@ def import_recipe():
         logger.info("LLM call completed", extra={"elapsed_s": round(time.monotonic() - t0, 2), "recipe_name": parsed_recipe.name})
 
         # Generate nutrition if missing
-        nutrition_gen = NutritionGenerator(api_key=config.USDA_API_KEY)
+        nutrition_gen = _nutrition_gen
         if nutrition_gen.should_generate_nutrition(parsed_recipe):
             generated_nutrition = nutrition_gen.generate_from_ingredients(
                 parsed_recipe.ingredients,
@@ -700,7 +703,6 @@ def import_recipe_text():
         # Parse recipe from text using AI
         from app.ai_recipe_extractor import AIExtractionError
         from app.instagram_parser import InstagramParser
-        from app.nutrition_generator import NutritionGenerator
         from app.recipe_parser import RecipeParseError, generate_recipe_id
 
         logger.debug("Initialising InstagramParser")
@@ -713,7 +715,7 @@ def import_recipe_text():
         logger.info("LLM call completed", extra={"elapsed_s": round(time.monotonic() - t0, 2), "recipe_name": parsed_recipe.name})
 
         # Generate nutrition if missing
-        nutrition_gen = NutritionGenerator(api_key=config.USDA_API_KEY)
+        nutrition_gen = _nutrition_gen
         if nutrition_gen.should_generate_nutrition(parsed_recipe):
             generated_nutrition = nutrition_gen.generate_from_ingredients(
                 parsed_recipe.ingredients,
@@ -916,7 +918,6 @@ def import_recipe_image():
 
         # Extract recipe from image using Vision API
         from app.image_recipe_extractor import ImageRecipeExtractor
-        from app.nutrition_generator import NutritionGenerator
         from app.recipe_parser import ParsedRecipe, generate_recipe_id
 
         if not config.OPENAI_API_KEY:
@@ -999,7 +1000,7 @@ def import_recipe_image():
         logger.debug("ParsedRecipe created", extra={"recipe_name": parsed_recipe.name})
 
         # Generate nutrition if missing
-        nutrition_gen = NutritionGenerator(api_key=config.USDA_API_KEY)
+        nutrition_gen = _nutrition_gen
         if nutrition_gen.should_generate_nutrition(parsed_recipe):
             logger.info("Generating nutrition data for image-imported recipe", extra={"recipe_name": parsed_recipe.name})
             generated_nutrition = nutrition_gen.generate_from_ingredients(
