@@ -595,8 +595,8 @@ def import_recipe():
     logger.info("Importing recipe from URL")
 
     try:
-        data = request.get_json()
-    except Exception:
+        data = request.get_json(silent=False)
+    except (ValueError, TypeError):
         return jsonify({
             "error": "Invalid JSON",
             "message": "Request body must be valid JSON"
@@ -678,8 +678,8 @@ def import_recipe_text():
     logger.info("Importing recipe from text")
 
     try:
-        data = request.get_json()
-    except Exception:
+        data = request.get_json(silent=False)
+    except (ValueError, TypeError):
         return jsonify({
             "error": "Invalid JSON",
             "message": "Request body must be valid JSON"
