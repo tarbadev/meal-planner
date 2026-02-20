@@ -1,4 +1,5 @@
 import logging
+import math
 import threading
 import time
 import uuid
@@ -208,10 +209,6 @@ def index():
 def api_recipes():
     """API endpoint for paginated, searchable, filterable recipe listing."""
     logger.debug("Fetching paginated recipe list")
-    import math
-
-    from flask import request
-
     # Load all recipes
     recipes_file = Path(config.RECIPES_FILE)
     all_recipes = load_recipes(recipes_file)
