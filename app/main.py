@@ -852,7 +852,7 @@ def import_recipe_image():
         return jsonify({
             "error": "Extraction failed",
             "message": str(e)
-        }), 422
+        }), 400
     except Exception as e:
         logger.exception("Exception during image extraction", extra={"upload_filename": file.filename})
 
