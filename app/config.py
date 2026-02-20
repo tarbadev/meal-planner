@@ -80,3 +80,5 @@ MEAL_SCHEDULE = {
 # Daily calorie limit for meal planning
 # Set to None to disable calorie tracking
 DAILY_CALORIE_LIMIT = 1600
+
+DEFAULT_PER_PAGE = 24

@@ -220,7 +220,7 @@ def api_recipes():
 
     # Get query parameters
     page = int(request.args.get('page', 1))
-    per_page = int(request.args.get('per_page', 24))
+    per_page = int(request.args.get('per_page', config.DEFAULT_PER_PAGE))
     search = request.args.get('search', '').lower()
     tags_param = request.args.get('tags', '')
     sort = request.args.get('sort', '')
