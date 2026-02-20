@@ -408,6 +408,38 @@ class TestMealPlanner:
                 f"Expected low-cal recipe but got {meal.recipe.id} ({meal.calories} cal)"
             )
 
+    def test_calorie_limit_is_per_serving_not_scaled_by_portions(self):
+        # Regression: the limit applies to calories_per_serving, not
+        # calories_per_serving * household_portions.
+        # With portions=2.75 and limit=1600, a 700-cal recipe fits (700 <= 1600)
+        # but the old buggy code rejected it because 700 * 2.75 = 1925 > 1600.
+        fitting = [
+            create_test_recipe(
+                recipe_id=f"fit-{i}", name=f"Fitting {i}", servings=1,
+                prep_time_minutes=10, cook_time_minutes=20,
+                calories=700, protein=30, carbs=70, fat=20,
+                tags=["dinner"], ingredients=[]
+            ) for i in range(7)
+        ]
+        over_limit = [
+            create_test_recipe(
+                recipe_id=f"over-{i}", name=f"Over {i}", servings=1,
+                prep_time_minutes=10, cook_time_minutes=20,
+                calories=1800, protein=80, carbs=180, fat=60,
+                tags=["dinner"], ingredients=[]
+            ) for i in range(7)
+        ]
+
+        planner = MealPlanner(household_portions=2.75, daily_calorie_limit=1600)
+        plan = planner.generate_weekly_plan(fitting + over_limit)
+
+        assert len(plan.meals) == 7
+        for meal in plan.meals:
+            assert meal.recipe.id.startswith("fit-"), (
+                f"Expected 700-cal recipe to fit the 1600 limit but got "
+                f"{meal.recipe.id} ({meal.recipe.calories_per_serving} cal/serving)"
+            )
+
     def test_generate_plan_picks_lowest_calorie_when_none_fit(self):
         # daily_calorie_limit=50; all 7 recipes exceed it; plan must still be generated.
         recipes = [
@@ -507,8 +539,10 @@ class TestWeeklyPlan:
         assert abs(plan.avg_daily_calories - expected_avg_calories) < 0.01
         assert abs(plan.avg_daily_protein - expected_avg_protein) < 0.01
 
-    def test_weekly_plan_nutrition_accounts_for_household_portions(self):
-        # Create 7 simple recipes with same nutrition values but unique IDs
+    def test_weekly_plan_nutrition_is_per_serving(self):
+        # Nutrition properties on PlannedMeal are per-serving (per person),
+        # regardless of household_portions.  household_portions only affects
+        # scaled_ingredients (shopping quantities).
         recipes = [
             create_test_recipe(
                 recipe_id=f"simple-{i}",
@@ -529,10 +563,11 @@ class TestWeeklyPlan:
         planner = MealPlanner(household_portions=2.0)
         plan = planner.generate_weekly_plan(recipes)
 
-        # For 2.0 portions: 400 cal/serving * 2.0 = 800 cal per meal
-        # 7 meals = 5600 total calories
-        expected_total = 400 * 2.0 * 7
+        # total_calories = 400 cal/serving * 7 meals (no portions scaling)
+        expected_total = 400 * 7
         assert abs(plan.total_calories - expected_total) < 0.01
+        for meal in plan.meals:
+            assert meal.calories == 400
 
     def test_weekly_plan_calculates_daily_nutrition(self, planner, sample_recipes):
         plan = planner.generate_weekly_plan(sample_recipes)
@@ -572,11 +607,10 @@ class TestWeeklyPlan:
 
         assert plan.daily_calorie_limit == 2000
 
-        # Each meal is 500 cal/serving * 2.0 portions = 1000 cal
-        # So daily total should be 1000 cal (one dinner per day)
+        # Each meal is 500 cal/serving (per person); daily total = 500 (one dinner per day)
         daily_nutrition = plan.get_daily_nutrition()
         for day, nutrition in daily_nutrition.items():
-            assert abs(nutrition["calories"] - 1000) < 0.01
+            assert abs(nutrition["calories"] - 500) < 0.01
 
     def test_weekly_plan_daily_nutrition_sums_multiple_meals_per_day(self):
         recipes = [
@@ -603,10 +637,9 @@ class TestWeeklyPlan:
 
         daily_nutrition = plan.get_daily_nutrition()
 
-        # Each meal is 400 cal * 2.0 = 800 cal
-        # Two meals per day = 1600 cal
+        # Each meal is 400 cal/serving (per person); two meals per day = 800 cal
         for day, nutrition in daily_nutrition.items():
-            assert abs(nutrition["calories"] - 1600) < 0.01
+            assert abs(nutrition["calories"] - 800) < 0.01
 
 
 class TestScaledIngredients:

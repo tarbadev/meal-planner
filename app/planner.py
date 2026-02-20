@@ -56,27 +56,28 @@ class PlannedMeal:
 
     @property
     def calories(self) -> float:
-        return self.recipe.calories_per_serving * self.household_portions
+        """Calories per serving (one person). Use scaled_ingredients for household quantities."""
+        return self.recipe.calories_per_serving
 
     @property
     def protein(self) -> float:
-        return self.recipe.protein_per_serving * self.household_portions
+        return self.recipe.protein_per_serving
 
     @property
     def carbs(self) -> float:
-        return self.recipe.carbs_per_serving * self.household_portions
+        return self.recipe.carbs_per_serving
 
     @property
     def fat(self) -> float:
-        return self.recipe.fat_per_serving * self.household_portions
+        return self.recipe.fat_per_serving
 
     # Extended nutrition properties
     def get_nutrition_value(self, field: str) -> float:
-        """Get a nutrition value scaled by portions, handling None values."""
+        """Get a per-serving nutrition value, handling None values."""
         value = self.recipe.nutrition_per_serving.get(field)
         if value is None:
             return 0.0
-        return value * self.household_portions
+        return value
 
     @property
     def saturated_fat(self) -> float:
@@ -323,7 +324,7 @@ class MealPlanner:
         fitting = [
             r for r in suitable_recipes
             if r.calories_per_serving == 0
-            or r.calories_per_serving * self.household_portions <= budget_per_slot
+            or r.calories_per_serving <= budget_per_slot
         ]
 
         if fitting:
@@ -380,8 +381,7 @@ class MealPlanner:
             )
             used_recipes.add(recipe.id)
 
-            cal = recipe.calories_per_serving * self.household_portions
-            daily_calories_used[day] = daily_calories_used.get(day, 0.0) + cal
+            daily_calories_used[day] = daily_calories_used.get(day, 0.0) + recipe.calories_per_serving
             slots_filled_today[day] = slots_filled_today.get(day, 0) + 1
 
             meals.append(PlannedMeal(
