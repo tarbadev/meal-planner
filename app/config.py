@@ -77,8 +77,25 @@ MEAL_SCHEDULE = {
     "Sunday": ["lunch", "dinner"]
 }
 
-# Daily calorie limit for meal planning
-# Set to None to disable calorie tracking
+# Daily calorie limit for meal planning (per person, per day).
+# Set to None to disable calorie tracking.
 DAILY_CALORIE_LIMIT = 1600
+
+# Proportional calorie budget per meal type.
+# Values are relative weights normalised across whichever meal types are
+# scheduled for a given day, so they don't need to sum to 1.0.
+# Example: a day with lunch + dinner gives lunch 35/(35+40)=46 % of the
+# daily limit, dinner the remaining 54 %.
+#
+# Defaults follow general dietary guidance:
+#   Breakfast ~25 %,  Lunch ~35 %,  Dinner ~40 %
+# Sources: Harvard T.H. Chan School of Public Health meal-timing research;
+#          general recommendations from registered dietitians.
+MEAL_CALORIE_SPLITS: dict[str, float] = {
+    "breakfast": 0.25,
+    "lunch":     0.35,
+    "dinner":    0.40,
+    "snack":     0.10,
+}
 
 DEFAULT_PER_PAGE = 24

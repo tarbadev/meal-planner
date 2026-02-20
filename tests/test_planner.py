@@ -440,6 +440,110 @@ class TestMealPlanner:
                 f"{meal.recipe.id} ({meal.recipe.calories_per_serving} cal/serving)"
             )
 
+    def test_proportional_calorie_splits_by_meal_type(self):
+        # Saturday: lunch + dinner with splits {lunch: 0.35, dinner: 0.40}
+        # and limit=1500.
+        #   lunch  budget = 0.35 / (0.35+0.40) * 1500 = 700 cal
+        #   dinner budget = 0.40 / (0.35+0.40) * 1500 = 800 cal
+        # "lunch-ok" (650 cal) fits lunch budget; "lunch-over" (750 cal) does not.
+        # "dinner-ok" (780 cal) fits dinner budget; "dinner-over" (900 cal) does not.
+        lunch_ok = [
+            create_test_recipe(
+                recipe_id=f"lunch-ok-{i}", name=f"Lunch OK {i}", servings=1,
+                prep_time_minutes=10, cook_time_minutes=20,
+                calories=650, protein=30, carbs=60, fat=15,
+                tags=["lunch"], ingredients=[]
+            ) for i in range(2)
+        ]
+        lunch_over = [
+            create_test_recipe(
+                recipe_id=f"lunch-over-{i}", name=f"Lunch Over {i}", servings=1,
+                prep_time_minutes=10, cook_time_minutes=20,
+                calories=750, protein=30, carbs=60, fat=15,
+                tags=["lunch"], ingredients=[]
+            ) for i in range(2)
+        ]
+        dinner_ok = [
+            create_test_recipe(
+                recipe_id=f"dinner-ok-{i}", name=f"Dinner OK {i}", servings=1,
+                prep_time_minutes=10, cook_time_minutes=20,
+                calories=780, protein=40, carbs=80, fat=20,
+                tags=["dinner"], ingredients=[]
+            ) for i in range(2)
+        ]
+        dinner_over = [
+            create_test_recipe(
+                recipe_id=f"dinner-over-{i}", name=f"Dinner Over {i}", servings=1,
+                prep_time_minutes=10, cook_time_minutes=20,
+                calories=900, protein=40, carbs=80, fat=20,
+                tags=["dinner"], ingredients=[]
+            ) for i in range(2)
+        ]
+
+        planner = MealPlanner(
+            household_portions=1.0,
+            meal_schedule={"Saturday": ["lunch", "dinner"]},
+            daily_calorie_limit=1500,
+            meal_calorie_splits={"lunch": 0.35, "dinner": 0.40},
+        )
+        plan = planner.generate_weekly_plan(lunch_ok + lunch_over + dinner_ok + dinner_over)
+
+        lunch_meal = next(m for m in plan.meals if m.meal_type == "lunch")
+        dinner_meal = next(m for m in plan.meals if m.meal_type == "dinner")
+        assert lunch_meal.recipe.calories_per_serving <= 700, (
+            f"Lunch should respect its 700-cal budget, got {lunch_meal.recipe.calories_per_serving}"
+        )
+        assert dinner_meal.recipe.calories_per_serving <= 800, (
+            f"Dinner should respect its 800-cal budget, got {dinner_meal.recipe.calories_per_serving}"
+        )
+        # The daily total must never exceed the limit regardless of individual budgets.
+        total = lunch_meal.calories + dinner_meal.calories
+        assert total <= 1500, f"Daily total {total} exceeds limit 1500"
+
+    def test_daily_total_stays_within_limit_when_first_meal_overshoots(self):
+        # Regression: proportional budgets are independent, so if the first meal
+        # overshoots via fallback the second meal's budget must shrink to compensate.
+        #
+        # Only recipe available for lunch is 900 cal (over the proportional 700 share).
+        # Fallback selects it.  Remaining budget for dinner = 1500 - 900 = 600.
+        # The 780-cal dinner recipe must be rejected in favour of the 550-cal one.
+        lunch_only = [
+            create_test_recipe(
+                recipe_id="big-lunch", name="Big Lunch", servings=1,
+                prep_time_minutes=10, cook_time_minutes=20,
+                calories=900, protein=40, carbs=90, fat=25,
+                tags=["lunch"], ingredients=[]
+            )
+        ]
+        dinner_options = [
+            create_test_recipe(
+                recipe_id="dinner-fits", name="Dinner Fits", servings=1,
+                prep_time_minutes=10, cook_time_minutes=20,
+                calories=550, protein=30, carbs=55, fat=15,
+                tags=["dinner"], ingredients=[]
+            ),
+            create_test_recipe(
+                recipe_id="dinner-too-big", name="Dinner Too Big", servings=1,
+                prep_time_minutes=10, cook_time_minutes=20,
+                calories=780, protein=40, carbs=78, fat=20,
+                tags=["dinner"], ingredients=[]
+            ),
+        ]
+
+        planner = MealPlanner(
+            household_portions=1.0,
+            meal_schedule={"Saturday": ["lunch", "dinner"]},
+            daily_calorie_limit=1500,
+            meal_calorie_splits={"lunch": 0.35, "dinner": 0.40},
+        )
+        plan = planner.generate_weekly_plan(lunch_only + dinner_options)
+
+        lunch_meal = next(m for m in plan.meals if m.meal_type == "lunch")
+        dinner_meal = next(m for m in plan.meals if m.meal_type == "dinner")
+        assert lunch_meal.recipe.id == "big-lunch"          # only option
+        assert dinner_meal.recipe.id == "dinner-fits"       # 780 exceeds remaining 600
+        assert lunch_meal.calories + dinner_meal.calories <= 1500
+
     def test_generate_plan_picks_lowest_calorie_when_none_fit(self):
         # daily_calorie_limit=50; all 7 recipes exceed it; plan must still be generated.
         recipes = [
@@ -475,6 +579,52 @@ class TestMealPlanner:
         assert len(plan.meals) == 7
         for meal in plan.meals:
             assert meal.calories == 0.0
+
+    def test_budget_fallback_uses_untagged_recipes_to_stay_within_limit(self):
+        # Regression: when all "dinner"-tagged recipes exceed the remaining daily
+        # budget, the planner must widen its search to untagged unused recipes
+        # instead of picking the lowest-calorie tagged recipe (which still overshoots).
+        #
+        # Scenario:
+        #   - Saturday: lunch + dinner, daily limit = 1000
+        #   - Lunch: 400-cal lunch recipe fits its proportional share (460).
+        #   - Remaining for dinner = 1000 - 400 = 600.
+        #   - All "dinner"-tagged recipes are 700 cal (> 600 remaining).
+        #   - One untagged recipe exists at 500 cal (≤ 600 remaining) and must be
+        #     selected for the dinner slot.
+        normal_lunch = create_test_recipe(
+            recipe_id="normal-lunch", name="Normal Lunch", servings=1,
+            prep_time_minutes=10, cook_time_minutes=20,
+            calories=400, protein=20, carbs=40, fat=10,
+            tags=["lunch"], ingredients=[]
+        )
+        heavy_dinner = create_test_recipe(
+            recipe_id="heavy-dinner", name="Heavy Dinner", servings=1,
+            prep_time_minutes=10, cook_time_minutes=20,
+            calories=700, protein=35, carbs=70, fat=18,
+            tags=["dinner"], ingredients=[]
+        )
+        untagged_light = create_test_recipe(
+            recipe_id="light-untagged", name="Light Untagged", servings=1,
+            prep_time_minutes=5, cook_time_minutes=10,
+            calories=500, protein=15, carbs=50, fat=12,
+            tags=[],  # no meal-type tag — generic fallback
+            ingredients=[]
+        )
+
+        planner = MealPlanner(
+            household_portions=1.0,
+            meal_schedule={"Saturday": ["lunch", "dinner"]},
+            daily_calorie_limit=1000,
+            meal_calorie_splits={"lunch": 0.46, "dinner": 0.54},
+        )
+        plan = planner.generate_weekly_plan([normal_lunch, heavy_dinner, untagged_light])
+
+        lunch_meal = next(m for m in plan.meals if m.meal_type == "lunch")
+        dinner_meal = next(m for m in plan.meals if m.meal_type == "dinner")
+        assert lunch_meal.recipe.id == "normal-lunch"
+        assert dinner_meal.recipe.id == "light-untagged"   # untagged fallback selected
+        assert lunch_meal.calories + dinner_meal.calories <= 1000
 
 
 class TestPlannedMeal:

@@ -404,7 +404,8 @@ def generate():
     planner = MealPlanner(
         household_portions=config.TOTAL_PORTIONS,
         meal_schedule=config.MEAL_SCHEDULE,
-        daily_calorie_limit=config.DAILY_CALORIE_LIMIT
+        daily_calorie_limit=config.DAILY_CALORIE_LIMIT,
+        meal_calorie_splits=config.MEAL_CALORIE_SPLITS,
     )
     current_plan = planner.generate_weekly_plan(recipes)
     raw_list = generate_shopping_list(current_plan)

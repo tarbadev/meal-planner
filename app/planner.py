@@ -9,6 +9,10 @@ logger = logging.getLogger(__name__)
 
 DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
+# Tags that identify a recipe as belonging to a specific meal type.
+# Used to avoid assigning, e.g., a "dinner" recipe to a "lunch" slot as a budget fallback.
+_MEAL_TYPE_TAGS: frozenset[str] = frozenset({"breakfast", "lunch", "dinner", "snack"})
+
 
 def get_meal_slots_from_schedule(schedule: dict[str, list[str]]) -> list[tuple[str, str]]:
     """Convert meal schedule to flat list of (day, meal_type) tuples.
@@ -289,10 +293,13 @@ class MealPlanner:
         household_portions: float,
         meal_schedule: dict[str, list[str]] = None,
         daily_calorie_limit: float | None = None,
+        meal_calorie_splits: dict[str, float] | None = None,
     ):
         self.household_portions = household_portions
         self.daily_calorie_limit = daily_calorie_limit
-        # Default to simple 7-dinner schedule if not provided
+        # Relative weights used to split the daily budget across meal types.
+        # A missing key falls back to weight 1.0 (equal share).
+        self.meal_calorie_splits: dict[str, float] = meal_calorie_splits or {}
         if meal_schedule is None:
             meal_schedule = {day: ["dinner"] for day in DAYS_OF_WEEK}
         self.meal_schedule = meal_schedule
@@ -300,72 +307,101 @@ class MealPlanner:
     def _select_recipe(
         self,
         suitable_recipes: list[Recipe],
-        day: str,
-        slots_per_day: dict[str, int],
-        slots_filled_today: dict[str, int],
-        daily_calories_used: dict[str, float],
+        meal_type_budget: float | None,
+        budget_fallback_pool: list[Recipe] | None = None,
     ) -> Recipe:
-        """Select a recipe preferring ones within the daily calorie budget.
+        """Select a recipe that fits within *meal_type_budget* calories/serving.
 
-        When daily_calorie_limit is None, picks randomly (existing behaviour).
-        When set, distributes remaining budget evenly across remaining slots.
-        Recipes with 0 calories are treated neutrally and always fit.
-        If no recipe fits, picks the lowest-calorie option (never leaves a slot empty).
+        When meal_type_budget is None (no calorie limit configured), picks
+        randomly.  Recipes with 0 calories are treated neutrally and always
+        fit.
+
+        When no meal-type-tagged recipe fits the budget, the search widens to
+        *budget_fallback_pool* (all remaining unused recipes) before falling
+        back to the lowest-calorie tagged option.  This prevents a high-calorie
+        first meal from forcing subsequent slots over the daily limit simply
+        because the tagged pool has no low-calorie candidates.
         """
-        if self.daily_calorie_limit is None:
+        if meal_type_budget is None:
             return random.choice(suitable_recipes)
-
-        calories_used = daily_calories_used.get(day, 0.0)
-        remaining_budget = self.daily_calorie_limit - calories_used
-        filled = slots_filled_today.get(day, 0)
-        remaining_slots = slots_per_day[day] - filled  # >= 1 (includes current slot)
-        budget_per_slot = remaining_budget / remaining_slots
 
         fitting = [
             r for r in suitable_recipes
             if r.calories_per_serving == 0
-            or r.calories_per_serving <= budget_per_slot
+            or r.calories_per_serving <= meal_type_budget
         ]
 
         if fitting:
             return random.choice(fitting)
 
-        # Fallback: pick lowest-calorie to minimise overage, never leave slot empty
+        # No tagged recipe fits — try any unused recipe within budget
+        if budget_fallback_pool:
+            fitting_any = [
+                r for r in budget_fallback_pool
+                if r.calories_per_serving == 0
+                or r.calories_per_serving <= meal_type_budget
+            ]
+            if fitting_any:
+                return random.choice(fitting_any)
+
+        # Last resort: lowest-calorie tagged recipe to minimise overage
         return min(suitable_recipes, key=lambda r: r.calories_per_serving)
 
+    def _compute_meal_budgets(
+        self, meal_slots: list[tuple[str, str]]
+    ) -> dict[tuple[str, str], float | None]:
+        """Pre-compute the per-slot calorie budget for every (day, meal_type) pair.
+
+        Budget is proportional to each meal type's weight in MEAL_CALORIE_SPLITS
+        relative to the total weight of all meal types scheduled that day.
+        A day with only dinner gets the full daily limit; a day with lunch +
+        dinner splits it ~46 / 54 % by default.
+        """
+        if self.daily_calorie_limit is None:
+            return dict.fromkeys(meal_slots)
+
+        # Group meal types per day preserving schedule order
+        day_meal_types: dict[str, list[str]] = {}
+        for day, meal_type in meal_slots:
+            day_meal_types.setdefault(day, []).append(meal_type)
+
+        budgets: dict[tuple[str, str], float] = {}
+        for day, meal_types in day_meal_types.items():
+            total_weight = sum(
+                self.meal_calorie_splits.get(mt, 1.0) for mt in meal_types
+            )
+            for meal_type in meal_types:
+                weight = self.meal_calorie_splits.get(meal_type, 1.0)
+                budgets[(day, meal_type)] = weight / total_weight * self.daily_calorie_limit
+
+        return budgets
+
     def generate_weekly_plan(self, available_recipes: list[Recipe]) -> WeeklyPlan:
-        # Get meal slots from schedule
         meal_slots = get_meal_slots_from_schedule(self.meal_schedule)
         num_meals = len(meal_slots)
 
         logger.info("Generating weekly plan", extra={"recipe_pool_size": len(available_recipes), "meal_slots": num_meals})
 
-        # Validate enough recipes
         if len(available_recipes) < num_meals:
             raise ValueError(
                 f"Need at least {num_meals} recipes to generate meal plan. "
                 f"Only {len(available_recipes)} recipes available."
             )
 
-        # Pre-compute total slots per day for calorie budget distribution
-        slots_per_day: dict[str, int] = {}
-        for day, _ in meal_slots:
-            slots_per_day[day] = slots_per_day.get(day, 0) + 1
+        # Proportional targets: the ideal per-meal share of the daily limit.
+        proportional_budgets = self._compute_meal_budgets(meal_slots)
 
         meals = []
         used_recipes: set[str] = set()
         daily_calories_used: dict[str, float] = {}
-        slots_filled_today: dict[str, int] = {}
 
         for day, meal_type in meal_slots:
             logger.debug("Filling meal slot", extra={"day": day, "meal_type": meal_type})
-            # Filter recipes that have this meal type tag AND haven't been used
             suitable_recipes = [
                 r for r in available_recipes
                 if meal_type in r.tags and r.id not in used_recipes
             ]
 
-            # Fallback: if no suitable recipes, use any unused recipe
             if not suitable_recipes:
                 logger.warning("No suitable recipes for meal type, using fallback", extra={"day": day, "meal_type": meal_type})
                 suitable_recipes = [
@@ -376,13 +412,27 @@ class MealPlanner:
             if not suitable_recipes:
                 raise ValueError(f"Not enough recipes for {day} {meal_type}")
 
-            recipe = self._select_recipe(
-                suitable_recipes, day, slots_per_day, slots_filled_today, daily_calories_used
-            )
-            used_recipes.add(recipe.id)
+            # Effective budget = min(proportional share, remaining daily budget).
+            # This means: prefer the meal-type-appropriate portion size, but if
+            # an earlier meal on this day overshot (via fallback), tighten the
+            # cap so the running total stays within the daily limit.
+            proportional = proportional_budgets[(day, meal_type)]
+            if proportional is not None:
+                remaining = self.daily_calorie_limit - daily_calories_used.get(day, 0.0)
+                effective_budget: float | None = min(proportional, remaining)
+            else:
+                effective_budget = None
 
+            # Recipes with no meal-type tag are generic and can fill any slot as
+            # a last resort if no properly-tagged recipe fits within the budget.
+            untagged_unused = [
+                r for r in available_recipes
+                if r.id not in used_recipes
+                and not _MEAL_TYPE_TAGS.intersection(r.tags)
+            ]
+            recipe = self._select_recipe(suitable_recipes, effective_budget, budget_fallback_pool=untagged_unused)
+            used_recipes.add(recipe.id)
             daily_calories_used[day] = daily_calories_used.get(day, 0.0) + recipe.calories_per_serving
-            slots_filled_today[day] = slots_filled_today.get(day, 0) + 1
 
             meals.append(PlannedMeal(
                 day=day,
