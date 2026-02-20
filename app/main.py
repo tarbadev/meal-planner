@@ -492,12 +492,107 @@ def generate_with_schedule():
     })
 
 
+# ---------------------------------------------------------------------------
+# Shared recipe-import helper
+# ---------------------------------------------------------------------------
+
+def _finalize_and_save_recipe(parsed_recipe, source: str = ""):
+    """Generate nutrition, infer tags, save the recipe and return a JSON response.
+
+    Shared by all three recipe-import handlers (URL, text, image).
+    Raises RecipeSaveError / ValueError on failure so callers can translate
+    to the appropriate HTTP status code.
+    """
+    global current_plan, current_shopping_list
+
+    from app.recipe_parser import generate_recipe_id
+
+    # Generate nutrition if missing
+    if _nutrition_gen.should_generate_nutrition(parsed_recipe):
+        generated_nutrition = _nutrition_gen.generate_from_ingredients(
+            parsed_recipe.ingredients,
+            parsed_recipe.servings or 4
+        )
+
+        if generated_nutrition:
+            parsed_recipe.calories_per_serving = int(generated_nutrition.calories)
+            parsed_recipe.protein_per_serving = generated_nutrition.protein
+            parsed_recipe.carbs_per_serving = generated_nutrition.carbs
+            parsed_recipe.fat_per_serving = generated_nutrition.fat
+            parsed_recipe.saturated_fat_per_serving = generated_nutrition.saturated_fat
+            parsed_recipe.polyunsaturated_fat_per_serving = generated_nutrition.polyunsaturated_fat
+            parsed_recipe.monounsaturated_fat_per_serving = generated_nutrition.monounsaturated_fat
+            parsed_recipe.sodium_per_serving = generated_nutrition.sodium
+            parsed_recipe.potassium_per_serving = generated_nutrition.potassium
+            parsed_recipe.fiber_per_serving = generated_nutrition.fiber
+            parsed_recipe.sugar_per_serving = generated_nutrition.sugar
+            parsed_recipe.vitamin_a_per_serving = generated_nutrition.vitamin_a
+            parsed_recipe.vitamin_c_per_serving = generated_nutrition.vitamin_c
+            parsed_recipe.calcium_per_serving = generated_nutrition.calcium
+            parsed_recipe.iron_per_serving = generated_nutrition.iron
+
+            has_meaningful_nutrition = (
+                generated_nutrition.calories > 0 or
+                generated_nutrition.protein > 0 or
+                generated_nutrition.carbs > 0 or
+                generated_nutrition.fat > 0
+            )
+            if has_meaningful_nutrition:
+                if not parsed_recipe.tags:
+                    parsed_recipe.tags = []
+                parsed_recipe.tags.append("nutrition-generated")
+
+    # Infer additional tags
+    parsed_recipe.tags = _tag_inferencer.enhance_tags(
+        name=parsed_recipe.name,
+        ingredients=parsed_recipe.ingredients or [],
+        instructions=parsed_recipe.instructions or [],
+        prep_time_minutes=parsed_recipe.prep_time_minutes or 0,
+        cook_time_minutes=parsed_recipe.cook_time_minutes or 0,
+        existing_tags=parsed_recipe.tags or []
+    )
+
+    # Load, ID, convert, validate, save
+    recipes_file = Path(config.RECIPES_FILE)
+    existing_recipes = load_recipes(recipes_file)
+    existing_ids = {r.id for r in existing_recipes}
+    recipe_id = generate_recipe_id(parsed_recipe.name, existing_ids)
+    recipe_dict = parsed_recipe.to_recipe_dict(recipe_id)
+    new_recipe = Recipe.from_dict(recipe_dict)
+    save_recipes(recipes_file, existing_recipes + [new_recipe])
+
+    current_plan = None
+    current_shopping_list = None
+    logger.info("Recipe imported successfully", extra={"recipe_id": new_recipe.id, "recipe_name": new_recipe.name})
+
+    suffix = f" {source}" if source else ""
+    response_data = {
+        "success": True,
+        "message": f"Recipe '{new_recipe.name}' imported successfully{suffix}",
+        "recipe": {
+            "id": new_recipe.id,
+            "name": new_recipe.name,
+            "servings": new_recipe.servings,
+            "has_nutrition": (new_recipe.calories_per_serving > 0),
+            "nutrition_generated": "nutrition-generated" in new_recipe.tags,
+            "ingredient_count": len(new_recipe.ingredients),
+            "instruction_count": len(new_recipe.instructions),
+        },
+    }
+
+    if hasattr(parsed_recipe, 'ai_confidence'):
+        response_data["recipe"]["ai_confidence"] = parsed_recipe.ai_confidence
+        if parsed_recipe.ai_confidence < 0.7:
+            response_data["warning"] = "Recipe extraction confidence is low. Please review the imported data carefully."
+
+    return jsonify(response_data)
+
+
 @app.route("/import-recipe", methods=["POST"])
 @limiter.limit("10 per minute")
 def import_recipe():
     """Import a recipe from a URL."""
     logger.info("Importing recipe from URL")
-    global current_plan, current_shopping_list
 
     try:
         data = request.get_json()
@@ -526,7 +621,7 @@ def import_recipe():
         # Parse recipe from URL
         from app.ai_recipe_extractor import AIExtractionError
         from app.instagram_fetcher import InstagramFetchError
-        from app.recipe_parser import RecipeParseError, RecipeParser, generate_recipe_id
+        from app.recipe_parser import RecipeParseError, RecipeParser
 
         logger.info("Parsing recipe from URL", extra={"url": url})
         t0 = time.monotonic()
@@ -534,101 +629,7 @@ def import_recipe():
         parsed_recipe = parser.parse_from_url(url)
         logger.info("LLM call completed", extra={"elapsed_s": round(time.monotonic() - t0, 2), "recipe_name": parsed_recipe.name})
 
-        # Generate nutrition if missing
-        nutrition_gen = _nutrition_gen
-        if nutrition_gen.should_generate_nutrition(parsed_recipe):
-            generated_nutrition = nutrition_gen.generate_from_ingredients(
-                parsed_recipe.ingredients,
-                parsed_recipe.servings or 4
-            )
-
-            if generated_nutrition:
-                # Update parsed recipe with generated nutrition (all 15 fields)
-                parsed_recipe.calories_per_serving = int(generated_nutrition.calories)
-                parsed_recipe.protein_per_serving = generated_nutrition.protein
-                parsed_recipe.carbs_per_serving = generated_nutrition.carbs
-                parsed_recipe.fat_per_serving = generated_nutrition.fat
-                parsed_recipe.saturated_fat_per_serving = generated_nutrition.saturated_fat
-                parsed_recipe.polyunsaturated_fat_per_serving = generated_nutrition.polyunsaturated_fat
-                parsed_recipe.monounsaturated_fat_per_serving = generated_nutrition.monounsaturated_fat
-                parsed_recipe.sodium_per_serving = generated_nutrition.sodium
-                parsed_recipe.potassium_per_serving = generated_nutrition.potassium
-                parsed_recipe.fiber_per_serving = generated_nutrition.fiber
-                parsed_recipe.sugar_per_serving = generated_nutrition.sugar
-                parsed_recipe.vitamin_a_per_serving = generated_nutrition.vitamin_a
-                parsed_recipe.vitamin_c_per_serving = generated_nutrition.vitamin_c
-                parsed_recipe.calcium_per_serving = generated_nutrition.calcium
-                parsed_recipe.iron_per_serving = generated_nutrition.iron
-
-                # Only add tag if meaningful nutrition was generated (not all zeros)
-                has_meaningful_nutrition = (
-                    generated_nutrition.calories > 0 or
-                    generated_nutrition.protein > 0 or
-                    generated_nutrition.carbs > 0 or
-                    generated_nutrition.fat > 0
-                )
-                if has_meaningful_nutrition:
-                    if not parsed_recipe.tags:
-                        parsed_recipe.tags = []
-                    parsed_recipe.tags.append("nutrition-generated")
-
-        # Infer additional tags based on recipe content
-        tag_inferencer = _tag_inferencer
-        parsed_recipe.tags = tag_inferencer.enhance_tags(
-            name=parsed_recipe.name,
-            ingredients=parsed_recipe.ingredients or [],
-            instructions=parsed_recipe.instructions or [],
-            prep_time_minutes=parsed_recipe.prep_time_minutes or 0,
-            cook_time_minutes=parsed_recipe.cook_time_minutes or 0,
-            existing_tags=parsed_recipe.tags or []
-        )
-
-        # Load existing recipes
-        recipes_file = Path(config.RECIPES_FILE)
-        existing_recipes = load_recipes(recipes_file)
-        existing_ids = {r.id for r in existing_recipes}
-
-        # Generate unique ID
-        recipe_id = generate_recipe_id(parsed_recipe.name, existing_ids)
-
-        # Convert to Recipe dict
-        recipe_dict = parsed_recipe.to_recipe_dict(recipe_id)
-
-        # Validate using Recipe.from_dict
-        new_recipe = Recipe.from_dict(recipe_dict)
-
-        # Add to recipes list and save
-        updated_recipes = existing_recipes + [new_recipe]
-        save_recipes(recipes_file, updated_recipes)
-
-        # Clear current plan to force regeneration
-        current_plan = None
-        current_shopping_list = None
-
-        logger.info("Recipe imported successfully", extra={"recipe_id": new_recipe.id, "recipe_name": new_recipe.name})
-
-        # Build response with optional AI confidence
-        response_data = {
-            "success": True,
-            "message": f"Recipe '{new_recipe.name}' imported successfully",
-            "recipe": {
-                "id": new_recipe.id,
-                "name": new_recipe.name,
-                "servings": new_recipe.servings,
-                "has_nutrition": (new_recipe.calories_per_serving > 0),
-                "nutrition_generated": "nutrition-generated" in new_recipe.tags,
-                "ingredient_count": len(new_recipe.ingredients),
-                "instruction_count": len(new_recipe.instructions)
-            }
-        }
-
-        # Add AI confidence if available (Instagram imports)
-        if hasattr(parsed_recipe, 'ai_confidence'):
-            response_data["recipe"]["ai_confidence"] = parsed_recipe.ai_confidence
-            if parsed_recipe.ai_confidence < 0.7:
-                response_data["warning"] = "Recipe extraction confidence is low. Please review the imported data carefully."
-
-        return jsonify(response_data)
+        return _finalize_and_save_recipe(parsed_recipe)
 
     except InstagramFetchError as e:
         logger.exception("Instagram fetch error during import", extra={"url": url})
@@ -675,7 +676,6 @@ def import_recipe():
 def import_recipe_text():
     """Import a recipe from manually pasted text (Instagram fallback)."""
     logger.info("Importing recipe from text")
-    global current_plan, current_shopping_list
 
     try:
         data = request.get_json()
@@ -704,7 +704,7 @@ def import_recipe_text():
         # Parse recipe from text using AI
         from app.ai_recipe_extractor import AIExtractionError
         from app.instagram_parser import InstagramParser
-        from app.recipe_parser import RecipeParseError, generate_recipe_id
+        from app.recipe_parser import RecipeParseError
 
         logger.debug("Initialising InstagramParser")
         instagram_parser = InstagramParser(
@@ -715,101 +715,7 @@ def import_recipe_text():
         parsed_recipe = instagram_parser.parse_from_text(text, language)
         logger.info("LLM call completed", extra={"elapsed_s": round(time.monotonic() - t0, 2), "recipe_name": parsed_recipe.name})
 
-        # Generate nutrition if missing
-        nutrition_gen = _nutrition_gen
-        if nutrition_gen.should_generate_nutrition(parsed_recipe):
-            generated_nutrition = nutrition_gen.generate_from_ingredients(
-                parsed_recipe.ingredients,
-                parsed_recipe.servings or 4
-            )
-
-            if generated_nutrition:
-                # Update parsed recipe with generated nutrition (all 15 fields)
-                parsed_recipe.calories_per_serving = int(generated_nutrition.calories)
-                parsed_recipe.protein_per_serving = generated_nutrition.protein
-                parsed_recipe.carbs_per_serving = generated_nutrition.carbs
-                parsed_recipe.fat_per_serving = generated_nutrition.fat
-                parsed_recipe.saturated_fat_per_serving = generated_nutrition.saturated_fat
-                parsed_recipe.polyunsaturated_fat_per_serving = generated_nutrition.polyunsaturated_fat
-                parsed_recipe.monounsaturated_fat_per_serving = generated_nutrition.monounsaturated_fat
-                parsed_recipe.sodium_per_serving = generated_nutrition.sodium
-                parsed_recipe.potassium_per_serving = generated_nutrition.potassium
-                parsed_recipe.fiber_per_serving = generated_nutrition.fiber
-                parsed_recipe.sugar_per_serving = generated_nutrition.sugar
-                parsed_recipe.vitamin_a_per_serving = generated_nutrition.vitamin_a
-                parsed_recipe.vitamin_c_per_serving = generated_nutrition.vitamin_c
-                parsed_recipe.calcium_per_serving = generated_nutrition.calcium
-                parsed_recipe.iron_per_serving = generated_nutrition.iron
-
-                # Only add tag if meaningful nutrition was generated (not all zeros)
-                has_meaningful_nutrition = (
-                    generated_nutrition.calories > 0 or
-                    generated_nutrition.protein > 0 or
-                    generated_nutrition.carbs > 0 or
-                    generated_nutrition.fat > 0
-                )
-                if has_meaningful_nutrition:
-                    if not parsed_recipe.tags:
-                        parsed_recipe.tags = []
-                    parsed_recipe.tags.append("nutrition-generated")
-
-        # Infer additional tags based on recipe content
-        tag_inferencer = _tag_inferencer
-        parsed_recipe.tags = tag_inferencer.enhance_tags(
-            name=parsed_recipe.name,
-            ingredients=parsed_recipe.ingredients or [],
-            instructions=parsed_recipe.instructions or [],
-            prep_time_minutes=parsed_recipe.prep_time_minutes or 0,
-            cook_time_minutes=parsed_recipe.cook_time_minutes or 0,
-            existing_tags=parsed_recipe.tags or []
-        )
-
-        # Load existing recipes
-        recipes_file = Path(config.RECIPES_FILE)
-        existing_recipes = load_recipes(recipes_file)
-        existing_ids = {r.id for r in existing_recipes}
-
-        # Generate unique ID
-        recipe_id = generate_recipe_id(parsed_recipe.name, existing_ids)
-
-        # Convert to Recipe dict
-        recipe_dict = parsed_recipe.to_recipe_dict(recipe_id)
-
-        # Validate using Recipe.from_dict
-        new_recipe = Recipe.from_dict(recipe_dict)
-
-        # Add to recipes list and save
-        updated_recipes = existing_recipes + [new_recipe]
-        save_recipes(recipes_file, updated_recipes)
-
-        # Clear current plan to force regeneration
-        current_plan = None
-        current_shopping_list = None
-
-        logger.info("Recipe imported successfully from text", extra={"recipe_id": new_recipe.id, "recipe_name": new_recipe.name})
-
-        # Build response with AI confidence
-        response_data = {
-            "success": True,
-            "message": f"Recipe '{new_recipe.name}' imported successfully from text",
-            "recipe": {
-                "id": new_recipe.id,
-                "name": new_recipe.name,
-                "servings": new_recipe.servings,
-                "has_nutrition": (new_recipe.calories_per_serving > 0),
-                "nutrition_generated": "nutrition-generated" in new_recipe.tags,
-                "ingredient_count": len(new_recipe.ingredients),
-                "instruction_count": len(new_recipe.instructions)
-            }
-        }
-
-        # Add AI confidence
-        if hasattr(parsed_recipe, 'ai_confidence'):
-            response_data["recipe"]["ai_confidence"] = parsed_recipe.ai_confidence
-            if parsed_recipe.ai_confidence < 0.7:
-                response_data["warning"] = "Recipe extraction confidence is low. Please review the imported data carefully."
-
-        return jsonify(response_data)
+        return _finalize_and_save_recipe(parsed_recipe, source="from text")
 
     except AIExtractionError as e:
         logger.exception("AI extraction error during text import", extra={"text_length": len(text)})
@@ -849,7 +755,6 @@ def import_recipe_text():
 def import_recipe_image():
     """Import a recipe from a photo."""
     logger.info("Importing recipe from image")
-    global current_plan, current_shopping_list
 
     logger.debug("Image import request received", extra={
         "content_type": request.content_type,
@@ -919,7 +824,7 @@ def import_recipe_image():
 
         # Extract recipe from image using Vision API
         from app.image_recipe_extractor import ImageRecipeExtractor
-        from app.recipe_parser import ParsedRecipe, generate_recipe_id
+        from app.recipe_parser import ParsedRecipe
 
         if not config.OPENAI_API_KEY:
             logger.error("OpenAI API key not configured for image import")
@@ -1000,105 +905,7 @@ def import_recipe_image():
         parsed_recipe.ai_confidence = extracted_data.confidence
         logger.debug("ParsedRecipe created", extra={"recipe_name": parsed_recipe.name})
 
-        # Generate nutrition if missing
-        nutrition_gen = _nutrition_gen
-        if nutrition_gen.should_generate_nutrition(parsed_recipe):
-            logger.info("Generating nutrition data for image-imported recipe", extra={"recipe_name": parsed_recipe.name})
-            generated_nutrition = nutrition_gen.generate_from_ingredients(
-                parsed_recipe.ingredients,
-                parsed_recipe.servings or 4
-            )
-
-            if generated_nutrition:
-                logger.info("Nutrition generated for image-imported recipe", extra={"calories": generated_nutrition.calories})
-                parsed_recipe.calories_per_serving = int(generated_nutrition.calories)
-                parsed_recipe.protein_per_serving = generated_nutrition.protein
-                parsed_recipe.carbs_per_serving = generated_nutrition.carbs
-                parsed_recipe.fat_per_serving = generated_nutrition.fat
-                parsed_recipe.saturated_fat_per_serving = generated_nutrition.saturated_fat
-                parsed_recipe.polyunsaturated_fat_per_serving = generated_nutrition.polyunsaturated_fat
-                parsed_recipe.monounsaturated_fat_per_serving = generated_nutrition.monounsaturated_fat
-                parsed_recipe.sodium_per_serving = generated_nutrition.sodium
-                parsed_recipe.potassium_per_serving = generated_nutrition.potassium
-                parsed_recipe.fiber_per_serving = generated_nutrition.fiber
-                parsed_recipe.sugar_per_serving = generated_nutrition.sugar
-                parsed_recipe.vitamin_a_per_serving = generated_nutrition.vitamin_a
-                parsed_recipe.vitamin_c_per_serving = generated_nutrition.vitamin_c
-                parsed_recipe.calcium_per_serving = generated_nutrition.calcium
-                parsed_recipe.iron_per_serving = generated_nutrition.iron
-
-                has_meaningful_nutrition = (
-                    generated_nutrition.calories > 0 or
-                    generated_nutrition.protein > 0 or
-                    generated_nutrition.carbs > 0 or
-                    generated_nutrition.fat > 0
-                )
-                if has_meaningful_nutrition:
-                    if not parsed_recipe.tags:
-                        parsed_recipe.tags = []
-                    parsed_recipe.tags.append("nutrition-generated")
-            else:
-                logger.warning("No nutrition data generated for image-imported recipe", extra={"recipe_name": parsed_recipe.name})
-        else:
-            logger.debug("Nutrition generation not needed for image-imported recipe", extra={"recipe_name": parsed_recipe.name})
-
-        # Infer additional tags
-        tag_inferencer = _tag_inferencer
-        parsed_recipe.tags = tag_inferencer.enhance_tags(
-            name=parsed_recipe.name,
-            ingredients=parsed_recipe.ingredients or [],
-            instructions=parsed_recipe.instructions or [],
-            prep_time_minutes=parsed_recipe.prep_time_minutes or 0,
-            cook_time_minutes=parsed_recipe.cook_time_minutes or 0,
-            existing_tags=parsed_recipe.tags or []
-        )
-        logger.debug("Tags inferred for image-imported recipe", extra={"recipe_name": parsed_recipe.name, "tags": parsed_recipe.tags})
-
-        # Load existing recipes
-        recipes_file = Path(config.RECIPES_FILE)
-        existing_recipes = load_recipes(recipes_file)
-        existing_ids = {r.id for r in existing_recipes}
-        logger.debug("Loaded existing recipes", extra={"recipe_count": len(existing_recipes)})
-
-        # Generate unique ID
-        recipe_id = generate_recipe_id(parsed_recipe.name, existing_ids)
-        logger.debug("Generated recipe ID", extra={"recipe_id": recipe_id})
-
-        # Convert to Recipe dict
-        recipe_dict = parsed_recipe.to_recipe_dict(recipe_id)
-
-        # Validate using Recipe.from_dict
-        new_recipe = Recipe.from_dict(recipe_dict)
-
-        # Add to recipes list and save
-        updated_recipes = existing_recipes + [new_recipe]
-        save_recipes(recipes_file, updated_recipes)
-        logger.info("Image-imported recipe saved", extra={"recipe_id": new_recipe.id, "recipe_name": new_recipe.name})
-
-        # Clear current plan
-        current_plan = None
-        current_shopping_list = None
-
-        # Build response
-        response_data = {
-            "success": True,
-            "message": f"Recipe '{new_recipe.name}' imported successfully from photo",
-            "recipe": {
-                "id": new_recipe.id,
-                "name": new_recipe.name,
-                "servings": new_recipe.servings,
-                "has_nutrition": (new_recipe.calories_per_serving > 0),
-                "nutrition_generated": "nutrition-generated" in new_recipe.tags,
-                "ingredient_count": len(new_recipe.ingredients),
-                "instruction_count": len(new_recipe.instructions),
-                "ai_confidence": extracted_data.confidence
-            }
-        }
-
-        if extracted_data.confidence < 0.7:
-            response_data["warning"] = "Recipe extraction confidence is low. Please review the imported data carefully."
-
-        return jsonify(response_data)
+        return _finalize_and_save_recipe(parsed_recipe, source="from photo")
 
     except ValueError as e:
         logger.exception("ValueError during image recipe conversion/saving", extra={"recipe_name": extracted_data.name})
