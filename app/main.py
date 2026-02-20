@@ -65,6 +65,7 @@ def _is_valid_image_bytes(data: bytes) -> bool:
 
 # Module-level service singletons (stateless, created once to avoid per-request overhead)
 _nutrition_gen = NutritionGenerator(api_key=config.USDA_API_KEY)
+_tag_inferencer = TagInferencer()
 
 # Store the current plan in memory (v1 - simple approach)
 current_plan = None
@@ -572,7 +573,7 @@ def import_recipe():
                     parsed_recipe.tags.append("nutrition-generated")
 
         # Infer additional tags based on recipe content
-        tag_inferencer = TagInferencer()
+        tag_inferencer = _tag_inferencer
         parsed_recipe.tags = tag_inferencer.enhance_tags(
             name=parsed_recipe.name,
             ingredients=parsed_recipe.ingredients or [],
@@ -753,7 +754,7 @@ def import_recipe_text():
                     parsed_recipe.tags.append("nutrition-generated")
 
         # Infer additional tags based on recipe content
-        tag_inferencer = TagInferencer()
+        tag_inferencer = _tag_inferencer
         parsed_recipe.tags = tag_inferencer.enhance_tags(
             name=parsed_recipe.name,
             ingredients=parsed_recipe.ingredients or [],
@@ -1042,7 +1043,7 @@ def import_recipe_image():
             logger.debug("Nutrition generation not needed for image-imported recipe", extra={"recipe_name": parsed_recipe.name})
 
         # Infer additional tags
-        tag_inferencer = TagInferencer()
+        tag_inferencer = _tag_inferencer
         parsed_recipe.tags = tag_inferencer.enhance_tags(
             name=parsed_recipe.name,
             ingredients=parsed_recipe.ingredients or [],
