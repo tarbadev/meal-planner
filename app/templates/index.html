@@ -1733,8 +1733,8 @@
                 <div style="display: flex; align-items: center; gap: 1rem;">
                     <div style="width: 48px; height: 48px; background: #fef3c7; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🍳</div>
                     <div>
-                        <div style="font-size: 0.875rem; color: var(--color-text-muted);">Active Cooking</div>
-                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-text);">{{ cook_sessions }} sessions</div>
+                        <div style="font-size: 0.875rem; color: var(--color-text-muted);">Recipes to Cook</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-text);">{{ cook_sessions }} recipes</div>
                     </div>
                 </div>
             </div>
@@ -1913,8 +1913,8 @@
                     <input type="number" id="settingsPortions" min="0.5" step="0.25" value="{{ household_portions }}">
                     <label>Daily Calorie Limit</label>
                     <input type="number" id="settingsCalorieLimit" min="500" step="50" value="{{ current_plan.daily_calorie_limit if current_plan and current_plan.daily_calorie_limit else 1600 }}">
-                    <label>Max uses per cooked meal</label>
-                    <p style="color: var(--color-text-muted); font-size: 0.8rem; margin: -0.25rem 0 0.5rem;">How many times the same recipe can appear (cook + re-uses). Set to 2 to avoid eating the same thing three times in a row.</p>
+                    <label>Max times same recipe appears</label>
+                    <p style="color: var(--color-text-muted); font-size: 0.8rem; margin: -0.25rem 0 0.5rem;">Includes the original cook plus any leftovers/packed lunches. <strong>1</strong> = cook once, eat once. <strong>2</strong> = cook once, eat twice (recommended). <strong>3</strong> = cook once, eat three times.</p>
                     <input type="number" id="settingsMaxDerived" min="1" max="3" step="1" value="{{ config.COOK_ONCE_MAX_DERIVED }}">
                     <button class="btn btn-primary" onclick="saveHouseholdSettings()">Save</button>
                 </div>
@@ -2568,7 +2568,7 @@
                 const sourceKey = `${day}:${mealType}`;
                 const derivedFromThis = currentPlan?.meals?.filter(m => m.linked_meal === sourceKey) || [];
                 const cookAheadBadge = (!isDerived && derivedFromThis.length > 0)
-                    ? `<span class="cook-once-badge cook-ahead" title="Feeds ${derivedFromThis.length} more meal${derivedFromThis.length > 1 ? 's' : ''}: ${derivedFromThis.map(m => m.day + ' ' + m.meal_type).join(', ')}">Cook ×${derivedFromThis.length + 1}</span>`
+                    ? `<span class="cook-once-badge cook-ahead" title="Also used for: ${derivedFromThis.map(m => m.day + ' ' + m.meal_type).join(', ')}">Makes ${derivedFromThis.length + 1} meals</span>`
                     : '';
                 const swapBtn = isDerived ? '' : `
                                 <button class="btn-icon" onclick="event.stopPropagation(); regenerateMeal('${day}', '${mealType}')" title="Swap recipe">
