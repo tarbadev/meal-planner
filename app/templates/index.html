@@ -1659,7 +1659,8 @@
           padding: 1px 6px; border-radius: 999px; margin-left: 4px; }
         .cook-once-badge.reheat  { background: #fef3c7; color: #92400e; }
         .cook-once-badge.pack    { background: #dbeafe; color: #1e40af; }
-        .cook-once-badge.no-cook { background: #fef3c7; color: #92400e; }
+        .cook-once-badge.no-cook    { background: #fef3c7; color: #92400e; }
+        .cook-once-badge.cook-ahead { background: #ede9fe; color: #5b21b6; }
         .meal-slot.meal-derived  { border-left: 3px solid #fbbf24; }
         .cook-mode-btn { background: none; border: 1px solid var(--border); border-radius: 6px;
           cursor: pointer; padding: 2px 6px; font-size: 0.9rem; }
@@ -2559,6 +2560,13 @@
                 } else if (meal.meal_source === 'fresh' && isNoCookSlot(day, mealType)) {
                     badge = '<span class="cook-once-badge no-cook">🔥</span>';
                 }
+
+                // Cook-ahead indicator: count how many derived meals reference this slot
+                const sourceKey = `${day}:${mealType}`;
+                const derivedFromThis = currentPlan?.meals?.filter(m => m.linked_meal === sourceKey) || [];
+                const cookAheadBadge = (!isDerived && derivedFromThis.length > 0)
+                    ? `<span class="cook-once-badge cook-ahead" title="Feeds ${derivedFromThis.length} more meal${derivedFromThis.length > 1 ? 's' : ''}: ${derivedFromThis.map(m => m.day + ' ' + m.meal_type).join(', ')}">Cook ×${derivedFromThis.length + 1}</span>`
+                    : '';
                 const swapBtn = isDerived ? '' : `
                                 <button class="btn-icon" onclick="event.stopPropagation(); regenerateMeal('${day}', '${mealType}')" title="Swap recipe">
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
@@ -2569,7 +2577,7 @@
                 return `
                     <div class="meal-slot has-meal${derivedClass}" style="cursor:pointer;" onclick="window.location='/recipe/${meal.recipe_id}'">
                         <div class="meal-slot-header">
-                            <span class="meal-type">${mealType}${badge}</span>
+                            <span class="meal-type">${mealType}${badge}${cookAheadBadge}</span>
                             <div class="meal-actions">
                                 <button class="btn-icon" onclick="event.stopPropagation(); editMealServings('${day}', '${mealType}', ${meal.portions || 1})" title="Edit servings">
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
