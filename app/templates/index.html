@@ -2010,6 +2010,51 @@
     </div>
 
     <!-- Schedule Configuration Modal -->
+    <!-- Add Shopping Item Modal -->
+    <div id="addItemModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 460px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Item</h2>
+                <button class="modal-close" onclick="closeAddItemModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addItemForm" onsubmit="submitAddItemForm(event)" style="display: grid; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="addItemName">Item name <span style="color:var(--color-danger)">*</span></label>
+                        <input type="text" id="addItemName" placeholder="e.g. Cherry tomatoes" autocomplete="off" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="addItemQuantity">Quantity</label>
+                            <input type="number" id="addItemQuantity" value="1" min="0.1" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="addItemUnit">Unit</label>
+                            <input type="text" id="addItemUnit" placeholder="e.g. kg, ml, bunch">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="addItemCategory">Category</label>
+                        <select id="addItemCategory">
+                            <option value="produce">🥦 Produce</option>
+                            <option value="meat">🥩 Meat</option>
+                            <option value="seafood">🐟 Seafood</option>
+                            <option value="dairy">🧀 Dairy &amp; Eggs</option>
+                            <option value="grains">🌾 Grains &amp; Bread</option>
+                            <option value="spices">🌶️ Spices &amp; Herbs</option>
+                            <option value="pantry">🫙 Pantry</option>
+                            <option value="other" selected>🛒 Other</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">Add to List</button>
+                        <button type="button" class="btn btn-outline" onclick="closeAddItemModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div id="scheduleModal" class="modal hidden">
         <div class="modal-content" style="max-width: 800px;">
             <div class="modal-header">
@@ -2979,16 +3024,23 @@
 
         // Add custom shopping list item
         function openAddItemModal() {
-            const name = prompt('Item name:');
-            if (!name || !name.trim()) return;
+            document.getElementById('addItemForm').reset();
+            document.getElementById('addItemName').focus();
+            document.getElementById('addItemModal').classList.remove('hidden');
+        }
 
-            const quantity = prompt('Quantity:', '1');
-            if (!quantity) return;
+        function closeAddItemModal() {
+            document.getElementById('addItemModal').classList.add('hidden');
+        }
 
-            const unit = prompt('Unit (optional):', '');
-            const category = prompt('Category (produce/meat/dairy/grains/pantry/spices):', 'other');
-
-            addShoppingItem(name, parseFloat(quantity), unit, category);
+        async function submitAddItemForm(event) {
+            event.preventDefault();
+            const name = document.getElementById('addItemName').value.trim();
+            const quantity = parseFloat(document.getElementById('addItemQuantity').value) || 1;
+            const unit = document.getElementById('addItemUnit').value.trim();
+            const category = document.getElementById('addItemCategory').value;
+            closeAddItemModal();
+            await addShoppingItem(name, quantity, unit, category);
         }
 
         async function addShoppingItem(name, quantity, unit, category) {
