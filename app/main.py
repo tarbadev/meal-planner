@@ -1854,7 +1854,7 @@ def add_shopping_item():
     item_name = data.get("name")
     quantity = data.get("quantity", 1)
     unit = data.get("unit", "")
-    category = data.get("category", "other")
+    raw_category = data.get("category", "other")
 
     if not item_name or not item_name.strip():
         return jsonify({"error": "Item name is required"}), 400
@@ -1865,6 +1865,9 @@ def add_shopping_item():
             return jsonify({"error": "Quantity must be positive"}), 400
     except ValueError:
         return jsonify({"error": "Invalid quantity"}), 400
+
+    from app.ingredient_normalizer import canonicalise_category
+    category = canonicalise_category(raw_category)
 
     new_item = ShoppingListItem(
         item=item_name.strip(),

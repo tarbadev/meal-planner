@@ -4,7 +4,10 @@ Post-processing to normalize AI-extracted ingredients (bilingual support).
 Standardizes units, handles fractions, and infers categories for ingredients.
 """
 
+import logging
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 # Bilingual unit mapping (English and French)
 UNIT_MAPPING = {
@@ -152,6 +155,54 @@ CATEGORY_KEYWORDS = {
     ],
 }
 
+# Valid canonical categories
+_VALID_CATEGORIES: frozenset[str] = frozenset(
+    {"meat", "seafood", "produce", "dairy", "grains", "spices", "pantry", "other"}
+)
+
+# Aliases → canonical category (covers common AI hallucinations and variant names)
+_CATEGORY_ALIASES: dict[str, str] = {
+    "spices and seasonings": "spices",
+    "spice": "spices",
+    "seasoning": "spices",
+    "seasonings": "spices",
+    "herbs": "spices",
+    "herbs and spices": "spices",
+    "fish": "seafood",
+    "fish and seafood": "seafood",
+    "vegetables": "produce",
+    "fruits": "produce",
+    "fruit": "produce",
+    "bread": "grains",
+    "bakery": "grains",
+    "baked goods": "grains",
+    "cheese": "dairy",
+    "eggs": "dairy",
+    "canned goods": "pantry",
+    "condiments": "pantry",
+    "oils": "pantry",
+    "nuts and seeds": "pantry",
+    "legumes": "pantry",
+    "beans": "pantry",
+}
+
+
+def canonicalise_category(raw: str) -> str:
+    """Return the canonical category for *raw*, falling back to 'other'.
+
+    Logs a warning when *raw* is not a recognised category or alias so
+    that unexpected values surface in application logs.
+    """
+    if not raw:
+        return "other"
+    normalised = raw.strip().lower()
+    if normalised in _VALID_CATEGORIES:
+        return normalised
+    if normalised in _CATEGORY_ALIASES:
+        return _CATEGORY_ALIASES[normalised]
+    logger.warning("Unknown ingredient category %r — mapping to 'other'", raw)
+    return "other"
+
 
 def normalize_ingredient(ai_ingredient: dict[str, Any]) -> dict[str, Any]:
     """
@@ -169,8 +220,10 @@ def normalize_ingredient(ai_ingredient: dict[str, Any]) -> dict[str, Any]:
     if 'unit' in normalized and normalized['unit']:
         normalized['unit'] = standardize_unit(normalized['unit'])
 
-    # Infer category if missing or set to "other"
-    if not normalized.get('category') or normalized['category'] == 'other':
+    # Canonicalise whatever category the AI provided, then infer if still unknown
+    raw_category = normalized.get('category') or ''
+    normalized['category'] = canonicalise_category(raw_category)
+    if normalized['category'] == 'other':
         item = normalized.get('item', '').lower()
         normalized['category'] = infer_category(item)
 
