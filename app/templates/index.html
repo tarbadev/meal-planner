@@ -1786,7 +1786,7 @@
                     <h2 class="section-title">Shopping List</h2>
                     <p class="section-subtitle" id="shoppingListSubtitle">
                         {% if current_shopping_list %}
-                            <span id="shoppingListCount">{{ current_shopping_list.items|length }}</span> items for this week
+                            {{ current_shopping_list.items|length }} ingredient{{ 's' if current_shopping_list.items|length != 1 else '' }} across {{ current_shopping_list.items | map(attribute='category') | unique | list | length }} categor{{ 'ies' if current_shopping_list.items | map(attribute='category') | unique | list | length != 1 else 'y' }}
                         {% else %}
                             Generate a meal plan to create a shopping list
                         {% endif %}
@@ -2834,31 +2834,45 @@
 
             container.style.display = 'block';
             if (actionsEl) actionsEl.style.display = 'flex';
-            if (subtitleEl && !countEl) subtitleEl.innerHTML = '<span id="shoppingListCount"></span> items for this week';
 
             const itemsByCategory = {};
             currentShoppingList.forEach(item => {
-                if (!itemsByCategory[item.category]) {
-                    itemsByCategory[item.category] = [];
-                }
-                itemsByCategory[item.category].push(item);
+                const cat = item.category || 'other';
+                if (!itemsByCategory[cat]) itemsByCategory[cat] = [];
+                itemsByCategory[cat].push(item);
             });
 
+            const totalItems = currentShoppingList.length;
+            const totalCategories = Object.keys(itemsByCategory).length;
+            const summaryText = `${totalItems} ingredient${totalItems !== 1 ? 's' : ''} across ${totalCategories} categor${totalCategories !== 1 ? 'ies' : 'y'}`;
+            if (subtitleEl) subtitleEl.textContent = summaryText;
+
             const categoryIcons = {
-                'produce': '🥬',
+                'produce': '🥦',
                 'meat': '🥩',
-                'dairy': '🥛',
+                'seafood': '🐟',
+                'dairy': '🧀',
                 'grains': '🌾',
-                'spices': '🧂',
-                'pantry': '📦',
-                'other': '📦'
+                'spices': '🌶️',
+                'pantry': '🫙',
+                'other': '🛒',
+            };
+            const categoryLabels = {
+                'produce': 'Produce',
+                'meat': 'Meat',
+                'seafood': 'Seafood',
+                'dairy': 'Dairy & Eggs',
+                'grains': 'Grains & Bread',
+                'spices': 'Spices & Herbs',
+                'pantry': 'Pantry',
+                'other': 'Other',
             };
 
             container.innerHTML = Object.entries(itemsByCategory).map(([category, items]) => `
                 <div class="shopping-category">
                     <div class="category-header">
-                        <span class="category-icon">${categoryIcons[category] || '📦'}</span>
-                        <h3 class="category-name">${category.charAt(0).toUpperCase() + category.slice(1)}</h3>
+                        <span class="category-icon">${categoryIcons[category] || '🛒'}</span>
+                        <h3 class="category-name">${categoryLabels[category] || (category.charAt(0).toUpperCase() + category.slice(1))}</h3>
                     </div>
                     <div class="shopping-items">
                         ${items.map((item, idx) => {
@@ -2880,7 +2894,6 @@
                 </div>
             `).join('');
 
-            document.getElementById('shoppingListCount').textContent = currentShoppingList.length;
             setTimeout(loadShoppingListState, 0);
         }
 
