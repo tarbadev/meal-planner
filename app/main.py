@@ -456,9 +456,10 @@ def generate_with_schedule():
     if not schedule:
         return jsonify({"error": "Schedule is required"}), 400
 
-    # Accept optional portions and calorie_limit overrides
+    # Accept optional portions, calorie_limit, and cook-once overrides
     portions = data.get("portions", config.TOTAL_PORTIONS)
     calorie_limit = data.get("calorie_limit", config.DAILY_CALORIE_LIMIT)
+    max_derived = int(data.get("max_derived", config.COOK_ONCE_MAX_DERIVED))
 
     recipes_file = Path(config.RECIPES_FILE)
     recipes = load_recipes(recipes_file)
@@ -525,6 +526,7 @@ def generate_with_schedule():
             current_plan,
             adult_portions=config.PACKED_LUNCH_PORTIONS,
             no_cook_slots=frozenset(no_cook_slots),
+            max_derived=max_derived,
         )
         manual_plan = _convert_plan_to_manual_plan(current_plan)
         raw_list = generate_shopping_list(current_plan)
@@ -643,15 +645,14 @@ def import_recipe():
     """Import a recipe from a URL."""
     logger.info("Importing recipe from URL")
 
-    try:
-        data = request.get_json(silent=False)
-    except (ValueError, TypeError):
+    data = request.get_json(silent=True)
+    if data is None:
         return jsonify({
             "error": "Invalid JSON",
             "message": "Request body must be valid JSON"
         }), 400
 
-    if not data or 'url' not in data:
+    if 'url' not in data:
         return jsonify({
             "error": "Invalid request",
             "message": "URL is required"

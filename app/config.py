@@ -100,5 +100,8 @@ MEAL_CALORIE_SPLITS: dict[str, float] = {
 
 COOK_ONCE_PLANNING: bool = True
 PACKED_LUNCH_PORTIONS: float = float(HOUSEHOLD_PORTIONS["adults"])  # 2.0
+# Maximum derived meals (leftover + packed-lunch combined) per cooked dinner.
+# 1 = same recipe at most twice (cook + one re-use); 2 = up to three times (default).
+COOK_ONCE_MAX_DERIVED: int = 2
 
 DEFAULT_PER_PAGE = 24

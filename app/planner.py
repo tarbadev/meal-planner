@@ -454,6 +454,7 @@ def add_cook_once_slots(
     plan: WeeklyPlan,
     adult_portions: float = 2.0,
     no_cook_slots: frozenset[tuple[str, str]] = frozenset(),
+    max_derived: int = 2,
 ) -> WeeklyPlan:
     """Post-process a WeeklyPlan by replacing/filling slots with leftover/packed-lunch meals.
 
@@ -468,6 +469,10 @@ def add_cook_once_slots(
     Derived slots don't seed further derived slots: before processing a source
     meal we confirm it is still "fresh" in new_meals (prevents cascading when an
     earlier iteration already replaced it with a leftover).
+
+    max_derived caps how many derived meals (packed_lunch + leftover combined)
+    can be created from one cooked dinner.  Use 1 to prevent the same recipe
+    appearing more than twice (cook + one re-use).
     """
     new_meals = list(plan.meals)
 
@@ -490,8 +495,10 @@ def add_cook_once_slots(
         except ValueError:
             continue
 
+        derived_count = 0  # track derived meals created for this source
+
         # Packed lunch: next weekday only, adults only — fill empty slots or replace no-cook fresh lunch
-        if recipe.packs_well_as_lunch and meal.day in WEEKDAYS:
+        if derived_count < max_derived and recipe.packs_well_as_lunch and meal.day in WEEKDAYS:
             if day_idx + 1 < len(DAYS_OF_WEEK):
                 next_day = DAYS_OF_WEEK[day_idx + 1]
                 if next_day in WEEKDAYS:
@@ -506,9 +513,10 @@ def add_cook_once_slots(
                             household_portions=adult_portions,
                             meal_source="packed_lunch", linked_meal=source_key,
                         ))
+                        derived_count += 1
 
         # Leftover dinner: replace next fresh dinner; skip over already-derived slots
-        if recipe.reheats_well and recipe.stores_days >= 1:
+        if derived_count < max_derived and recipe.reheats_well and recipe.stores_days >= 1:
             for offset in range(1, min(recipe.stores_days, 2) + 1):
                 target_idx = day_idx + offset
                 if target_idx >= len(DAYS_OF_WEEK):
