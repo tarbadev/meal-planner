@@ -89,7 +89,10 @@ class InstagramParser:
             ingredients=normalized_ingredients,
             instructions=extracted.instructions,
             tags=tags,
-            source_url=url
+            source_url=url,
+            reheats_well=extracted.reheats_well,
+            stores_days=extracted.stores_days,
+            packs_well_as_lunch=extracted.packs_well_as_lunch,
         )
 
         # Store additional metadata
@@ -145,7 +148,10 @@ class InstagramParser:
             ingredients=normalized_ingredients,
             instructions=extracted.instructions,
             tags=tags,
-            source_url=None  # No URL for manual paste
+            source_url=None,  # No URL for manual paste
+            reheats_well=extracted.reheats_well,
+            stores_days=extracted.stores_days,
+            packs_well_as_lunch=extracted.packs_well_as_lunch,
         )
 
         # Store additional metadata

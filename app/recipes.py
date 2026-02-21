@@ -38,6 +38,9 @@ class Recipe:
     instructions: list[str] = field(default_factory=list)
     source_url: str | None = None
     image_url: str | None = None
+    reheats_well: bool = False
+    stores_days: int = 0
+    packs_well_as_lunch: bool = False
 
     @property
     def total_time_minutes(self) -> int:
@@ -123,6 +126,9 @@ class Recipe:
             instructions=data.get("instructions", []),
             source_url=data.get("source_url"),
             image_url=data.get("image_url"),
+            reheats_well=data.get("reheats_well", False),
+            stores_days=data.get("stores_days", 0),
+            packs_well_as_lunch=data.get("packs_well_as_lunch", False),
         )
 
 

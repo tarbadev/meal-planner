@@ -124,6 +124,19 @@ def _start_normalization() -> str:
     return task_id
 
 
+def _convert_plan_to_manual_plan(plan) -> dict:
+    """Serialize a WeeklyPlan into the manual_plan dict format."""
+    result = {}
+    for meal in plan.meals:
+        result.setdefault(meal.day, {})[meal.meal_type] = {
+            "recipe_id": meal.recipe.id,
+            "servings": meal.household_portions,
+            "meal_source": meal.meal_source,
+            "linked_meal": meal.linked_meal,
+        }
+    return result
+
+
 def _serialize_plan(plan):
     """Serialize a WeeklyPlan object to dict for JSON."""
     if plan is None:
@@ -154,7 +167,9 @@ def _serialize_plan(plan):
                 "iron": meal.iron,
                 "prep_time": meal.recipe.prep_time_minutes,
                 "cook_time": meal.recipe.cook_time_minutes,
-                "total_time": meal.recipe.total_time_minutes
+                "total_time": meal.recipe.total_time_minutes,
+                "meal_source": meal.meal_source,
+                "linked_meal": meal.linked_meal,
             }
             for meal in plan.meals
         ],
@@ -396,7 +411,7 @@ def share_recipe():
 def generate():
     """Generate a new weekly meal plan."""
     logger.info("Generating weekly meal plan")
-    global current_plan, current_shopping_list
+    global current_plan, current_shopping_list, manual_plan
 
     recipes_file = Path(config.RECIPES_FILE)
     recipes = load_recipes(recipes_file)
@@ -407,7 +422,12 @@ def generate():
         daily_calorie_limit=config.DAILY_CALORIE_LIMIT,
         meal_calorie_splits=config.MEAL_CALORIE_SPLITS,
     )
-    current_plan = planner.generate_weekly_plan(recipes)
+    plan = planner.generate_weekly_plan(recipes)
+    if config.COOK_ONCE_PLANNING:
+        from app.planner import add_cook_once_slots
+        plan = add_cook_once_slots(plan, adult_portions=config.PACKED_LUNCH_PORTIONS)
+    current_plan = plan
+    manual_plan = _convert_plan_to_manual_plan(plan)
     raw_list = generate_shopping_list(current_plan)
     current_shopping_list = apply_exclusions(raw_list, load_excluded_ingredients())
     norm_task_id = _start_normalization()
@@ -444,9 +464,18 @@ def generate_with_schedule():
 
     # Build meal slots from schedule
     meal_slots = []
+    no_cook_slots: set[tuple[str, str]] = set()
     for day, day_meals in schedule.items():
-        for meal_type, servings in day_meals.items():
-            meal_slots.append((day, meal_type, servings))
+        for meal_type, slot_data in day_meals.items():
+            if isinstance(slot_data, dict):
+                servings = slot_data.get("servings", portions)
+                can_cook = slot_data.get("can_cook", True)
+            else:
+                servings = slot_data  # backward compat: plain float
+                can_cook = True
+            meal_slots.append((day, meal_type, servings, can_cook))
+            if not can_cook:
+                no_cook_slots.add((day, meal_type))
 
     # Validate enough recipes
     if len(recipes) < len(meal_slots):
@@ -458,7 +487,7 @@ def generate_with_schedule():
     manual_plan = {}
     used_recipes = set()
 
-    for day, meal_type, servings in meal_slots:
+    for day, meal_type, servings, can_cook in meal_slots:
         # Try to find suitable recipe for this meal type
         suitable = [r for r in recipes if meal_type in r.tags and r.id not in used_recipes]
 
@@ -468,6 +497,11 @@ def generate_with_schedule():
 
         if not suitable:
             return jsonify({"error": f"Not enough recipes for {day} {meal_type}"}), 400
+
+        if not can_cook:
+            reheatable = [r for r in suitable if r.reheats_well]
+            if reheatable:
+                suitable = reheatable
 
         recipe = random.choice(suitable)
         used_recipes.add(recipe.id)
@@ -482,6 +516,19 @@ def generate_with_schedule():
 
     # Regenerate plan from manual_plan with optional overrides
     _regenerate_from_manual_plan(recipes, calorie_limit=calorie_limit)
+
+    # Apply cook-once slots (leftovers + packed lunches)
+    if config.COOK_ONCE_PLANNING and current_plan:
+        from app.planner import add_cook_once_slots
+        current_plan = add_cook_once_slots(
+            current_plan,
+            adult_portions=config.PACKED_LUNCH_PORTIONS,
+            no_cook_slots=frozenset(no_cook_slots),
+        )
+        manual_plan = _convert_plan_to_manual_plan(current_plan)
+        raw_list = generate_shopping_list(current_plan)
+        current_shopping_list = apply_exclusions(raw_list, load_excluded_ingredients())
+
     norm_task_id = _start_normalization()
 
     return jsonify({
@@ -1348,7 +1395,9 @@ def get_current_plan():
                     "iron": meal.iron,
                     "prep_time": meal.recipe.prep_time_minutes,
                     "cook_time": meal.recipe.cook_time_minutes,
-                    "total_time": meal.recipe.total_time_minutes
+                    "total_time": meal.recipe.total_time_minutes,
+                    "meal_source": meal.meal_source,
+                    "linked_meal": meal.linked_meal,
                 }
                 for meal in current_plan.meals
             ],
@@ -1630,7 +1679,9 @@ def _regenerate_from_manual_plan(recipes: list[Recipe], calorie_limit: float | N
                     day=day,
                     meal_type=meal_type,
                     recipe=recipe,
-                    household_portions=servings
+                    household_portions=servings,
+                    meal_source=meal_data.get("meal_source", "fresh"),
+                    linked_meal=meal_data.get("linked_meal"),
                 ))
 
     # Create WeeklyPlan from manually planned meals

@@ -32,6 +32,9 @@ class ExtractedRecipeData:
     tags: list[str]
     language: str  # 'en' or 'fr'
     confidence: float  # 0-1
+    reheats_well: bool = False
+    stores_days: int = 0
+    packs_well_as_lunch: bool = False
 
 
 class AIRecipeExtractor:
@@ -71,7 +74,10 @@ OUTPUT FORMAT (JSON):
   "instructions": ["Step 1: ...", "Step 2: ..."],
   "tags": ["italian", "pasta", "quick"],
   "language": "en",
-  "confidence": 0.92
+  "confidence": 0.92,
+  "reheats_well": true,
+  "stores_days": 3,
+  "packs_well_as_lunch": false
 }
 
 INSTRUCTIONS:
@@ -83,6 +89,9 @@ INSTRUCTIONS:
 6. **Language**: Detect language - return "en" for English, "fr" for French
 7. **Confidence**: Score 0-1 based on clarity and completeness (0.9+ = very clear, 0.7-0.9 = good, 0.5-0.7 = ambiguous, <0.5 = very unclear)
 8. **Handle missing data**: Use null for numeric fields, empty arrays for lists, "Unknown Recipe" for missing name
+9. **reheats_well**: true for stews, curries, soups, pasta, rice dishes, casseroles. false for fried/crispy, fresh salads, poached eggs, dishes that degrade when reheated.
+10. **stores_days**: days the dish safely keeps refrigerated (0–5). 0 = must eat same day. Typical: soups/stews = 4, pasta = 3, stir-fry = 2, fresh fish = 1, salad = 0.
+11. **packs_well_as_lunch**: true if leftovers pack well in a container without quality loss (stews, grain bowls, pasta, wraps). false for burgers, fried items, fresh assembly dishes.
 
 EXAMPLES:
 
@@ -242,7 +251,10 @@ Now extract the recipe from the following text:"""
                 instructions=result.get("instructions", []),
                 tags=result.get("tags", []),
                 language=result.get("language", "en"),
-                confidence=result.get("confidence", 0.5)
+                confidence=result.get("confidence", 0.5),
+                reheats_well=result.get("reheats_well", False),
+                stores_days=result.get("stores_days", 0),
+                packs_well_as_lunch=result.get("packs_well_as_lunch", False),
             )
             logger.info(
                 "AI recipe extraction complete",

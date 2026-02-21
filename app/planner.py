@@ -40,6 +40,8 @@ class PlannedMeal:
     meal_type: str  # "lunch", "dinner", "breakfast", "snack"
     recipe: Recipe
     household_portions: float
+    meal_source: str = "fresh"       # "fresh" | "leftover" | "packed_lunch"
+    linked_meal: str | None = None   # "{day}:{meal_type}" of the source cook slot
 
     @property
     def portions(self) -> float:
@@ -443,3 +445,94 @@ class MealPlanner:
 
         logger.info("Weekly plan generated", extra={"total_meals": len(meals)})
         return WeeklyPlan(meals=meals, daily_calorie_limit=self.daily_calorie_limit)
+
+
+WEEKDAYS = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"}
+
+
+def add_cook_once_slots(
+    plan: WeeklyPlan,
+    adult_portions: float = 2.0,
+    no_cook_slots: frozenset[tuple[str, str]] = frozenset(),
+) -> WeeklyPlan:
+    """Post-process a WeeklyPlan by replacing/filling slots with leftover/packed-lunch meals.
+
+    Leftover dinners: REPLACE the next day's fresh dinner.  The default schedule
+    fills every dinner slot, so a "skip occupied" approach would never fire.
+    Derived slots are never overwritten — if day+1 is already a derived meal,
+    the search continues to day+2 (up to stores_days, max 2).
+
+    Packed lunches: only FILL empty slots (weekday lunch slots are empty by
+    default, so no replacement needed there).
+
+    Derived slots don't seed further derived slots: before processing a source
+    meal we confirm it is still "fresh" in new_meals (prevents cascading when an
+    earlier iteration already replaced it with a leftover).
+    """
+    new_meals = list(plan.meals)
+
+    def _find(day, meal_type):
+        return next((m for m in new_meals if m.day == day and m.meal_type == meal_type), None)
+
+    for meal in plan.meals:
+        if meal.meal_source != "fresh" or meal.meal_type != "dinner":
+            continue
+
+        # Skip if this meal was itself replaced by a leftover in an earlier iteration
+        current = _find(meal.day, "dinner")
+        if current is None or current.meal_source != "fresh":
+            continue
+
+        recipe = meal.recipe
+        source_key = f"{meal.day}:dinner"
+        try:
+            day_idx = DAYS_OF_WEEK.index(meal.day)
+        except ValueError:
+            continue
+
+        # Packed lunch: next weekday only, adults only — fill empty slots or replace no-cook fresh lunch
+        if recipe.packs_well_as_lunch and meal.day in WEEKDAYS:
+            if day_idx + 1 < len(DAYS_OF_WEEK):
+                next_day = DAYS_OF_WEEK[day_idx + 1]
+                if next_day in WEEKDAYS:
+                    existing_lunch = _find(next_day, "lunch")
+                    slot_is_no_cook = (next_day, "lunch") in no_cook_slots
+                    # Fill empty slot OR replace a no-cook fresh lunch
+                    if existing_lunch is None or (slot_is_no_cook and existing_lunch.meal_source == "fresh"):
+                        if existing_lunch is not None:
+                            new_meals.remove(existing_lunch)
+                        new_meals.append(PlannedMeal(
+                            day=next_day, meal_type="lunch", recipe=recipe,
+                            household_portions=adult_portions,
+                            meal_source="packed_lunch", linked_meal=source_key,
+                        ))
+
+        # Leftover dinner: replace next fresh dinner; skip over already-derived slots
+        if recipe.reheats_well and recipe.stores_days >= 1:
+            for offset in range(1, min(recipe.stores_days, 2) + 1):
+                target_idx = day_idx + offset
+                if target_idx >= len(DAYS_OF_WEEK):
+                    break
+                target_day = DAYS_OF_WEEK[target_idx]
+                target = _find(target_day, "dinner")
+
+                if target is not None and target.meal_source == "fresh":
+                    # Replace the independently-planned fresh dinner with a leftover
+                    new_meals.remove(target)
+                    new_meals.append(PlannedMeal(
+                        day=target_day, meal_type="dinner", recipe=recipe,
+                        household_portions=meal.household_portions,
+                        meal_source="leftover", linked_meal=source_key,
+                    ))
+                    break
+                elif target is None:
+                    # Empty slot — fill it
+                    new_meals.append(PlannedMeal(
+                        day=target_day, meal_type="dinner", recipe=recipe,
+                        household_portions=meal.household_portions,
+                        meal_source="leftover", linked_meal=source_key,
+                    ))
+                    break
+                # target is a derived slot — don't overwrite, try next offset
+
+    return WeeklyPlan(meals=new_meals, daily_calorie_limit=plan.daily_calorie_limit)

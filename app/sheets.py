@@ -51,6 +51,8 @@ class SheetsWriter:
         except WorksheetNotFound:
             return self.spreadsheet.add_worksheet(title=title, rows=rows, cols=cols)
 
+    TYPE_LABELS = {"fresh": "Fresh", "leftover": "Reheat", "packed_lunch": "Pack"}
+
     def write_meal_plan(self, weekly_plan: WeeklyPlan) -> None:
         """Write the weekly meal plan to the spreadsheet."""
         worksheet = self._get_or_create_worksheet(self.MEAL_PLAN_SHEET)
@@ -62,6 +64,7 @@ class SheetsWriter:
         headers = [
             "Day",
             "Meal",
+            "Type",
             "Portions",
             "Calories",
             "Protein (g)",
@@ -78,6 +81,7 @@ class SheetsWriter:
             rows.append([
                 meal.day,
                 meal.recipe.name,
+                self.TYPE_LABELS.get(getattr(meal, "meal_source", "fresh"), "Fresh"),
                 f"{meal.portions:.2f}",
                 f"{meal.calories:.0f}",
                 f"{meal.protein:.0f}",
@@ -106,7 +110,7 @@ class SheetsWriter:
         worksheet.update(rows, "A1")
 
         # Format header row
-        worksheet.format("A1:J1", {
+        worksheet.format("A1:K1", {
             "backgroundColor": {"red": 0.2, "green": 0.6, "blue": 0.8},
             "textFormat": {"bold": True, "foregroundColor": {"red": 1, "green": 1, "blue": 1}}
         })

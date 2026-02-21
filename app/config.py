@@ -98,4 +98,7 @@ MEAL_CALORIE_SPLITS: dict[str, float] = {
     "snack":     0.10,
 }
 
+COOK_ONCE_PLANNING: bool = True
+PACKED_LUNCH_PORTIONS: float = float(HOUSEHOLD_PORTIONS["adults"])  # 2.0
+
 DEFAULT_PER_PAGE = 24

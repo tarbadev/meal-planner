@@ -35,6 +35,10 @@ class ParsedRecipe:
     vitamin_c_per_serving: float | None = None
     calcium_per_serving: float | None = None
     iron_per_serving: float | None = None
+    # Cook-once planning flags
+    reheats_well: bool = False
+    stores_days: int = 0
+    packs_well_as_lunch: bool = False
     # Other fields
     tags: list[str] = None
     ingredients: list[dict] = None
@@ -91,7 +95,10 @@ class ParsedRecipe:
             "ingredients": self.ingredients,
             "instructions": self.instructions,
             "source_url": self.source_url,
-            "image_url": self.image_url
+            "image_url": self.image_url,
+            "reheats_well": self.reheats_well,
+            "stores_days": self.stores_days,
+            "packs_well_as_lunch": self.packs_well_as_lunch,
         }
 
 
