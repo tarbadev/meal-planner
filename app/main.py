@@ -170,6 +170,7 @@ def _serialize_plan(plan):
                 "total_time": meal.recipe.total_time_minutes,
                 "meal_source": meal.meal_source,
                 "linked_meal": meal.linked_meal,
+                "image_url": meal.recipe.image_url,
             }
             for meal in plan.meals
         ],
@@ -1398,6 +1399,7 @@ def get_current_plan():
                     "total_time": meal.recipe.total_time_minutes,
                     "meal_source": meal.meal_source,
                     "linked_meal": meal.linked_meal,
+                    "image_url": meal.recipe.image_url,
                 }
                 for meal in current_plan.meals
             ],
