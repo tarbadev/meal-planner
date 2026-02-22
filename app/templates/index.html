@@ -2230,18 +2230,22 @@
 
         // Schedule management functions
         function getCustomSchedule() {
+            // Lunches are reheat-only by default (no cooking equipment at work).
+            const defaultCanCook = mealType => mealType !== 'lunch';
+
             const stored = localStorage.getItem('customSchedule');
             if (stored) {
                 const schedule = JSON.parse(stored);
-                // Normalize old plain-number format to object format
+                // Normalise legacy formats:
+                //  - plain number  → {servings, can_cook}
+                //  - object missing can_cook → apply default
                 Object.keys(schedule).forEach(day => {
                     Object.keys(schedule[day]).forEach(mealType => {
-                        if (typeof schedule[day][mealType] === 'number') {
-                            const isWeekday = !['Saturday', 'Sunday'].includes(day);
-                            schedule[day][mealType] = {
-                                servings: schedule[day][mealType],
-                                can_cook: !(isWeekday && mealType === 'lunch'),
-                            };
+                        const val = schedule[day][mealType];
+                        if (typeof val === 'number') {
+                            schedule[day][mealType] = { servings: val, can_cook: defaultCanCook(mealType) };
+                        } else if (typeof val === 'object' && val.can_cook === undefined) {
+                            val.can_cook = defaultCanCook(mealType);
                         }
                     });
                 });
@@ -2251,11 +2255,10 @@
             const schedule = {};
             Object.keys(MEAL_SCHEDULE).forEach(day => {
                 schedule[day] = {};
-                const isWeekday = !['Saturday', 'Sunday'].includes(day);
                 MEAL_SCHEDULE[day].forEach(mealType => {
                     schedule[day][mealType] = {
                         servings: {{ household_portions }},
-                        can_cook: !(isWeekday && mealType === 'lunch'),
+                        can_cook: defaultCanCook(mealType),
                     };
                 });
             });
@@ -2299,8 +2302,7 @@
                         ${['breakfast', 'lunch', 'dinner', 'snack'].map(mealType => {
                             const slotData = schedule[day]?.[mealType];
                             const servings = slotData ? slotData.servings : '';
-                            const isWeekday = !['Saturday', 'Sunday'].includes(day);
-                            const canCook = slotData ? slotData.can_cook : !(isWeekday && mealType === 'lunch');
+                            const canCook = slotData ? slotData.can_cook : mealType !== 'lunch';
                             const isEnabled = servings !== '';
                             return `
                                 <div style="display: flex; align-items: center; gap: 0.75rem;">
@@ -3916,8 +3918,7 @@
                         ${['breakfast', 'lunch', 'dinner', 'snack'].map(mealType => {
                             const slotData = schedule[day]?.[mealType];
                             const servings = slotData ? slotData.servings : '';
-                            const isWeekday = !['Saturday', 'Sunday'].includes(day);
-                            const canCook = slotData ? slotData.can_cook : !(isWeekday && mealType === 'lunch');
+                            const canCook = slotData ? slotData.can_cook : mealType !== 'lunch';
                             const isEnabled = servings !== '';
                             return `
                                 <div style="display: flex; align-items: center; gap: 0.5rem;">

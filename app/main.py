@@ -502,8 +502,17 @@ def generate_with_schedule():
 
         if not can_cook:
             reheatable = [r for r in suitable if r.reheats_well]
+            if not reheatable:
+                # Tagged pool exhausted — widen to any unused reheatable recipe
+                reheatable = [r for r in recipes if r.reheats_well and r.id not in used_recipes]
             if reheatable:
                 suitable = reheatable
+            else:
+                logger.warning(
+                    "No reheatable recipes left for no-cook slot %s %s; "
+                    "falling back to any recipe",
+                    day, meal_type,
+                )
 
         recipe = random.choice(suitable)
         used_recipes.add(recipe.id)

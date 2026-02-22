@@ -497,23 +497,25 @@ def add_cook_once_slots(
 
         derived_count = 0  # track derived meals created for this source
 
-        # Packed lunch: next weekday only, adults only — fill empty slots or replace no-cook fresh lunch
-        if derived_count < max_derived and recipe.packs_well_as_lunch and meal.day in WEEKDAYS:
-            if day_idx + 1 < len(DAYS_OF_WEEK):
-                next_day = DAYS_OF_WEEK[day_idx + 1]
-                if next_day in WEEKDAYS:
-                    existing_lunch = _find(next_day, "lunch")
-                    slot_is_no_cook = (next_day, "lunch") in no_cook_slots
-                    # Fill empty slot OR replace a no-cook fresh lunch
-                    if existing_lunch is None or (slot_is_no_cook and existing_lunch.meal_source == "fresh"):
-                        if existing_lunch is not None:
-                            new_meals.remove(existing_lunch)
-                        new_meals.append(PlannedMeal(
-                            day=next_day, meal_type="lunch", recipe=recipe,
-                            household_portions=adult_portions,
-                            meal_source="packed_lunch", linked_meal=source_key,
-                        ))
-                        derived_count += 1
+        # Packed lunch: fill the next day's lunch slot.
+        # For no-cook slots: always derive from this dinner (bypass packs_well_as_lunch and
+        # weekday restrictions — the user literally cannot cook there).
+        # For regular slots: original behaviour — only weekday-to-weekday and packs_well flag.
+        if derived_count < max_derived and day_idx + 1 < len(DAYS_OF_WEEK):
+            next_day = DAYS_OF_WEEK[day_idx + 1]
+            slot_is_no_cook = (next_day, "lunch") in no_cook_slots
+            if slot_is_no_cook or (recipe.packs_well_as_lunch and meal.day in WEEKDAYS and next_day in WEEKDAYS):
+                existing_lunch = _find(next_day, "lunch")
+                # Fill empty slot OR replace a no-cook fresh lunch
+                if existing_lunch is None or (slot_is_no_cook and existing_lunch.meal_source == "fresh"):
+                    if existing_lunch is not None:
+                        new_meals.remove(existing_lunch)
+                    new_meals.append(PlannedMeal(
+                        day=next_day, meal_type="lunch", recipe=recipe,
+                        household_portions=adult_portions,
+                        meal_source="packed_lunch", linked_meal=source_key,
+                    ))
+                    derived_count += 1
 
         # Leftover dinner: replace next fresh dinner; skip over already-derived slots
         if derived_count < max_derived and recipe.reheats_well and recipe.stores_days >= 1:
