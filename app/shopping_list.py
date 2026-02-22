@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from rapidfuzz import fuzz
 
-from app.ingredient_normalizer import canonicalise_category
+from app.ingredient_normalizer import canonicalise_category, infer_category
 from app.planner import WeeklyPlan
 
 # Similarity threshold (0–100) for fuzzy name merging.  Items scoring at or
@@ -288,6 +288,8 @@ def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
             norm_unit = _normalize_unit(raw_unit)
             qty = ingredient.get("quantity", 0.0)
             category = canonicalise_category(ingredient.get("category", "other"))
+            if category == "other":
+                category = infer_category(name.lower())
 
             if key not in item_data:
                 item_data[key] = {

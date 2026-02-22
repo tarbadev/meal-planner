@@ -120,7 +120,7 @@ CATEGORY_KEYWORDS = {
         'pasta', 'spaghetti', 'penne', 'rigatoni', 'fettuccine', 'linguine',
         'macaroni', 'noodles', 'rice', 'basmati', 'jasmine', 'arborio', 'wild rice',
         'quinoa', 'couscous', 'bulgur', 'barley', 'oats', 'bread', 'baguette',
-        'roll', 'tortilla', 'pita', 'naan', 'flour', 'cornmeal', 'breadcrumbs',
+        'roll', 'bun', 'tortilla', 'pita', 'naan', 'flour', 'cornmeal', 'breadcrumbs',
         # French
         'pâtes', 'spaghetti', 'riz', 'quinoa', 'couscous', 'boulgour',
         'avoine', 'pain', 'farine', 'chapelure',
@@ -130,6 +130,7 @@ CATEGORY_KEYWORDS = {
         'cumin', 'coriander', 'turmeric', 'cinnamon', 'nutmeg', 'cloves',
         'cardamom', 'bay leaf', 'chili powder', 'curry powder', 'garam masala',
         'italian seasoning', 'herbs de provence', 'vanilla', 'extract',
+        'chipotle', 'ancho', 'smoked paprika', 'red pepper flakes',
         # French
         'sel', 'poivre', 'poivre noir', 'paprika', 'cumin', 'coriandre',
         'curcuma', 'cannelle', 'muscade', 'clou de girofle', 'feuille de laurier',
@@ -146,6 +147,7 @@ CATEGORY_KEYWORDS = {
         'beans', 'chickpeas', 'lentils', 'kidney beans', 'black beans',
         'white beans', 'pinto beans', 'nuts', 'almonds', 'walnuts', 'pecans',
         'cashews', 'peanuts', 'pine nuts', 'seeds', 'sesame seeds', 'pumpkin seeds',
+        'beer', 'wine', 'dressing', 'cocoa', 'chocolate',
         # French
         'huile', "huile d'olive", 'vinaigre', 'vinaigre balsamique', 'sauce soja',
         'miel', 'sirop', "sirop d'érable", 'sucre', 'sucre brun', 'confiture',
@@ -281,11 +283,16 @@ def infer_category(item: str) -> str:
 
     item_lower = item.lower()
 
-    # Check each category
+    # Use longest-match: a more specific keyword (longer string) takes priority
+    # over a shorter one that happens to be a substring of the ingredient name.
+    # e.g. "apple cider vinegar" matches 'apple cider vinegar' (pantry, 19 chars)
+    # over 'apple' (produce, 5 chars).
+    best_category = 'other'
+    best_len = 0
     for category, keywords in CATEGORY_KEYWORDS.items():
         for keyword in keywords:
-            if keyword in item_lower:
-                return category
+            if keyword in item_lower and len(keyword) > best_len:
+                best_len = len(keyword)
+                best_category = category
 
-    # Default to other if no match
-    return 'other'
+    return best_category
