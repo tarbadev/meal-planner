@@ -134,16 +134,21 @@ def _normalize_category(items: list[ShoppingListItem]) -> list[ShoppingListItem]
         if not entry.get("item"):
             continue
         norm_name = entry["item"].lower()
-        sources: list[str] = []
+        sources_map: dict[str, str] = {}  # id → name, deduplicates across merges
         for orig_name, orig_sources in orig:
             if rfuzz.WRatio(norm_name, orig_name) >= 65:
-                sources.extend(orig_sources)
+                for s in orig_sources:
+                    sources_map[s["id"]] = s["name"]
+        sources = sorted(
+            [{"name": name, "id": rid} for rid, name in sources_map.items()],
+            key=lambda x: x["name"],
+        )
         normalised.append(ShoppingListItem(
             item=entry["item"],
             quantity=entry.get("quantity"),
             unit=entry.get("unit", ""),
             category=entry.get("category", items[0].category),
-            sources=sorted(set(sources)),
+            sources=sources,
         ))
     return normalised
 

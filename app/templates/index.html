@@ -1238,13 +1238,40 @@
 
         .item-sources {
             font-size: 0.72rem;
+        }
+
+        .item-sources summary {
             color: var(--color-text-secondary, #888);
+            cursor: pointer;
+            list-style: none;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .shopping-item.checked .item-sources {
+        .item-sources summary::-webkit-details-marker { display: none; }
+
+        .sources-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            margin-top: 0.3rem;
+            padding-left: 0.5rem;
+            border-left: 2px solid var(--border);
+        }
+
+        .source-link {
+            font-size: 0.72rem;
+            color: var(--color-primary, #3b82f6);
+            text-decoration: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .source-link:hover { text-decoration: underline; }
+
+        .shopping-item.checked .item-sources summary {
             text-decoration: line-through;
         }
 
@@ -2959,8 +2986,13 @@
                                         <span class="item-text" onclick="editShoppingItem(${globalIndex})">
                                             ${item.quantity != null ? formatQty(item.quantity) + (item.unit ? ' ' + item.unit : '') + ' ' : ''}${item.item}
                                         </span>
-                                        ${item.sources && item.sources.length ? `<span class="item-sources">${item.sources.slice(0, 3).join(' · ')
-                                            }${item.sources.length > 3 ? ` · +${item.sources.length - 3} more` : ''}</span>` : ''}
+                                        ${item.sources && item.sources.length ? `
+                                        <details class="item-sources">
+                                            <summary>${item.sources.length} recipe${item.sources.length !== 1 ? 's' : ''}</summary>
+                                            <div class="sources-list">
+                                                ${item.sources.map(s => `<a class="source-link" href="/recipe/${s.id}" onclick="event.stopPropagation()">${s.name}</a>`).join('')}
+                                            </div>
+                                        </details>` : ''}
                                     </div>
                                     <div class="item-actions">
                                         <button class="item-action-btn" onclick="editShoppingItem(${globalIndex})" title="Edit">✏️</button>

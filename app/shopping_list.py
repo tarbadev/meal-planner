@@ -203,7 +203,7 @@ class ShoppingListItem:
     quantity: float | None  # None = buy it but no meaningful quantity
     unit: str
     category: str
-    sources: list[str] = None  # recipe names that use this ingredient
+    sources: list[dict] = None  # [{"name": str, "id": str}, …] sorted by name
 
     def __post_init__(self):
         if self.sources is None:
@@ -287,12 +287,12 @@ def _fuzzy_merge_items(item_data: dict[str, dict]) -> dict[str, dict]:
                 "category": src["category"],
                 "entries": list(src["entries"]),
                 "quantity_meaningless": src["quantity_meaningless"],
-                "sources": set(src["sources"]),
+                "sources": dict(src["sources"]),
             }
         else:
             result[canonical]["entries"].extend(src["entries"])
             result[canonical]["quantity_meaningless"] |= src["quantity_meaningless"]
-            result[canonical]["sources"] |= src["sources"]
+            result[canonical]["sources"].update(src["sources"])
 
     return result
 
@@ -329,10 +329,10 @@ def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
                     "category": category,
                     "entries": [],
                     "quantity_meaningless": False,
-                    "sources": set(),
+                    "sources": {},          # {recipe_id: recipe_name} for dedup
                 }
 
-            item_data[key]["sources"].add(meal.recipe.name)
+            item_data[key]["sources"][meal.recipe.id] = meal.recipe.name
 
             if norm_unit is None:
                 # "to taste" / "to serve" — mark as quantityless, don't accumulate
@@ -346,7 +346,10 @@ def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
     items: list[ShoppingListItem] = []
     for _key, data in item_data.items():
         display = data["display_name"]
-        sources = sorted(data["sources"])
+        sources = sorted(
+            [{"name": name, "id": rid} for rid, name in data["sources"].items()],
+            key=lambda x: x["name"],
+        )
         if data["quantity_meaningless"] and not data["entries"]:
             # Only "to taste" appearances — include item but no quantity
             items.append(ShoppingListItem(
