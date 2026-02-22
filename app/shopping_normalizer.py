@@ -19,6 +19,7 @@ from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from openai import OpenAI
+from rapidfuzz import fuzz as rfuzz
 
 import app.config as config
 from app.shopping_list import ShoppingList, ShoppingListItem
@@ -123,16 +124,28 @@ def _normalize_category(items: list[ShoppingListItem]) -> list[ShoppingListItem]
         temperature=0,
     )
     result = json.loads(response.choices[0].message.content)
-    return [
-        ShoppingListItem(
+
+    # Recover sources: the LLM may rename or merge items, so fuzzy-match each
+    # normalised name back to the original items and union their sources.
+    orig = [(item.item.lower(), item.sources) for item in items]
+
+    normalised = []
+    for entry in result.get("items", []):
+        if not entry.get("item"):
+            continue
+        norm_name = entry["item"].lower()
+        sources: list[str] = []
+        for orig_name, orig_sources in orig:
+            if rfuzz.WRatio(norm_name, orig_name) >= 65:
+                sources.extend(orig_sources)
+        normalised.append(ShoppingListItem(
             item=entry["item"],
             quantity=entry.get("quantity"),
             unit=entry.get("unit", ""),
             category=entry.get("category", items[0].category),
-        )
-        for entry in result.get("items", [])
-        if entry.get("item")
-    ]
+            sources=sorted(set(sources)),
+        ))
+    return normalised
 
 
 def llm_normalize(shopping_list: ShoppingList) -> ShoppingList:
