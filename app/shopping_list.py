@@ -1,4 +1,5 @@
 import logging
+import re
 import unicodedata
 from collections import defaultdict
 from dataclasses import dataclass
@@ -217,6 +218,23 @@ class ShoppingList:
         return dict(grouped)
 
 
+# Recipe-phase prefixes that the AI occasionally embeds in the ingredient name.
+_PHASE_PREFIX_RE = re.compile(
+    r"^\s*(?:to serve|for serving|to garnish|garnish|optional|for topping|to top)\s*:?\s*",
+    re.IGNORECASE,
+)
+
+
+def _clean_name(name: str) -> str:
+    """Strip recipe-phase prefixes from ingredient names.
+
+    Some AI extractions produce names like 'to serve: grated parmesan' or
+    'garnish: fresh herbs'.  Strip the prefix so the shopping list shows
+    the actual ingredient.
+    """
+    return _PHASE_PREFIX_RE.sub("", name).strip()
+
+
 def _normalize_name(name: str) -> str:
     """Return a canonical grouping key for an ingredient name.
 
@@ -289,7 +307,7 @@ def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
 
     for meal in weekly_plan.meals:
         for ingredient in meal.scaled_ingredients:
-            name = ingredient["item"]
+            name = _clean_name(ingredient["item"])
             key = _normalize_name(name)
             raw_unit = ingredient.get("unit", "")
             norm_unit = _normalize_unit(raw_unit)
@@ -328,9 +346,12 @@ def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
             ))
         else:
             for qty, unit in _combine_entries(data["entries"]):
+                # Unitless quantities below 0.5 are meaningless for shopping
+                # (e.g. 0.04 ketchup from a scaled-down serving count).
+                effective_qty = None if (unit == "" and qty < 0.5) else qty
                 items.append(ShoppingListItem(
                     item=display,
-                    quantity=qty,
+                    quantity=effective_qty,
                     unit=unit,
                     category=data["category"],
                 ))
