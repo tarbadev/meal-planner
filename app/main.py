@@ -91,7 +91,7 @@ def _norm_task_run(task_id: str, snapshot: ShoppingList) -> None:
                 "status": "done",
                 "created_at": _norm_tasks.get(task_id, {}).get("created_at", time.time()),
                 "items": [
-                    {"item": i.item, "quantity": i.quantity, "unit": i.unit, "category": i.category}
+                    {"item": i.item, "quantity": i.quantity, "unit": i.unit, "category": i.category, "sources": i.sources}
                     for i in result.items
                 ],
             }
@@ -1449,7 +1449,8 @@ def get_current_plan():
                     "item": item.item,
                     "quantity": round(item.quantity, 2) if item.quantity is not None else None,
                     "unit": item.unit,
-                    "category": item.category
+                    "category": item.category,
+                    "sources": item.sources,
                 }
                 for item in current_shopping_list.items
             ],
@@ -1458,7 +1459,8 @@ def get_current_plan():
                     {
                         "item": item.item,
                         "quantity": round(item.quantity, 2) if item.quantity is not None else None,
-                        "unit": item.unit
+                        "unit": item.unit,
+                        "sources": item.sources,
                     }
                     for item in items
                 ]

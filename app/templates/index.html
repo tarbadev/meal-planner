@@ -1224,9 +1224,28 @@
             text-decoration: line-through;
         }
 
-        .item-text {
+        .item-body {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            min-width: 0;
+        }
+
+        .item-text {
             color: var(--color-text);
+        }
+
+        .item-sources {
+            font-size: 0.72rem;
+            color: var(--color-text-secondary, #888);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .shopping-item.checked .item-sources {
+            text-decoration: line-through;
         }
 
         .item-actions {
@@ -2936,9 +2955,13 @@
                             return `
                                 <div class="shopping-item" data-index="${globalIndex}">
                                     <input type="checkbox" onchange="toggleShoppingItem(this)">
-                                    <span class="item-text" onclick="editShoppingItem(${globalIndex})">
-                                        ${item.quantity != null ? formatQty(item.quantity) + (item.unit ? ' ' + item.unit : '') + ' ' : ''}${item.item}
-                                    </span>
+                                    <div class="item-body">
+                                        <span class="item-text" onclick="editShoppingItem(${globalIndex})">
+                                            ${item.quantity != null ? formatQty(item.quantity) + (item.unit ? ' ' + item.unit : '') + ' ' : ''}${item.item}
+                                        </span>
+                                        ${item.sources && item.sources.length ? `<span class="item-sources">${item.sources.slice(0, 3).join(' · ')
+                                            }${item.sources.length > 3 ? ` · +${item.sources.length - 3} more` : ''}</span>` : ''}
+                                    </div>
                                     <div class="item-actions">
                                         <button class="item-action-btn" onclick="editShoppingItem(${globalIndex})" title="Edit">✏️</button>
                                         <button class="item-action-btn" onclick="deleteShoppingItem(${globalIndex})" title="Delete">🗑️</button>

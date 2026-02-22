@@ -203,6 +203,11 @@ class ShoppingListItem:
     quantity: float | None  # None = buy it but no meaningful quantity
     unit: str
     category: str
+    sources: list[str] = None  # recipe names that use this ingredient
+
+    def __post_init__(self):
+        if self.sources is None:
+            self.sources = []
 
 
 @dataclass
@@ -282,10 +287,12 @@ def _fuzzy_merge_items(item_data: dict[str, dict]) -> dict[str, dict]:
                 "category": src["category"],
                 "entries": list(src["entries"]),
                 "quantity_meaningless": src["quantity_meaningless"],
+                "sources": set(src["sources"]),
             }
         else:
             result[canonical]["entries"].extend(src["entries"])
             result[canonical]["quantity_meaningless"] |= src["quantity_meaningless"]
+            result[canonical]["sources"] |= src["sources"]
 
     return result
 
@@ -322,7 +329,10 @@ def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
                     "category": category,
                     "entries": [],
                     "quantity_meaningless": False,
+                    "sources": set(),
                 }
+
+            item_data[key]["sources"].add(meal.recipe.name)
 
             if norm_unit is None:
                 # "to taste" / "to serve" — mark as quantityless, don't accumulate
@@ -336,6 +346,7 @@ def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
     items: list[ShoppingListItem] = []
     for _key, data in item_data.items():
         display = data["display_name"]
+        sources = sorted(data["sources"])
         if data["quantity_meaningless"] and not data["entries"]:
             # Only "to taste" appearances — include item but no quantity
             items.append(ShoppingListItem(
@@ -343,6 +354,7 @@ def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
                 quantity=None,
                 unit="",
                 category=data["category"],
+                sources=sources,
             ))
         else:
             for qty, unit in _combine_entries(data["entries"]):
@@ -354,6 +366,7 @@ def generate_shopping_list(weekly_plan: WeeklyPlan) -> ShoppingList:
                     quantity=effective_qty,
                     unit=unit,
                     category=data["category"],
+                    sources=sources,
                 ))
 
     items.sort(key=lambda x: (x.category, x.item))
