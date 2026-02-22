@@ -25,6 +25,10 @@ logger = logging.getLogger(__name__)
 _VOLUME_TO_ML: dict[str, float] = {
     "ml": 1, "milliliter": 1, "milliliters": 1, "millilitre": 1, "millilitres": 1,
     # teaspoon — "t" is a common shorthand in recipes
+    # small amounts — dash ≈ 1/8 tsp, pinch ≈ 1/16 tsp
+    "dash": 0.616, "dashes": 0.616,
+    "pinch": 0.308, "pinches": 0.308,
+    # teaspoon — "t" is a common shorthand in recipes
     "t": 4.92892, "tsp": 4.92892, "teaspoon": 4.92892, "teaspoons": 4.92892,
     # tablespoon — "T" and "Tbsp" are common shorthands
     "T": 14.7868, "tbsp": 14.7868, "Tbsp": 14.7868, "tablespoon": 14.7868, "tablespoons": 14.7868,
@@ -91,6 +95,8 @@ def _unit_info(unit: str) -> tuple[str, float] | None:
 
 # Map shorthand abbreviations to canonical display names
 _UNIT_DISPLAY: dict[str, str] = {
+    "Dash": "dash", "dash": "dash", "dashes": "dash",
+    "Pinch": "pinch", "pinch": "pinch", "pinches": "pinch",
     "t": "tsp", "tsp": "tsp", "teaspoon": "tsp", "teaspoons": "tsp",
     "T": "tbsp", "Tbsp": "tbsp", "tbsp": "tbsp", "tablespoon": "tbsp", "tablespoons": "tbsp",
     "c": "cup", "cups": "cup",
@@ -109,7 +115,8 @@ _UNIT_DISPLAY: dict[str, str] = {
 
 # Units that convey no useful shopping quantity — ingredients with these
 # units will have quantity set to None (just "buy it").
-_QUANTITY_MEANINGLESS_UNITS = {"to taste", "to serve", "as needed", "as required", "au goût"}
+_QUANTITY_MEANINGLESS_UNITS = {"to taste", "to serve", "as needed", "as required", "au goût",
+                               "inch", "inches"}  # parse artifacts (e.g. "1 inch piece of ginger")
 
 
 def _normalize_unit(unit: str | None) -> str | None:
