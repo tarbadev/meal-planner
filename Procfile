@@ -1,1 +1,1 @@
-web: gunicorn --timeout 120 app.main:app
+web: uv run gunicorn app.main:app -k uvicorn.workers.UvicornWorker --timeout 120

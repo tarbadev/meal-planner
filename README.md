@@ -1,443 +1,337 @@
 # Meal Planner
 
-A local meal planning application that generates weekly meal plans from a recipe database and outputs to Google Sheets with shopping lists.
+A local meal planning application that generates weekly meal plans from a recipe database, tracks nutrition, and produces shopping lists with optional Google Sheets export.
 
 ## Features
 
 - Generate 7-day meal plans with no recipe repeats
+- Cook-once planning: automatically schedules leftovers and packed lunches
 - Automatic portion scaling for household size (default: 2.75 portions)
-- Nutrition tracking (calories, protein, carbs, fat)
-- **Automatic nutrition generation** from ingredients using USDA FoodData Central API
-- **Recipe import from URLs** with automatic parsing
-- **Instagram recipe import** with AI-powered extraction (English & French)
-- Automated shopping list generation with ingredient aggregation
-- Google Sheets integration for easy sharing
-- Web UI for easy access
-- Designed to run on Raspberry Pi
+- Nutrition tracking (calories, protein, carbs, fat, and micronutrients)
+- Automatic nutrition generation from ingredients via the USDA FoodData Central API
+- Recipe import from URLs, Instagram posts, images, and pasted text
+- AI-powered extraction using GPT-4o (English & French)
+- Shopping list generation with ingredient aggregation
+- Web UI for all operations
 
 ## Tech Stack
 
-- Python 3.11+
-- Flask (web framework)
-- Google Sheets API (gspread)
-- JSON file storage for recipes
+- Python 3.12+
+- FastAPI + Uvicorn
+- PostgreSQL (via SQLAlchemy 2.0 async + psycopg3)
+- Alembic for schema migrations
+- uv for dependency management
 
-## Quick Start
+---
 
-### 1. Clone and Setup
+## Local Setup
 
-```bash
-cd /path/to/meal-planner
-
-# Create virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### 2. Configure API Keys (REQUIRED)
-
-**The app will not start without these!**
+### 1. Install uv
 
 ```bash
-# 1. USDA API Key (for automatic nutrition generation)
-# Get your free API key from:
-# https://fdc.nal.usda.gov/api-key-signup.html
-export USDA_API_KEY='your-api-key-here'
+# macOS
+brew install uv
 
-# 2. OpenAI API Key (for Instagram recipe import)
-# Get your API key from:
-# https://platform.openai.com/api-keys
-export OPENAI_API_KEY='sk-your-api-key-here'
+# Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-See [SETUP.md](SETUP.md) for detailed configuration options.
-
-### 4. Run the App
+### 2. Install dependencies
 
 ```bash
-# Start the Flask server
-python -m flask --app app.main run --host=0.0.0.0 --port=5000
-
-# Access the web UI
-open http://localhost:5000
+uv sync --dev
 ```
 
-### 5. Generate a Meal Plan
+This creates a `.venv` and installs all runtime and dev dependencies from `uv.lock`.
 
-1. Open http://localhost:5000 in your browser
-2. Click "Generate New Weekly Plan"
-3. View your meal plan and shopping list
+### 3. Set up PostgreSQL
 
-## How Automatic Nutrition Generation Works
-
-When you import a recipe from a URL:
-- If the recipe already has nutrition data, it's preserved
-- If nutrition data is missing (common on many recipe sites), the app will:
-  - Look up each ingredient in the USDA database
-  - Calculate nutrition based on quantities
-  - Generate per-serving values
-  - Tag the recipe with "nutrition-generated" for your reference
-
-**Note**: The app will not start without a valid API key configured.
-
-## Google Sheets Setup (Optional)
-
-To enable Google Sheets integration:
-
-### 1. Create Google Cloud Project
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project
-3. Enable the Google Sheets API
-
-### 2. Create Service Account
-
-1. Go to "APIs & Services" > "Credentials"
-2. Click "Create Credentials" > "Service Account"
-3. Fill in the details and create
-4. Click on the created service account
-5. Go to "Keys" tab > "Add Key" > "Create New Key" > JSON
-6. Download the JSON file and save it as `credentials.json` in the project root
-
-### 3. Create and Share Spreadsheet
-
-1. Create a new Google Sheet
-2. Copy the spreadsheet ID from the URL:
-   - URL: `https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/edit`
-3. Share the spreadsheet with the service account email (found in `credentials.json`)
-   - Give it "Editor" permissions
-
-### 4. Configure the App
-
-Edit `app/config.py`:
-
-```python
-GOOGLE_SHEETS_ID = "your-spreadsheet-id-here"
-CREDENTIALS_FILE = "credentials.json"
-```
-
-### 5. Write to Sheets
-
-After generating a meal plan:
+Install PostgreSQL if you don't have it:
 
 ```bash
-curl -X POST http://localhost:5000/write-to-sheets
+# macOS
+brew install postgresql@17
+brew services start postgresql@17
+
+# Ubuntu / Debian
+sudo apt install postgresql
+sudo systemctl start postgresql
 ```
 
-Or use the web UI (if integrated).
+Create the database:
+
+```bash
+createdb mealplanner
+```
+
+### 4. Configure environment
+
+Copy the example file and fill in your values:
+
+```bash
+cp .env.example .env
+```
+
+Minimum required entries in `.env`:
+
+```dotenv
+DATABASE_URL=postgresql+psycopg://localhost/mealplanner
+USDA_API_KEY=your-usda-key-here
+OPENAI_API_KEY=sk-your-openai-key-here
+```
+
+- **USDA API key** — free, sign up at https://fdc.nal.usda.gov/api-key-signup.html
+- **OpenAI API key** — required for recipe import (URL, Instagram, image, text); get one at https://platform.openai.com/api-keys
+
+The app will refuse to start if either key is missing.
+
+### 5. Run database migrations
+
+```bash
+uv run alembic upgrade head
+```
+
+### 6. Seed the recipe database
+
+The repo ships with a pre-generated seed file containing ~850 recipes:
+
+```bash
+psql mealplanner -f scripts/seed_recipes.sql
+```
+
+To regenerate it from `data/recipes.json` (e.g. after editing recipes locally):
+
+```bash
+uv run python scripts/generate_seed_sql.py
+psql mealplanner -f scripts/seed_recipes.sql
+```
+
+### 7. Start the server
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+Open http://localhost:8000 in your browser.
+
+---
+
+## Running Tests
+
+Tests use an in-memory SQLite database — no PostgreSQL connection required.
+
+```bash
+# Run all tests
+uv run pytest
+
+# Run only unit tests (fast, no HTTP)
+uv run pytest tests/ --ignore=tests/integration
+
+# Run only integration tests (HTTP + DB)
+uv run pytest tests/integration/
+
+# Run with verbose output
+uv run pytest -v
+```
+
+---
 
 ## Configuration
 
-Edit `app/config.py` to customize:
+Edit `app/config.py` to customise household size, meal schedule, and calorie targets:
 
 ```python
-# Google Sheets
-GOOGLE_SHEETS_ID = "your-spreadsheet-id"
-CREDENTIALS_FILE = "credentials.json"
-
 # Household portions
 HOUSEHOLD_PORTIONS = {
     "adults": 2,
     "child_4y": 0.5,
-    "toddler": 0.25
+    "toddler": 0.25,
 }
-TOTAL_PORTIONS = 2.75  # Sum of above
+TOTAL_PORTIONS = 2.75
 
-# Meal planning
-MEALS_PER_WEEK = 7
-RECIPES_FILE = "data/recipes.json"
+# Meal schedule — which meal types are planned on each day
+MEAL_SCHEDULE = {
+    "Monday": ["dinner"],
+    ...
+    "Saturday": ["lunch", "dinner"],
+    "Sunday": ["lunch", "dinner"],
+}
+
+DAILY_CALORIE_LIMIT = 1600       # per person per day; None to disable
+COOK_ONCE_PLANNING = True        # schedule leftovers and packed lunches automatically
+COOK_ONCE_MAX_DERIVED = 2        # max re-uses per cooked batch
 ```
+
+---
 
 ## Project Structure
 
 ```
 meal-planner/
 ├── app/
-│   ├── __init__.py
-│   ├── config.py            # Configuration settings
-│   ├── main.py              # Flask app
-│   ├── recipes.py           # Recipe loading and validation
-│   ├── planner.py           # Meal planning logic
-│   ├── shopping_list.py     # Shopping list generation
-│   ├── sheets.py            # Google Sheets integration
+│   ├── main.py                  # FastAPI app, lifespan, router includes
+│   ├── config.py                # All configuration constants
+│   ├── logging_config.py        # Structured JSON logging setup
+│   ├── api/
+│   │   ├── pages.py             # GET /, /health, /share-recipe
+│   │   ├── recipes.py           # /api/recipes, /recipes, /recipe/<id>
+│   │   ├── planner.py           # /generate, /current-plan, /manual-plan/*
+│   │   ├── shopping.py          # /shopping-list/*, /excluded-ingredients
+│   │   └── import_routes.py     # /import-recipe, /import-recipe-text, /import-recipe-image
+│   ├── db/
+│   │   ├── engine.py            # Async engine, get_db dependency
+│   │   ├── models.py            # SQLAlchemy ORM models
+│   │   ├── crud.py              # Async CRUD helpers (used by routes)
+│   │   └── crud_sync.py         # Sync CRUD helpers (used by scripts)
+│   ├── planner.py               # Meal planning logic
+│   ├── recipes.py               # Recipe dataclass
+│   ├── shopping_list.py         # Shopping list generation
+│   ├── shopping_normalizer.py   # LLM-based ingredient normalisation
+│   ├── nutrition_generator.py   # USDA nutrition lookup
+│   ├── tag_inference.py         # AI tag suggestions
+│   ├── instagram_parser.py      # Instagram recipe extraction
+│   ├── recipe_parser.py         # URL recipe scraping
 │   └── templates/
-│       └── index.html       # Web UI
-├── data/
-│   └── recipes.json         # Recipe database (7 recipes)
+│       └── index.html           # Single-page web UI
+├── alembic/
+│   ├── env.py
+│   └── versions/
+│       └── 001_initial_schema.py
+├── scripts/
+│   ├── generate_seed_sql.py     # Regenerates seed_recipes.sql from data/recipes.json
+│   ├── seed_recipes.sql         # Pre-generated seed data (~850 recipes)
+│   ├── import_spoonacular_daily.py
+│   ├── import_themealdb.py
+│   └── migrate_nutrition.py
 ├── tests/
-│   ├── test_recipes.py
+│   ├── conftest.py
 │   ├── test_planner.py
+│   ├── test_cook_once.py
 │   ├── test_shopping_list.py
-│   └── test_sheets.py
-├── app/
-│   ├── config.py            # Configuration
-├── requirements.txt
-└── README.md
+│   └── integration/
+│       ├── test_health.py
+│       ├── test_recipes.py
+│       ├── test_planner.py
+│       ├── test_manual_plan.py
+│       ├── test_shopping.py
+│       └── test_import.py
+├── data/
+│   └── recipes.json             # Source of truth for seed data
+├── pyproject.toml
+├── uv.lock
+└── .env.example
 ```
 
-## Adding Recipes
-
-Edit `data/recipes.json` to add new recipes:
-
-```json
-{
-  "recipes": [
-    {
-      "id": "unique-recipe-id",
-      "name": "Recipe Name",
-      "servings": 4,
-      "prep_time_minutes": 15,
-      "cook_time_minutes": 30,
-      "calories_per_serving": 450,
-      "protein_per_serving": 25,
-      "carbs_per_serving": 55,
-      "fat_per_serving": 12,
-      "tags": ["italian", "kid-friendly"],
-      "ingredients": [
-        {
-          "item": "ground beef",
-          "quantity": 500,
-          "unit": "g",
-          "category": "meat"
-        }
-      ]
-    }
-  ]
-}
-```
+---
 
 ## API Endpoints
 
-- `GET  /` - Web UI
-- `POST /generate` - Generate new weekly plan
-- `GET  /recipes` - List all available recipes
-- `GET  /recipes/<id>` - Get a specific recipe
-- `PUT  /recipes/<id>` - Update a recipe
-- `POST /import-recipe` - Import recipe from URL with automatic nutrition generation
-- `POST /import-recipe-text` - Import recipe from text (Instagram fallback)
-- `GET  /current-plan` - Get current weekly plan with shopping list
-- `POST /write-to-sheets` - Write current plan to Google Sheets
-
-### Importing Recipes
-
-#### From Recipe Websites
-
-Import a recipe from any URL:
-
-```bash
-curl -X POST http://localhost:5000/import-recipe \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://example.com/recipe"}'
-```
-
-The importer supports:
-- Schema.org Recipe markup (most recipe sites)
-- WP Recipe Maker plugin
-- Generic HTML parsing (fallback)
-
-Nutrition will be automatically generated if missing (requires USDA API key).
-
-#### From Instagram Posts
-
-Import recipes directly from Instagram posts or reels using AI extraction:
-
-```bash
-curl -X POST http://localhost:5000/import-recipe \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://www.instagram.com/p/ABC123/"}'
-```
-
-**Features:**
-- AI-powered extraction using GPT-4o
-- **Automatically extracts from captions AND owner comments** (up to 50 comments)
-- Supports both English and French recipes
-- Automatic ingredient parsing (quantity, unit, item)
-- Nutrition generation from USDA database
-- Confidence scoring (warns if < 0.7)
-
-**Note:** Many creators post full recipes in their first comment - this is handled automatically!
-
-**Cost**: ~$0.015 per recipe import
-
-**Manual Paste Fallback**: If Instagram blocks automated access, use the text import endpoint:
-
-```bash
-curl -X POST http://localhost:5000/import-recipe-text \
-  -H "Content-Type: application/json" \
-  -d '{
-    "text": "Paste Instagram post description here...",
-    "language": "auto"
-  }'
-```
-
-**Setup for Instagram (Optional)**:
-```bash
-# For automatic Instagram fetching, create a session:
-instaloader --login=your_username
-
-# Set session file path (optional):
-export INSTAGRAM_SESSION_FILE=~/.instaloader-session
-```
-
-## Running Tests
-
-```bash
-# Activate virtual environment
-source .venv/bin/activate
-
-# Run all tests
-python -m pytest tests/ -v
-
-# Run specific test file
-python -m pytest tests/test_planner.py -v
-
-# Run with coverage
-python -m pytest tests/ --cov=app --cov-report=html
-```
-
-Current test coverage: 40 tests passing
-
-## Development
-
-### Adding a New Feature
-
-1. Write tests first (TDD approach)
-2. Implement the feature
-3. Run tests to verify
-4. Commit with a descriptive message
-
-### Code Style
-
-- Use type hints throughout
-- Keep functions small and testable
-- Follow PEP 8 guidelines
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/` | Web UI |
+| `GET` | `/health` | DB health check |
+| `GET` | `/api/recipes` | Paginated recipe list (search, tags, sort, calorie/time filters) |
+| `GET` | `/recipes` | Full recipe list (for plan generation) |
+| `GET` | `/recipes/{id}` | Get a single recipe |
+| `PUT` | `/recipes/{id}` | Update a recipe |
+| `POST` | `/recipes` | Create a recipe |
+| `POST` | `/generate` | Generate a new weekly plan |
+| `POST` | `/generate-with-schedule` | Generate with custom schedule and servings |
+| `GET` | `/current-plan` | Get the current plan + shopping list |
+| `PUT` | `/current-plan/meals` | Swap a meal slot |
+| `POST` | `/manual-plan/add-meal` | Add a meal to the plan |
+| `POST` | `/manual-plan/remove-meal` | Remove a meal from the plan |
+| `POST` | `/manual-plan/update-servings` | Change servings for a meal |
+| `POST` | `/manual-plan/regenerate-meal` | Re-roll a single meal slot |
+| `POST` | `/manual-plan/clear` | Clear the current plan |
+| `POST` | `/shopping-list/update-item` | Edit a shopping list item |
+| `POST` | `/shopping-list/delete-item` | Remove a shopping list item |
+| `POST` | `/shopping-list/add-item` | Add an item manually |
+| `GET` | `/excluded-ingredients` | Get excluded ingredient list |
+| `POST` | `/excluded-ingredients` | Update excluded ingredient list |
+| `POST` | `/import-recipe` | Import from URL or Instagram |
+| `POST` | `/import-recipe-text` | Import from pasted text |
+| `POST` | `/import-recipe-image` | Import from photo |
+---
 
 ## Raspberry Pi Deployment
 
-### 1. Install on Pi
+### Install
 
 ```bash
-# SSH into your Pi
-ssh pi@raspberrypi.local
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Clone the repository
+# Clone and install deps
 git clone <your-repo-url> meal-planner
 cd meal-planner
+uv sync
 
-# Setup virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+# Install and start PostgreSQL
+sudo apt install postgresql
+sudo systemctl enable --now postgresql
+sudo -u postgres createdb mealplanner
 
-# Copy credentials if using Google Sheets
-scp credentials.json pi@raspberrypi.local:~/meal-planner/
+# Configure
+cp .env.example .env
+# Edit .env with your DATABASE_URL, USDA_API_KEY, OPENAI_API_KEY
+
+# Run migrations and seed
+uv run alembic upgrade head
+psql mealplanner -f scripts/seed_recipes.sql
 ```
 
-### 2. Create Systemd Service
+### Systemd service
 
 Create `/etc/systemd/system/meal-planner.service`:
 
 ```ini
 [Unit]
-Description=Meal Planner Flask App
-After=network.target
+Description=Meal Planner
+After=network.target postgresql.service
 
 [Service]
 User=pi
 WorkingDirectory=/home/pi/meal-planner
-Environment="PATH=/home/pi/meal-planner/.venv/bin"
-Environment="USDA_API_KEY=your-api-key-here"
-ExecStart=/home/pi/meal-planner/.venv/bin/python -m flask --app app.main run --host=0.0.0.0 --port=5000
+EnvironmentFile=/home/pi/meal-planner/.env
+ExecStart=/home/pi/meal-planner/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-**Note**: Replace `your-api-key-here` with your actual USDA API key for automatic nutrition generation.
-
-### 3. Enable and Start Service
-
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable meal-planner
-sudo systemctl start meal-planner
+sudo systemctl enable --now meal-planner
 
-# Check status
+# Check status / logs
 sudo systemctl status meal-planner
-
-# View logs
 sudo journalctl -u meal-planner -f
 ```
 
-### 4. Access from Local Network
+Access from any device on your network at `http://<pi-ip>:8000`.
 
-Find your Pi's IP address:
-
-```bash
-hostname -I
-```
-
-Access from any device on your network:
-```
-http://<pi-ip-address>:5000
-```
+---
 
 ## Troubleshooting
 
-### Google Sheets Authentication Error
+**App won't start — missing API key**
+```
+RuntimeError: USDA_API_KEY environment variable is required.
+```
+Set the variable in your `.env` file or shell environment.
 
-- Verify `credentials.json` is in the project root
-- Check that the spreadsheet is shared with the service account email
-- Ensure the spreadsheet ID in `app/config.py` is correct
+**Database connection error**
+```
+sqlalchemy.exc.OperationalError: connection refused
+```
+Make sure PostgreSQL is running (`brew services start postgresql@17` on macOS) and the `DATABASE_URL` in `.env` is correct.
 
-### No Recipes Found
-
-- Verify `data/recipes.json` exists and is valid JSON
-- Check that the path in `app/config.py` is correct
-
-### Port Already in Use
-
+**Port already in use**
 ```bash
-# Find process using port 5000
-lsof -i :5000
-
-# Kill the process
-kill -9 <PID>
-
-# Or use a different port
-python -m flask --app app.main run --port=5001
+lsof -i :8000   # find what's using the port
+# or start on a different port:
+uv run uvicorn app.main:app --port 8001
 ```
 
-## Future Enhancements
-
-See `meal-planner-spec.md` for planned features:
-
-- SQLite database for recipes
-- Recipe CRUD in web UI (edit, delete)
-- Nutrition targets/constraints
-- Meal variety optimization
-- Prep time constraints
-- Leftover planning
-- Cost tracking
-- Manual ingredient-to-USDA food matching UI
-- Nutrition confidence indicators in UI
-
-## License
-
-MIT License - feel free to use and modify!
-
-## Contributing
-
-Contributions welcome! Please:
-
-1. Write tests for new features
-2. Follow existing code style
-3. Update documentation
-4. Submit a pull request
-
-## Support
-
-For issues and questions, please open an issue on GitHub.

@@ -22,9 +22,10 @@ import time
 import requests
 
 from app import config
+from app.db.crud_sync import get_recipes, get_session, upsert_recipe
 from app.nutrition_generator import NutritionGenerator
 from app.recipe_parser import ParsedRecipe, generate_recipe_id
-from app.recipes import Recipe, load_recipes, save_recipes
+from app.recipes import Recipe
 from app.tag_inference import TagInferencer
 
 
@@ -233,7 +234,7 @@ def enhance_tags(parsed_recipe, tag_inferencer):
     )
 
 
-def backfill_existing_nutrition(existing_recipes, recipes_file, limit=None):
+def backfill_existing_nutrition(existing_recipes, db, limit=None):
     """Backfill nutrition for existing recipes missing nutrition data."""
     print("=" * 70)
     print("Backfilling nutrition for existing recipes...")
@@ -301,10 +302,14 @@ def backfill_existing_nutrition(existing_recipes, recipes_file, limit=None):
             print(f"   ❌ Error: {e}")
             failed_count += 1
 
-    # Save updated recipes
+    # Save updated recipes to DB
     print()
-    print("💾 Saving updated recipes...", flush=True)
-    save_recipes(recipes_file, existing_recipes)
+    print("💾 Saving updated recipes to DB...", flush=True)
+    for recipe in recipes_to_fix:
+        try:
+            upsert_recipe(db, recipe, config.DEFAULT_HOUSEHOLD_ID)
+        except Exception as e:
+            print(f"   ❌ Failed to save {recipe.name}: {e}")
 
     print()
     print("=" * 70)
@@ -349,12 +354,10 @@ def main():
     print("=" * 70)
     print()
 
-    # Load config
-    recipes_file = Path(config.RECIPES_FILE)
-
-    # Load existing recipes
-    print(f"📁 Loading existing recipes from: {recipes_file}", flush=True)
-    existing_recipes = load_recipes(recipes_file)
+    # Load existing recipes from DB
+    db = get_session()
+    print("📁 Loading existing recipes from DB...", flush=True)
+    existing_recipes = get_recipes(db, config.DEFAULT_HOUSEHOLD_ID)
     existing_ids = {r.id for r in existing_recipes}
     existing_names = {r.name.lower() for r in existing_recipes}
     print(f"✅ Found {len(existing_recipes)} existing recipes")
@@ -367,7 +370,8 @@ def main():
 
     # Backfill mode: regenerate nutrition for existing recipes
     if args.backfill:
-        backfill_existing_nutrition(existing_recipes, recipes_file, args.limit)
+        backfill_existing_nutrition(existing_recipes, db, args.limit)
+        db.close()
         return
 
     # Fetch all TheMealDB recipes
@@ -435,7 +439,8 @@ def main():
             recipe_dict = parsed_recipe.to_recipe_dict(recipe_id)
             new_recipe = Recipe.from_dict(recipe_dict)
 
-            # Add to list
+            # Persist to DB and add to in-memory list
+            upsert_recipe(db, new_recipe, config.DEFAULT_HOUSEHOLD_ID)
             existing_recipes.append(new_recipe)
             imported_count += 1
 
@@ -450,10 +455,10 @@ def main():
             failed_count += 1
             continue
 
-    # Save all recipes
+    # Save all recipes to DB
     print("=" * 60)
-    print("Saving recipes to file...")
-    save_recipes(recipes_file, existing_recipes)
+    print("Saving recipes to DB...")
+    db.close()
     print(f"✅ Saved {len(existing_recipes)} total recipes")
     print()
 

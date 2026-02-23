@@ -1,51 +1,18 @@
 import os
 import secrets
-import sys
 
-GOOGLE_SHEETS_ID = "your-spreadsheet-id"
-
-# Flask secret key — used for session signing and CSRF token generation.
+# Secret key — used for session signing.
 # Set SECRET_KEY in the environment for production; a random key is
 # generated on startup as a safe fallback (sessions won't survive restarts).
 SECRET_KEY = os.environ.get("SECRET_KEY", secrets.token_hex(32))
-CREDENTIALS_FILE = "credentials.json"
-
-# Check if we're running in a test environment
-def _is_testing():
-    """Check if code is running under pytest."""
-    return "pytest" in sys.modules or "PYTEST_CURRENT_TEST" in os.environ
 
 # USDA FoodData Central API key (REQUIRED for nutrition generation)
 # Get your free API key at: https://fdc.nal.usda.gov/api-key-signup.html
-USDA_API_KEY = os.environ.get("USDA_API_KEY", "test-key" if _is_testing() else None)
-
-if not USDA_API_KEY and not _is_testing():
-    print("\n" + "=" * 70, file=sys.stderr)
-    print("ERROR: USDA_API_KEY environment variable is required", file=sys.stderr)
-    print("=" * 70, file=sys.stderr)
-    print("\nThe USDA API key is required for automatic nutrition generation.", file=sys.stderr)
-    print("Get your free API key at: https://fdc.nal.usda.gov/api-key-signup.html", file=sys.stderr)
-    print("\nThen set the environment variable:", file=sys.stderr)
-    print("  export USDA_API_KEY='your-api-key-here'", file=sys.stderr)
-    print("\nOr add it to a .env file and load it before starting the app.", file=sys.stderr)
-    print("=" * 70 + "\n", file=sys.stderr)
-    sys.exit(1)
+USDA_API_KEY = os.environ.get("USDA_API_KEY")
 
 # OpenAI API key (REQUIRED for Instagram recipe import)
 # Get your API key at: https://platform.openai.com/api-keys
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "test-key" if _is_testing() else None)
-
-if not OPENAI_API_KEY and not _is_testing():
-    print("\n" + "=" * 70, file=sys.stderr)
-    print("ERROR: OPENAI_API_KEY environment variable is required", file=sys.stderr)
-    print("=" * 70, file=sys.stderr)
-    print("\nThe OpenAI API key is required for Instagram recipe imports.", file=sys.stderr)
-    print("Get your API key at: https://platform.openai.com/api-keys", file=sys.stderr)
-    print("\nThen set the environment variable:", file=sys.stderr)
-    print("  export OPENAI_API_KEY='sk-...'", file=sys.stderr)
-    print("\nOr add it to a .env file and load it before starting the app.", file=sys.stderr)
-    print("=" * 70 + "\n", file=sys.stderr)
-    sys.exit(1)
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 # Instagram session file (optional, for automatic fetching)
 INSTAGRAM_SESSION_FILE = os.environ.get("INSTAGRAM_SESSION_FILE")
@@ -62,6 +29,22 @@ HOUSEHOLD_PORTIONS = {
 TOTAL_PORTIONS = 2.75  # Sum of above
 MEALS_PER_WEEK = 7
 RECIPES_FILE = "data/recipes.json"
+
+# Database configuration
+# Railway (and some other hosts) provide postgresql:// without a driver specifier.
+# SQLAlchemy would route that to psycopg2, so we normalise to psycopg3 explicitly.
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    "postgresql+psycopg://localhost/mealplanner"
+)
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
+
+# Default household UUID — created at startup if it doesn't exist.
+# All data belongs to this household until multi-user support is added.
+DEFAULT_HOUSEHOLD_ID = os.environ.get(
+    "DEFAULT_HOUSEHOLD_ID", "00000000-0000-0000-0000-000000000001"
+)
 
 # Meal schedule configuration
 # Default: Dinners on weekdays, Lunch + Dinner on weekends (9 meals total)
