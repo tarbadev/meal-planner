@@ -23,8 +23,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import requests
 
 from app import config
+from app.db.crud_sync import get_recipes, get_session, upsert_recipe
 from app.recipe_parser import ParsedRecipe, generate_recipe_id
-from app.recipes import Recipe, load_recipes, save_recipes
+from app.recipes import Recipe
 from app.tag_inference import TagInferencer
 
 logging.basicConfig(
@@ -205,7 +206,6 @@ def main():
         return
 
     api_key = config.SPOONACULAR_API_KEY
-    recipes_file = Path(config.RECIPES_FILE)
 
     # ---- Load persistent state ----
     state = load_state()
@@ -218,8 +218,9 @@ def main():
     # Per-search-key offset tracking: {"american|main course|": 200, ...}
     search_offsets: dict[str, int] = state.get("search_offsets", {})
 
-    # ---- Load recipes ----
-    existing_recipes = load_recipes(recipes_file)
+    # ---- Load recipes from DB ----
+    db = get_session()
+    existing_recipes = get_recipes(db, config.DEFAULT_HOUSEHOLD_ID)
     existing_ids = {r.id for r in existing_recipes}
     existing_names = {r.name.lower() for r in existing_recipes}
     logger.info("Loaded existing recipe DB", extra={"recipe_count": len(existing_recipes), "tracked_ids": len(imported_ids)})
@@ -346,6 +347,7 @@ def main():
                     existing_names.add(name.lower())
 
                     new_recipe = Recipe.from_dict(parsed.to_recipe_dict(recipe_id))
+                    upsert_recipe(db, new_recipe, config.DEFAULT_HOUSEHOLD_ID)
                     existing_recipes.append(new_recipe)
                     imported_ids.add(spoonacular_id)
                     imported_count += 1
@@ -372,11 +374,10 @@ def main():
 
         print()
 
-    # ---- Save everything ----
+    # ---- Save state (recipes already persisted per-recipe above) ----
     print("=" * 70)
-    print("Saving…")
-
-    save_recipes(recipes_file, existing_recipes)
+    print("Saving state…")
+    db.close()
 
     state["imported_ids"]  = list(imported_ids)
     state["variety_state"] = variety

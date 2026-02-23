@@ -12,7 +12,6 @@ worker long enough to trigger SIGABRT.
 
 import json
 import logging
-import os
 import re
 import time
 from collections import defaultdict
@@ -25,10 +24,6 @@ import app.config as config
 from app.shopping_list import ShoppingList, ShoppingListItem
 
 logger = logging.getLogger(__name__)
-
-EXCLUDED_INGREDIENTS_FILE = "data/excluded_ingredients.json"
-
-DEFAULT_EXCLUDED_INGREDIENTS = ["water", "salt", "ice"]
 
 _NORMALIZE_SYSTEM_PROMPT = """\
 You are normalizing a grocery shopping list for a family meal planner.
@@ -63,22 +58,6 @@ RULES:
 Return ONLY valid JSON in this exact format (no markdown, no extra keys):
 {"items": [{"item": string, "quantity": number|null, "unit": string, "category": string}]}
 """
-
-
-def load_excluded_ingredients() -> list[str]:
-    """Return the user-customized excluded ingredients, or defaults."""
-    try:
-        with open(EXCLUDED_INGREDIENTS_FILE) as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return DEFAULT_EXCLUDED_INGREDIENTS.copy()
-
-
-def save_excluded_ingredients(items: list[str]) -> None:
-    """Persist the excluded ingredients list."""
-    os.makedirs(os.path.dirname(EXCLUDED_INGREDIENTS_FILE), exist_ok=True)
-    with open(EXCLUDED_INGREDIENTS_FILE, "w") as f:
-        json.dump(items, f, indent=2)
 
 
 def apply_exclusions(shopping_list: ShoppingList, excluded: list[str]) -> ShoppingList:

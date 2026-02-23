@@ -13,7 +13,6 @@
     <meta name="apple-mobile-web-app-title" content="Meals">
 
     <!-- CSRF token for AJAX requests -->
-    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="/static/manifest.json">
@@ -2217,14 +2216,7 @@
         let currentPlanData = {% if current_plan %}{{ current_plan | tojson }}{% else %}null{% endif %};
         let currentShoppingList = {% if current_shopping_list %}{{ current_shopping_list.items | tojson }}{% else %}[]{% endif %};
 
-        // CSRF-aware fetch: automatically adds X-CSRFToken header to all
-        // state-changing requests (POST, PUT, PATCH, DELETE).
         function csrfFetch(url, options = {}) {
-            const method = (options.method || 'GET').toUpperCase();
-            if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
-                const token = document.querySelector('meta[name="csrf-token"]')?.content || '';
-                options.headers = { 'X-CSRFToken': token, ...options.headers };
-            }
             return fetch(url, options);
         }
 

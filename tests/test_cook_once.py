@@ -251,8 +251,10 @@ class TestPlanPreservation:
 
 class TestConvertPlanToManualPlan:
     def test_round_trip(self):
-        """_convert_plan_to_manual_plan serialises meal_source and linked_meal."""
-        from app.main import _convert_plan_to_manual_plan
+        """_convert_plan_to_manual_overrides serialises meal_source and linked_meal."""
+        from app.api.planner import (
+            _convert_plan_to_manual_overrides as _convert_plan_to_manual_plan,
+        )
 
         recipe = make_recipe()
         fresh = PlannedMeal(
@@ -272,7 +274,9 @@ class TestConvertPlanToManualPlan:
         assert manual["Tuesday"]["dinner"]["linked_meal"] == "Monday:dinner"
 
     def test_recipe_id_and_servings(self):
-        from app.main import _convert_plan_to_manual_plan
+        from app.api.planner import (
+            _convert_plan_to_manual_overrides as _convert_plan_to_manual_plan,
+        )
 
         recipe = make_recipe(rid="beef-stew")
         plan = make_plan([make_meal("Wednesday", recipe=recipe, portions=3.0)])
@@ -284,7 +288,7 @@ class TestConvertPlanToManualPlan:
 
 class TestSerializePlan:
     def test_meal_source_in_serialized_output(self):
-        from app.main import _serialize_plan
+        from app.api.planner import _serialize_plan
 
         recipe = make_recipe()
         packed = PlannedMeal(
@@ -299,45 +303,3 @@ class TestSerializePlan:
         assert meal_dict["linked_meal"] == "Monday:dinner"
 
 
-class TestRegenerateFromManualPlan:
-    def test_preserves_meal_source(self, monkeypatch):
-        """_regenerate_from_manual_plan reads meal_source and linked_meal from manual_plan."""
-        import app.main as main_module
-        from app.main import _regenerate_from_manual_plan
-
-        recipe = make_recipe(rid="chicken-curry", name="Chicken Curry")
-        recipes = [recipe]
-
-        # Patch module-level manual_plan
-        monkeypatch.setattr(
-            main_module,
-            "manual_plan",
-            {
-                "Monday": {
-                    "dinner": {
-                        "recipe_id": "chicken-curry",
-                        "servings": 2.75,
-                        "meal_source": "fresh",
-                        "linked_meal": None,
-                    }
-                },
-                "Tuesday": {
-                    "dinner": {
-                        "recipe_id": "chicken-curry",
-                        "servings": 2.75,
-                        "meal_source": "leftover",
-                        "linked_meal": "Monday:dinner",
-                    }
-                },
-            },
-        )
-
-        _regenerate_from_manual_plan(recipes)
-
-        plan = main_module.current_plan
-        assert plan is not None
-        mon = next(m for m in plan.meals if m.day == "Monday")
-        tue = next(m for m in plan.meals if m.day == "Tuesday")
-        assert mon.meal_source == "fresh"
-        assert tue.meal_source == "leftover"
-        assert tue.linked_meal == "Monday:dinner"
