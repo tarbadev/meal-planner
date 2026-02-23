@@ -1,9 +1,6 @@
-[build]
-builder = "NIXPACKS"
-
 [deploy]
-startCommand = "gunicorn --timeout 120 app.main:app"
-healthcheckPath = "/"
+startCommand = "uv run gunicorn app.main:app -k uvicorn.workers.UvicornWorker --timeout 120"
+healthcheckPath = "/health"
 healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
 maxRestartCount = 10

@@ -1,35 +1,46 @@
-"""
-Centralised logging configuration.
+"""Centralised logging configuration.
 
-Sets up structured logging that is natively compatible with Sentry's Python SDK.
-Call `configure_logging()` once at app startup. Each module should then use:
+Emits structured JSON log lines using python-json-logger so that log
+aggregators (Datadog, CloudWatch, Splunk, etc.) can parse and index them
+without regex extraction.
+
+Call `configure_logging()` once at app startup. Each module then uses:
 
     import logging
     logger = logging.getLogger(__name__)
 
-Sentry integration (when added later) will automatically capture ERROR+ records
-and attach breadcrumbs for INFO/WARNING records with zero extra code changes.
+Sentry integration (sentry-sdk[fastapi]) is automatic — it captures
+ERROR+ records and attaches breadcrumbs for INFO/WARNING with zero
+additional configuration.
 """
 
 import logging
 import sys
 
+from pythonjsonlogger.json import JsonFormatter
+
 
 def configure_logging(level: str = "INFO") -> None:
-    """Configure root logger with a structured formatter."""
-    fmt = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
-    datefmt = "%Y-%m-%dT%H:%M:%S"
+    """Configure root logger with a structured JSON formatter."""
+    try:
+        formatter: logging.Formatter = JsonFormatter(
+            "%(asctime)s %(levelname)s %(name)s %(message)s"
+        )
+    except ImportError:
+        # Fall back to plain text if pythonjsonlogger is not installed yet
+        # (e.g., during initial dev before uv sync).
+        formatter = logging.Formatter(
+            "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+            datefmt="%Y-%m-%dT%H:%M:%S",
+        )
 
     handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter(fmt, datefmt=datefmt))
+    handler.setFormatter(formatter)
 
     root = logging.getLogger()
     root.setLevel(getattr(logging, level.upper(), logging.INFO))
     # Avoid duplicate handlers if called more than once
-    if not root.handlers:
-        root.addHandler(handler)
-    else:
-        root.handlers = [handler]
+    root.handlers = [handler]
 
     # Quieten noisy third-party loggers
     logging.getLogger("urllib3").setLevel(logging.WARNING)

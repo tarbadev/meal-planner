@@ -1,27 +1,19 @@
-import json
-import os
-import tempfile
-import threading
-from dataclasses import asdict, dataclass, field
+from __future__ import annotations
+
+from dataclasses import dataclass, field
 from functools import cached_property
-from pathlib import Path
 from typing import Any
 
-# ---------------------------------------------------------------------------
-# Module-level mtime cache so repeated load_recipes() calls within the same
-# request burst hit memory instead of disk.
-# ---------------------------------------------------------------------------
-_cache: dict[str, tuple[float, list["Recipe"]]] = {}  # path → (mtime, recipes)
-_cache_lock = threading.Lock()
+from app.db.models import RecipeModel
 
 
 class RecipeLoadError(Exception):
-    """Raised when recipes cannot be loaded from file."""
+    """Raised when recipes cannot be loaded."""
     pass
 
 
 class RecipeSaveError(Exception):
-    """Raised when recipes cannot be saved to file."""
+    """Raised when recipes cannot be saved."""
     pass
 
 
@@ -70,7 +62,7 @@ class Recipe:
         return " ".join(parts).lower()
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Recipe":
+    def from_dict(cls, data: dict[str, Any]) -> Recipe:
         """Create Recipe from dictionary, supporting both old and new formats.
 
         Old format: flat nutrition fields (calories_per_serving, protein_per_serving, etc.)
@@ -84,23 +76,19 @@ class Recipe:
 
         # Handle nutrition: check if using new nested format or old flat format
         if "nutrition_per_serving" in data:
-            # New format: use nested structure directly
             nutrition_per_serving = data["nutrition_per_serving"]
         else:
             # Old format: migrate flat fields to nested structure
-            # Required nutrition fields in old format
             old_required = ["calories_per_serving", "protein_per_serving", "carbs_per_serving", "fat_per_serving"]
             missing_old = [f for f in old_required if f not in data]
             if missing_old:
                 raise ValueError(f"Missing required nutrition fields: {', '.join(missing_old)}")
 
-            # Migrate to new structure
             nutrition_per_serving = {
                 "calories": data["calories_per_serving"],
                 "protein": data["protein_per_serving"],
                 "carbs": data["carbs_per_serving"],
                 "fat": data["fat_per_serving"],
-                # New fields default to None
                 "saturated_fat": None,
                 "polyunsaturated_fat": None,
                 "monounsaturated_fat": None,
@@ -131,116 +119,41 @@ class Recipe:
             packs_well_as_lunch=data.get("packs_well_as_lunch", False),
         )
 
+    def to_db_dict(self) -> dict[str, Any]:
+        """Serialise to a dict suitable for inserting/updating a RecipeModel row."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "servings": self.servings,
+            "prep_time_minutes": self.prep_time_minutes,
+            "cook_time_minutes": self.cook_time_minutes,
+            "nutrition": self.nutrition_per_serving,
+            "tags": self.tags,
+            "ingredients": self.ingredients,
+            "instructions": self.instructions,
+            "source_url": self.source_url,
+            "image_url": self.image_url,
+            "reheats_well": self.reheats_well,
+            "stores_days": self.stores_days,
+            "packs_well_as_lunch": self.packs_well_as_lunch,
+        }
 
-def load_recipes(file_path: Path | str) -> list[Recipe]:
-    file_path = Path(file_path).resolve()
-    key = str(file_path)
-
-    if not file_path.exists():
-        raise RecipeLoadError(f"Recipe file not found: {file_path}")
-
-    mtime = file_path.stat().st_mtime
-
-    with _cache_lock:
-        if key in _cache and _cache[key][0] == mtime:
-            return list(_cache[key][1])  # shallow copy — callers must not mutate Recipe objects
-
-    try:
-        with open(file_path) as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        raise RecipeLoadError(f"Invalid JSON in recipe file: {e}") from e
-
-    if "recipes" not in data:
-        raise RecipeLoadError("Recipe file must contain a 'recipes' key")
-
-    recipes = [Recipe.from_dict(r) for r in data["recipes"]]
-
-    with _cache_lock:
-        _cache[key] = (mtime, recipes)
-
-    return list(recipes)
-
-
-def save_recipes(file_path: Path | str, recipes: list[Recipe]) -> None:
-    """Save recipes to JSON file with atomic write.
-
-    Args:
-        file_path: Path to the JSON file
-        recipes: List of Recipe objects to save
-
-    Raises:
-        RecipeSaveError: If the file cannot be written
-    """
-    file_path = Path(file_path).resolve()
-
-    # Ensure parent directory exists
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Convert Recipe objects to dicts
-    recipes_data = [asdict(recipe) for recipe in recipes]
-
-    # Wrap in expected structure
-    data = {"recipes": recipes_data}
-
-    try:
-        # Atomic write: write to temp file first, then replace
-        # Use the same directory to ensure same filesystem for atomic rename
-        temp_fd, temp_path = tempfile.mkstemp(
-            dir=file_path.parent,
-            prefix=".recipes_tmp_",
-            suffix=".json"
+    @classmethod
+    def from_orm_model(cls, orm: RecipeModel) -> Recipe:
+        """Construct a Recipe dataclass from a RecipeModel ORM object."""
+        return cls(
+            id=orm.id,
+            name=orm.name,
+            servings=orm.servings,
+            prep_time_minutes=orm.prep_time_minutes,
+            cook_time_minutes=orm.cook_time_minutes,
+            nutrition_per_serving=orm.nutrition or {},
+            tags=list(orm.tags or []),
+            ingredients=list(orm.ingredients or []),
+            instructions=list(orm.instructions or []),
+            source_url=orm.source_url,
+            image_url=orm.image_url,
+            reheats_well=orm.reheats_well,
+            stores_days=orm.stores_days,
+            packs_well_as_lunch=orm.packs_well_as_lunch,
         )
-
-        try:
-            # Write to temp file
-            with os.fdopen(temp_fd, 'w') as f:
-                json.dump(data, f, indent=2)
-
-            # Atomic replace
-            os.replace(temp_path, file_path)
-
-        except Exception:
-            # Clean up temp file if something went wrong
-            try:
-                os.unlink(temp_path)
-            except OSError:
-                pass
-            raise
-
-    except (OSError, PermissionError) as e:
-        raise RecipeSaveError(f"Failed to save recipes to {file_path}: {e}") from e
-
-    # Invalidate the cache so the next load_recipes() sees the new file.
-    with _cache_lock:
-        _cache.pop(str(file_path), None)
-
-
-def update_recipe(recipes: list[Recipe], updated_recipe: Recipe) -> list[Recipe]:
-    """Replace recipe in list by ID, return new list.
-
-    Args:
-        recipes: List of Recipe objects
-        updated_recipe: Recipe object with updated data
-
-    Returns:
-        New list with updated recipe
-
-    Raises:
-        ValueError: If recipe with given ID is not found
-    """
-    # Find the index of the recipe to update
-    recipe_index = None
-    for i, recipe in enumerate(recipes):
-        if recipe.id == updated_recipe.id:
-            recipe_index = i
-            break
-
-    if recipe_index is None:
-        raise ValueError(f"Recipe with ID '{updated_recipe.id}' not found")
-
-    # Create a new list with the updated recipe
-    new_recipes = recipes.copy()
-    new_recipes[recipe_index] = updated_recipe
-
-    return new_recipes

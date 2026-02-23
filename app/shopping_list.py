@@ -204,6 +204,7 @@ class ShoppingListItem:
     unit: str
     category: str
     sources: list[dict] = None  # [{"name": str, "id": str}, …] sorted by name
+    checked: bool = False
 
     def __post_init__(self):
         if self.sources is None:
