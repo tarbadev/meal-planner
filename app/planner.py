@@ -546,3 +546,48 @@ def add_cook_once_slots(
                 # target is a derived slot — don't overwrite, try next offset
 
     return WeeklyPlan(meals=new_meals, daily_calorie_limit=plan.daily_calorie_limit)
+
+
+def apply_cross_week_carryover(
+    plan: WeeklyPlan,
+    previous_plan: WeeklyPlan,
+    no_cook_slots: frozenset[tuple[str, str]],
+    adult_portions: float,
+) -> WeeklyPlan:
+    """Fill Monday no-cook slots with last week's Sunday dinner if it reheats well.
+
+    If the previous week's Sunday dinner is a fresh meal that reheats_well and
+    stores_days >= 1, replace Monday's no-cook slots with a leftover of that meal.
+    """
+    sunday_dinner = next(
+        (
+            m for m in previous_plan.meals
+            if m.day == "Sunday"
+            and m.meal_type == "dinner"
+            and m.meal_source == "fresh"
+            and m.recipe
+            and m.recipe.reheats_well
+            and m.recipe.stores_days >= 1
+        ),
+        None,
+    )
+    if not sunday_dinner:
+        return plan
+
+    recipe = sunday_dinner.recipe
+    new_meals = []
+    for meal in plan.meals:
+        if meal.day == "Monday" and (meal.day, meal.meal_type) in no_cook_slots:
+            new_meals.append(
+                PlannedMeal(
+                    day="Monday",
+                    meal_type=meal.meal_type,
+                    recipe=recipe,
+                    household_portions=adult_portions,
+                    meal_source="leftover",
+                    linked_meal="Sunday:dinner",
+                )
+            )
+        else:
+            new_meals.append(meal)
+    return WeeklyPlan(meals=new_meals, daily_calorie_limit=plan.daily_calorie_limit)

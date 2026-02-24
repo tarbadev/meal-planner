@@ -1829,6 +1829,16 @@
             </div>
             <div id="swipeHint" class="swipe-hint">Swipe left or right to navigate days</div>
 
+            <!-- Week history navigation -->
+            <div id="weekNavBar" style="display:none;align-items:center;justify-content:center;gap:1rem;margin-bottom:1rem;">
+                <button class="btn btn-ghost btn-sm" id="prevWeekBtn" onclick="navigateWeek(-1)">←</button>
+                <span id="weekLabel" style="font-weight:600;min-width:200px;text-align:center;"></span>
+                <button class="btn btn-ghost btn-sm" id="nextWeekBtn" onclick="navigateWeek(1)">→</button>
+            </div>
+            <div id="readOnlyBanner" style="display:none;text-align:center;color:var(--muted);font-size:0.875rem;margin-bottom:0.5rem;">
+                Viewing past week — read only
+            </div>
+
             <div id="weeklyCalendar" class="week-calendar">
                 <!-- Calendar will be rendered by JavaScript -->
             </div>
@@ -2224,6 +2234,8 @@
         const MEAL_SCHEDULE = {{ config.MEAL_SCHEDULE | tojson }};
         let currentPlanData = {% if current_plan %}{{ current_plan | tojson }}{% else %}null{% endif %};
         let currentShoppingList = {% if current_shopping_list %}{{ current_shopping_list.items | tojson }}{% else %}[]{% endif %};
+        let allPlans = [];        // [{id, week_start_date, meal_count}, ...] sorted newest-first
+        let viewingPlanId = null;
 
         function csrfFetch(url, options = {}) {
             return fetch(url, options);
@@ -2392,6 +2404,11 @@
 
         // Generate meal plan
         async function generatePlan() {
+            const hasMeals = currentPlanData?.meals?.length > 0;
+            if (hasMeals) {
+                if (!confirm('Generating a new plan will replace the current week\'s meals. Continue?')) return;
+            }
+
             const btn = document.getElementById('generateBtn');
             if (!btn) return;
 
@@ -2446,12 +2463,25 @@
         // Load current plan
         async function loadCurrentPlan() {
             try {
-                const response = await csrfFetch('/current-plan');
-                const data = await response.json();
+                const [planResp, listResp] = await Promise.all([
+                    csrfFetch('/current-plan'),
+                    csrfFetch('/plans'),
+                ]);
+                const data = await planResp.json();
+                const rawPlans = await listResp.json();
+                // Keep only the newest plan per calendar week (rawPlans is newest-first)
+                const weekSeen = new Set();
+                allPlans = rawPlans.filter(p => {
+                    if (weekSeen.has(p.week_start_date)) return false;
+                    weekSeen.add(p.week_start_date);
+                    return true;
+                });
 
                 if (data.plan) {
                     currentPlanData = data.plan;
+                    viewingPlanId = data.plan_id || null;
                     renderWeeklyCalendar(data.plan);
+                    updateWeekNav(data);
                 }
 
                 if (data.shopping_list) {
@@ -2461,6 +2491,67 @@
             } catch (error) {
                 console.error('Error loading plan:', error);
             }
+        }
+
+        async function loadPlanById(planId) {
+            try {
+                const resp = await csrfFetch(`/plans/${planId}`);
+                const planData = await resp.json();
+                viewingPlanId = planId;
+                currentPlanData = planData;
+                renderWeeklyCalendar(planData);
+                updateWeekNav(planData);
+            } catch (error) {
+                console.error('Error loading plan:', error);
+            }
+        }
+
+        function _formatWeekLabel(weekStartIso) {
+            if (!weekStartIso) return '';
+            const start = new Date(weekStartIso + 'T00:00:00');
+            const end = new Date(start);
+            end.setDate(end.getDate() + 6);
+            const opts = { month: 'short', day: 'numeric' };
+            const startStr = start.toLocaleDateString('en-US', opts);
+            const endStr = end.toLocaleDateString('en-US', { ...opts, year: 'numeric' });
+            return `${startStr} – ${endStr}`;
+        }
+
+        function updateWeekNav(planData) {
+            const navBar = document.getElementById('weekNavBar');
+            const banner = document.getElementById('readOnlyBanner');
+            const weekLabel = document.getElementById('weekLabel');
+            const prevBtn = document.getElementById('prevWeekBtn');
+            const nextBtn = document.getElementById('nextWeekBtn');
+
+            if (!planData || !planData.week_start_date) {
+                navBar.style.display = 'none';
+                banner.style.display = 'none';
+                return;
+            }
+
+            navBar.style.display = 'flex';
+            weekLabel.textContent = _formatWeekLabel(planData.week_start_date);
+
+            const isCurrent = planData.is_current !== false; // unknown → treat as current
+            banner.style.display = isCurrent ? 'none' : 'block';
+
+            // allPlans sorted newest-first; arrows disabled when nothing to navigate to
+            const idx = allPlans.findIndex(p => p.id === viewingPlanId);
+            prevBtn.disabled = idx < 0 || idx >= allPlans.length - 1;
+            nextBtn.disabled = idx < 0 || idx <= 0;
+
+            // Disable edit controls when viewing a past week
+            document.querySelectorAll('.swap-btn, .remove-meal-btn, .update-servings-btn').forEach(btn => {
+                btn.disabled = !isCurrent;
+            });
+        }
+
+        function navigateWeek(dir) {
+            // allPlans sorted newest-first; dir=-1 means older (higher idx), dir=+1 means newer (lower idx)
+            const idx = allPlans.findIndex(p => p.id === viewingPlanId);
+            const target = allPlans[idx - dir];
+            if (target) loadPlanById(target.id);
         }
 
         // Current day index for portrait mode navigation
@@ -3239,6 +3330,7 @@
             renderWeeklyCalendar();
             renderShoppingList();
             loadShoppingListState();
+            loadCurrentPlan();
 
             // Register service worker for PWA
             if ('serviceWorker' in navigator) {

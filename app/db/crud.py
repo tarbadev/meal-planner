@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import datetime
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -113,29 +114,9 @@ async def delete_recipe(db: AsyncSession, recipe_id: str) -> bool:
 # ---------------------------------------------------------------------------
 
 
-async def get_current_plan(
-    db: AsyncSession, household_id: str
-) -> tuple[WeeklyPlan | None, str | None]:
-    """Return (WeeklyPlan, plan_id) for the most recent plan, or (None, None)."""
+def _plan_row_to_weekly_plan(plan_row) -> WeeklyPlan:
+    """Convert a WeeklyPlanModel ORM row to a WeeklyPlan dataclass."""
     from app.planner import PlannedMeal, WeeklyPlan
-
-    stmt = (
-        select(WeeklyPlanModel)
-        .where(WeeklyPlanModel.household_id == household_id)
-        .order_by(WeeklyPlanModel.created_at.desc())
-        .limit(1)
-        .options(
-            selectinload(WeeklyPlanModel.planned_meals).selectinload(
-                PlannedMealModel.recipe
-            )
-        )
-    )
-    result = await db.execute(stmt)
-    plan_row = result.scalar_one_or_none()
-
-    if plan_row is None:
-        return None, None
-
     from app.recipes import Recipe
 
     meals = []
@@ -151,12 +132,31 @@ async def get_current_plan(
                 linked_meal=pm.linked_meal,
             )
         )
+    return WeeklyPlan(meals=meals, daily_calorie_limit=plan_row.daily_calorie_limit)
 
-    plan = WeeklyPlan(
-        meals=meals,
-        daily_calorie_limit=plan_row.daily_calorie_limit,
+
+async def get_current_plan(
+    db: AsyncSession, household_id: str
+) -> tuple[WeeklyPlan | None, str | None, datetime.date | None]:
+    """Return (WeeklyPlan, plan_id, week_start_date) for the most recent plan."""
+    stmt = (
+        select(WeeklyPlanModel)
+        .where(WeeklyPlanModel.household_id == household_id)
+        .order_by(WeeklyPlanModel.created_at.desc())
+        .limit(1)
+        .options(
+            selectinload(WeeklyPlanModel.planned_meals).selectinload(
+                PlannedMealModel.recipe
+            )
+        )
     )
-    return plan, plan_row.id
+    result = await db.execute(stmt)
+    plan_row = result.scalar_one_or_none()
+
+    if plan_row is None:
+        return None, None, None
+
+    return _plan_row_to_weekly_plan(plan_row), plan_row.id, plan_row.week_start_date
 
 
 async def save_plan(
@@ -164,18 +164,35 @@ async def save_plan(
     household_id: str,
     plan: WeeklyPlan,
     manual_overrides: dict | None = None,
+    week_start_date: datetime.date | None = None,
 ) -> str:
     """INSERT a new weekly_plan row + its planned_meals atomically.
 
     Returns the new plan_id (string UUID).
     """
+    if week_start_date is None:
+        today = datetime.date.today()
+        week_start_date = today - datetime.timedelta(days=today.weekday())
+
+    # Enforce one plan per week — delete any existing plan for this household+week.
+    old_result = await db.execute(
+        select(WeeklyPlanModel).where(
+            WeeklyPlanModel.household_id == household_id,
+            WeeklyPlanModel.week_start_date == week_start_date,
+        )
+    )
+    for old_plan in old_result.scalars().all():
+        await db.delete(old_plan)
+    await db.flush()
+
     plan_id = str(uuid.uuid4())
     plan_row = WeeklyPlanModel(
         id=plan_id,
         household_id=household_id,
+        week_start_date=week_start_date,
         daily_calorie_limit=plan.daily_calorie_limit,
         manual_overrides=manual_overrides,
-        created_at=datetime.now(UTC),
+        created_at=datetime.datetime.now(UTC),
     )
     db.add(plan_row)
     await db.flush()
@@ -208,6 +225,89 @@ async def save_plan(
 
     await db.commit()
     return plan_id
+
+
+async def list_plans(
+    db: AsyncSession, household_id: str
+) -> list[dict]:
+    """Return summary rows for all plans, newest-first."""
+    from app.db.models import PlannedMealModel
+
+    stmt = (
+        select(
+            WeeklyPlanModel.id,
+            WeeklyPlanModel.week_start_date,
+            WeeklyPlanModel.created_at,
+            func.count(PlannedMealModel.id).label("meal_count"),
+        )
+        .outerjoin(PlannedMealModel, PlannedMealModel.plan_id == WeeklyPlanModel.id)
+        .where(WeeklyPlanModel.household_id == household_id)
+        .group_by(WeeklyPlanModel.id, WeeklyPlanModel.week_start_date, WeeklyPlanModel.created_at)
+        .order_by(WeeklyPlanModel.week_start_date.desc())
+    )
+    result = await db.execute(stmt)
+    rows = result.all()
+    return [
+        {
+            "id": row.id,
+            "week_start_date": row.week_start_date.isoformat(),
+            "created_at": row.created_at.isoformat() if row.created_at else None,
+            "meal_count": row.meal_count,
+        }
+        for row in rows
+    ]
+
+
+async def get_plan_by_id(
+    db: AsyncSession, plan_id: str, household_id: str
+) -> tuple[WeeklyPlan | None, str | None, datetime.date | None]:
+    """Return (WeeklyPlan, plan_id, week_start_date) for a specific plan UUID."""
+    stmt = (
+        select(WeeklyPlanModel)
+        .where(
+            WeeklyPlanModel.id == plan_id,
+            WeeklyPlanModel.household_id == household_id,
+        )
+        .options(
+            selectinload(WeeklyPlanModel.planned_meals).selectinload(
+                PlannedMealModel.recipe
+            )
+        )
+    )
+    result = await db.execute(stmt)
+    plan_row = result.scalar_one_or_none()
+
+    if plan_row is None:
+        return None, None, None
+
+    return _plan_row_to_weekly_plan(plan_row), plan_row.id, plan_row.week_start_date
+
+
+async def get_plan_by_week_start(
+    db: AsyncSession, household_id: str, week_start: datetime.date
+) -> tuple[WeeklyPlan | None, str | None]:
+    """Return (WeeklyPlan, plan_id) for the plan anchored to week_start, or (None, None)."""
+    stmt = (
+        select(WeeklyPlanModel)
+        .where(
+            WeeklyPlanModel.household_id == household_id,
+            WeeklyPlanModel.week_start_date == week_start,
+        )
+        .order_by(WeeklyPlanModel.created_at.desc())
+        .limit(1)
+        .options(
+            selectinload(WeeklyPlanModel.planned_meals).selectinload(
+                PlannedMealModel.recipe
+            )
+        )
+    )
+    result = await db.execute(stmt)
+    plan_row = result.scalar_one_or_none()
+
+    if plan_row is None:
+        return None, None
+
+    return _plan_row_to_weekly_plan(plan_row), plan_row.id
 
 
 # ---------------------------------------------------------------------------

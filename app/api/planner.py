@@ -1,5 +1,6 @@
 """Planner routes — plan generation, current plan, manual plan edits."""
 
+import datetime
 import logging
 import random
 import threading
@@ -12,7 +13,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app import config
 from app.db import crud
 from app.db.engine import get_db
-from app.planner import MealPlanner, PlannedMeal, WeeklyPlan, add_cook_once_slots
+from app.planner import (
+    MealPlanner,
+    PlannedMeal,
+    WeeklyPlan,
+    add_cook_once_slots,
+    apply_cross_week_carryover,
+)
 from app.recipes import Recipe
 from app.shopping_list import generate_shopping_list
 from app.shopping_normalizer import apply_exclusions, llm_normalize
@@ -173,11 +180,37 @@ def _convert_plan_to_manual_overrides(plan: WeeklyPlan) -> dict:
     return result
 
 
+def _build_plan_from_overrides(
+    overrides: dict,
+    recipes: list[Recipe],
+    calorie_limit: float | None = None,
+) -> WeeklyPlan:
+    """Build a WeeklyPlan from overrides dict without touching the DB."""
+    effective_limit = calorie_limit if calorie_limit is not None else config.DAILY_CALORIE_LIMIT
+    meals = []
+    for day, day_meals in overrides.items():
+        for meal_type, meal_data in day_meals.items():
+            recipe = next((r for r in recipes if r.id == meal_data["recipe_id"]), None)
+            if recipe:
+                meals.append(
+                    PlannedMeal(
+                        day=day,
+                        meal_type=meal_type,
+                        recipe=recipe,
+                        household_portions=meal_data["servings"],
+                        meal_source=meal_data.get("meal_source", "fresh"),
+                        linked_meal=meal_data.get("linked_meal"),
+                    )
+                )
+    return WeeklyPlan(meals=meals, daily_calorie_limit=effective_limit)
+
+
 async def _rebuild_plan_from_overrides(
     db: AsyncSession,
     overrides: dict,
     recipes: list[Recipe],
     calorie_limit: float | None = None,
+    week_start_date: datetime.date | None = None,
 ) -> tuple[WeeklyPlan, str]:
     """Rebuild WeeklyPlan from overrides dict and persist it."""
     effective_limit = calorie_limit if calorie_limit is not None else config.DAILY_CALORIE_LIMIT
@@ -197,7 +230,10 @@ async def _rebuild_plan_from_overrides(
                     )
                 )
     plan = WeeklyPlan(meals=meals, daily_calorie_limit=effective_limit)
-    plan_id = await crud.save_plan(db, config.DEFAULT_HOUSEHOLD_ID, plan, overrides)
+    plan_id = await crud.save_plan(
+        db, config.DEFAULT_HOUSEHOLD_ID, plan, overrides,
+        week_start_date=week_start_date,
+    )
 
     raw_list = generate_shopping_list(plan)
     excluded = await crud.get_excluded_ingredients(db, config.DEFAULT_HOUSEHOLD_ID)
@@ -217,6 +253,9 @@ async def generate(db: AsyncSession = Depends(get_db)):
     """Generate a new weekly meal plan."""
     logger.info("Generating weekly meal plan")
 
+    today = datetime.date.today()
+    new_week_start = today - datetime.timedelta(days=today.weekday())
+
     recipes = await crud.get_recipes(db, config.DEFAULT_HOUSEHOLD_ID)
     planner = MealPlanner(
         household_portions=config.TOTAL_PORTIONS,
@@ -228,8 +267,21 @@ async def generate(db: AsyncSession = Depends(get_db)):
     if config.COOK_ONCE_PLANNING:
         plan = add_cook_once_slots(plan, adult_portions=config.PACKED_LUNCH_PORTIONS)
 
+    # Cross-week carryover: fill Monday no-cook slots from last Sunday's dinner
+    prev_plan, _ = await crud.get_plan_by_week_start(
+        db, config.DEFAULT_HOUSEHOLD_ID, new_week_start - datetime.timedelta(days=7)
+    )
+    if prev_plan:
+        no_cook_slots: frozenset[tuple[str, str]] = frozenset()
+        plan = apply_cross_week_carryover(
+            plan, prev_plan, no_cook_slots, config.PACKED_LUNCH_PORTIONS
+        )
+
     overrides = _convert_plan_to_manual_overrides(plan)
-    plan_id = await crud.save_plan(db, config.DEFAULT_HOUSEHOLD_ID, plan, overrides)
+    plan_id = await crud.save_plan(
+        db, config.DEFAULT_HOUSEHOLD_ID, plan, overrides,
+        week_start_date=new_week_start,
+    )
 
     raw_list = generate_shopping_list(plan)
     excluded = await crud.get_excluded_ingredients(db, config.DEFAULT_HOUSEHOLD_ID)
@@ -262,6 +314,9 @@ async def generate_with_schedule(request: Request, db: AsyncSession = Depends(ge
     portions = data.get("portions", config.TOTAL_PORTIONS)
     calorie_limit = data.get("calorie_limit", config.DAILY_CALORIE_LIMIT)
     max_derived = int(data.get("max_derived", config.COOK_ONCE_MAX_DERIVED))
+
+    today = datetime.date.today()
+    new_week_start = today - datetime.timedelta(days=today.weekday())
 
     recipes = await crud.get_recipes(db, config.DEFAULT_HOUSEHOLD_ID)
 
@@ -311,25 +366,39 @@ async def generate_with_schedule(request: Request, db: AsyncSession = Depends(ge
             "servings": servings,
         }
 
-    plan, plan_id = await _rebuild_plan_from_overrides(db, overrides, recipes, calorie_limit)
+    # Build the initial plan in memory (no DB write yet)
+    plan = _build_plan_from_overrides(overrides, recipes, calorie_limit)
 
-    if config.COOK_ONCE_PLANNING and plan:
+    frozen_no_cook = frozenset(no_cook_slots)
+    if config.COOK_ONCE_PLANNING:
         plan = add_cook_once_slots(
             plan,
             adult_portions=config.PACKED_LUNCH_PORTIONS,
-            no_cook_slots=frozenset(no_cook_slots),
+            no_cook_slots=frozen_no_cook,
             max_derived=max_derived,
         )
-        overrides = _convert_plan_to_manual_overrides(plan)
-        plan_id = await crud.save_plan(db, config.DEFAULT_HOUSEHOLD_ID, plan, overrides)
-        raw_list = generate_shopping_list(plan)
-        excluded = await crud.get_excluded_ingredients(db, config.DEFAULT_HOUSEHOLD_ID)
-        sl = apply_exclusions(raw_list, excluded)
-        await crud.save_shopping_list(db, plan_id, sl)
 
-    norm_task_id = _start_normalization(
-        await crud.get_shopping_list(db, plan_id), plan_id
+        # Cross-week carryover
+        prev_plan, _ = await crud.get_plan_by_week_start(
+            db, config.DEFAULT_HOUSEHOLD_ID, new_week_start - datetime.timedelta(days=7)
+        )
+        if prev_plan:
+            plan = apply_cross_week_carryover(
+                plan, prev_plan, frozen_no_cook, config.PACKED_LUNCH_PORTIONS
+            )
+
+    # Single save — one DB write per generate call
+    overrides = _convert_plan_to_manual_overrides(plan)
+    plan_id = await crud.save_plan(
+        db, config.DEFAULT_HOUSEHOLD_ID, plan, overrides,
+        week_start_date=new_week_start,
     )
+    raw_list = generate_shopping_list(plan)
+    excluded = await crud.get_excluded_ingredients(db, config.DEFAULT_HOUSEHOLD_ID)
+    sl = apply_exclusions(raw_list, excluded)
+    await crud.save_shopping_list(db, plan_id, sl)
+
+    norm_task_id = _start_normalization(sl, plan_id)
 
     return {
         "success": True,
@@ -340,19 +409,52 @@ async def generate_with_schedule(request: Request, db: AsyncSession = Depends(ge
     }
 
 
+@router.get("/plans")
+async def list_plans(db: AsyncSession = Depends(get_db)):
+    """List all plans for the household, newest-first."""
+    return await crud.list_plans(db, config.DEFAULT_HOUSEHOLD_ID)
+
+
+@router.get("/plans/{plan_id}")
+async def get_plan_by_id(plan_id: str, db: AsyncSession = Depends(get_db)):
+    """Get a specific historical plan by UUID."""
+    plan, pid, week_start_date = await crud.get_plan_by_id(
+        db, plan_id, config.DEFAULT_HOUSEHOLD_ID
+    )
+    if plan is None:
+        raise HTTPException(404, detail="Plan not found")
+
+    # Determine if this is the current (most recent) plan
+    current_plan, current_id, _ = await crud.get_current_plan(db, config.DEFAULT_HOUSEHOLD_ID)
+    is_current = current_id == pid
+
+    serialized = _serialize_plan(plan)
+    serialized["plan_id"] = pid
+    serialized["week_start_date"] = week_start_date.isoformat() if week_start_date else None
+    serialized["is_current"] = is_current
+    return serialized
+
+
 @router.get("/current-plan")
 async def get_current_plan(db: AsyncSession = Depends(get_db)):
     """Get the current weekly plan."""
     logger.debug("Fetching current plan")
-    plan, plan_id = await crud.get_current_plan(db, config.DEFAULT_HOUSEHOLD_ID)
+    plan, plan_id, week_start_date = await crud.get_current_plan(db, config.DEFAULT_HOUSEHOLD_ID)
 
     if plan is None:
         return {"plan": None, "message": "No plan generated yet"}
 
     sl = await crud.get_shopping_list(db, plan_id)
+    serialized = _serialize_plan(plan)
+    serialized["plan_id"] = plan_id
+    serialized["week_start_date"] = week_start_date.isoformat() if week_start_date else None
+    serialized["is_current"] = True
 
     return {
-        "plan": _serialize_plan(plan),
+        "plan": serialized,
+        "plan_id": plan_id,
+        "week_start_date": week_start_date.isoformat() if week_start_date else None,
+        "is_current": True,
         "shopping_list": {
             "items": [
                 {
@@ -404,7 +506,7 @@ async def update_current_plan_meal(request: Request, db: AsyncSession = Depends(
     if not recipe:
         raise HTTPException(404, detail=f"Recipe not found: {recipe_id}")
 
-    plan, plan_id = await crud.get_current_plan(db, config.DEFAULT_HOUSEHOLD_ID)
+    plan, plan_id, _ = await crud.get_current_plan(db, config.DEFAULT_HOUSEHOLD_ID)
     overrides = _convert_plan_to_manual_overrides(plan) if plan else {}
     overrides.setdefault(day, {})[meal_type] = {"recipe_id": recipe_id, "servings": servings}
 
@@ -438,7 +540,7 @@ async def add_meal_to_plan(request: Request, db: AsyncSession = Depends(get_db))
     if not recipe:
         raise HTTPException(404, detail=f"Recipe not found: {recipe_id}")
 
-    plan, _ = await crud.get_current_plan(db, config.DEFAULT_HOUSEHOLD_ID)
+    plan, _, _wsd = await crud.get_current_plan(db, config.DEFAULT_HOUSEHOLD_ID)
     overrides = _convert_plan_to_manual_overrides(plan) if plan else {}
     overrides.setdefault(day, {})[meal_type] = {"recipe_id": recipe_id, "servings": servings}
 
@@ -463,7 +565,7 @@ async def remove_meal_from_plan(request: Request, db: AsyncSession = Depends(get
     if not day or not meal_type:
         raise HTTPException(400, detail="Missing day or meal_type")
 
-    plan, _ = await crud.get_current_plan(db, config.DEFAULT_HOUSEHOLD_ID)
+    plan, _, _wsd = await crud.get_current_plan(db, config.DEFAULT_HOUSEHOLD_ID)
     overrides = _convert_plan_to_manual_overrides(plan) if plan else {}
 
     if day in overrides and meal_type in overrides[day]:
@@ -496,7 +598,7 @@ async def update_meal_servings(request: Request, db: AsyncSession = Depends(get_
     if not isinstance(servings, (int, float)) or servings <= 0:
         raise HTTPException(400, detail="servings must be a positive number")
 
-    plan, _ = await crud.get_current_plan(db, config.DEFAULT_HOUSEHOLD_ID)
+    plan, _, _wsd = await crud.get_current_plan(db, config.DEFAULT_HOUSEHOLD_ID)
     overrides = _convert_plan_to_manual_overrides(plan) if plan else {}
 
     if day not in overrides or meal_type not in overrides.get(day, {}):
@@ -524,7 +626,7 @@ async def regenerate_meal(request: Request, db: AsyncSession = Depends(get_db)):
     if not day or not meal_type:
         raise HTTPException(400, detail="Missing day or meal_type")
 
-    plan, _ = await crud.get_current_plan(db, config.DEFAULT_HOUSEHOLD_ID)
+    plan, _, _wsd = await crud.get_current_plan(db, config.DEFAULT_HOUSEHOLD_ID)
     overrides = _convert_plan_to_manual_overrides(plan) if plan else {}
 
     if day not in overrides or meal_type not in overrides.get(day, {}):

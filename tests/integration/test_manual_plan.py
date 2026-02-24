@@ -36,7 +36,7 @@ async def test_add_meal_to_plan(client, db_session: AsyncSession):
     assert resp.status_code == 200
     assert resp.json()["success"] is True
 
-    plan, _ = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
+    plan, _, _wsd = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
     lunch_meals = [m for m in plan.meals if m.day == "Monday" and m.meal_type == "lunch"]
     assert len(lunch_meals) == 1
     assert lunch_meals[0].recipe.id == "recipe-0"
@@ -65,7 +65,7 @@ async def test_remove_meal_from_plan(client, db_session: AsyncSession):
     )
     assert resp.status_code == 200
 
-    plan, _ = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
+    plan, _, _wsd = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
     lunch_meals = [m for m in plan.meals if m.day == "Saturday" and m.meal_type == "lunch"]
     assert len(lunch_meals) == 0
 
@@ -75,7 +75,7 @@ async def test_update_servings(client, db_session: AsyncSession):
     await _seed_and_generate(client, db_session)
 
     # Get any meal from the plan
-    plan, _ = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
+    plan, _, _wsd = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
     assert plan.meals, "Expected at least one meal in plan"
     meal = plan.meals[0]
 
@@ -85,7 +85,7 @@ async def test_update_servings(client, db_session: AsyncSession):
     )
     assert resp.status_code == 200
 
-    updated_plan, _ = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
+    updated_plan, _, _wsd = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
     updated_meal = next(
         m for m in updated_plan.meals
         if m.day == meal.day and m.meal_type == meal.meal_type
@@ -97,7 +97,7 @@ async def test_update_servings(client, db_session: AsyncSession):
 async def test_regenerate_meal(client, db_session: AsyncSession):
     await _seed_and_generate(client, db_session)
 
-    plan, _ = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
+    plan, _, _wsd = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
     meal = plan.meals[0]
 
     resp = await client.post(
@@ -113,11 +113,11 @@ async def test_clear_plan(client, db_session: AsyncSession):
     await _seed_and_generate(client, db_session)
 
     # Confirm plan exists
-    plan, _ = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
+    plan, _, _wsd = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
     assert plan is not None
 
     resp = await client.post("/manual-plan/clear")
     assert resp.status_code == 200
 
-    plan_after, _ = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
+    plan_after, _, _wsd = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
     assert plan_after is None

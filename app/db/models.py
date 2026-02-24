@@ -6,12 +6,14 @@ Alembic migration uses Postgres-native DDL (JSONB, ARRAY, GIN indexes)
 for production; in tests SQLAlchemy's create_all emits plain JSON/TEXT.
 """
 
+import datetime
 import uuid
-from datetime import datetime
+from datetime import datetime as dt
 
 from sqlalchemy import (
     JSON,
     Boolean,
+    Date,
     Float,
     ForeignKey,
     Integer,
@@ -33,7 +35,7 @@ class Household(Base):
 
     id: Mapped[str] = mapped_column(Uuid(as_uuid=False), primary_key=True)
     name: Mapped[str] = mapped_column(Text, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    created_at: Mapped[dt] = mapped_column(server_default=func.now())
 
     recipes: Mapped[list["RecipeModel"]] = relationship(
         back_populates="household", cascade="all, delete-orphan"
@@ -73,8 +75,8 @@ class RecipeModel(Base):
     reheats_well: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     stores_days: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     packs_well_as_lunch: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
+    created_at: Mapped[dt] = mapped_column(server_default=func.now())
+    updated_at: Mapped[dt] = mapped_column(
         server_default=func.now(), onupdate=func.now()
     )
 
@@ -93,9 +95,10 @@ class WeeklyPlanModel(Base):
         ForeignKey("households.id", ondelete="CASCADE"),
         index=True,
     )
+    week_start_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     daily_calorie_limit: Mapped[float | None] = mapped_column(Float)
     manual_overrides: Mapped[dict | None] = mapped_column(JSON)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    created_at: Mapped[dt] = mapped_column(server_default=func.now())
 
     household: Mapped["Household"] = relationship(back_populates="weekly_plans")
     planned_meals: Mapped[list["PlannedMealModel"]] = relationship(

@@ -32,7 +32,7 @@ async def test_generate_creates_plan(client, db_session: AsyncSession):
     body = resp.json()
     assert body["success"] is True
 
-    plan, plan_id = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
+    plan, plan_id, _ = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
     assert plan is not None
     assert len(plan.meals) > 0
     assert plan_id is not None
@@ -78,7 +78,7 @@ async def test_generate_with_schedule(client, db_session: AsyncSession):
     body = resp.json()
     assert body["success"] is True
 
-    plan, _ = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
+    plan, _, _wsd = await crud.get_current_plan(db_session, TEST_HOUSEHOLD_ID)
     assert plan is not None
     days = {m.day for m in plan.meals}
     assert days <= {"Monday", "Tuesday", "Wednesday"}

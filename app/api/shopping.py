@@ -16,7 +16,7 @@ router = APIRouter()
 
 async def _get_plan_id(db: AsyncSession):
     """Helper: return current plan_id or raise 404."""
-    _, plan_id = await crud.get_current_plan(db, config.DEFAULT_HOUSEHOLD_ID)
+    _, plan_id, _wsd = await crud.get_current_plan(db, config.DEFAULT_HOUSEHOLD_ID)
     if plan_id is None:
         raise HTTPException(404, detail="No shopping list available")
     return plan_id
