@@ -345,3 +345,13 @@ async def update_recipe_endpoint(
         "success": True,
         "message": f"Recipe '{updated_recipe.name}' updated successfully. Please regenerate your meal plan.",
     }
+
+
+@router.delete("/recipes/{recipe_id}")
+async def delete_recipe_endpoint(recipe_id: str, db: AsyncSession = Depends(get_db)):
+    """Delete a recipe by slug/id."""
+    logger.info("Deleting recipe", extra={"recipe_id": recipe_id})
+    deleted = await crud.delete_recipe(db, recipe_id)
+    if not deleted:
+        raise HTTPException(404, detail=f"No recipe found with ID '{recipe_id}'")
+    return {"success": True, "message": f"Recipe '{recipe_id}' deleted"}
