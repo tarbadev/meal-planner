@@ -62,6 +62,8 @@ jobs:
     env:
       DATABASE_URL: postgresql+psycopg://meal_planner:meal_planner@localhost:5432/meal_planner
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      USDA_API_KEY: ${{ secrets.USDA_API_KEY }}
+      LOG_LEVEL: DEBUG
 
     steps:
       - name: Checkout code
@@ -81,7 +83,7 @@ jobs:
 
       - name: Start app in background
         run: |
-          uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 > /tmp/app.log 2>&1 &
           echo $! > /tmp/app.pid
 
       - name: Wait for app to be ready
@@ -94,10 +96,18 @@ jobs:
             echo "Waiting for app... ($i/30)"
             sleep 2
           done
-          curl -sf http://localhost:8000/health || (echo "App failed to start" && exit 1)
+          if ! curl -sf http://localhost:8000/health; then
+            echo "=== App failed to start. Logs: ==="
+            cat /tmp/app.log
+            exit 1
+          fi
 
       - name: Run E2E tests
         run: uv run pytest tests/e2e/ -v
+
+      - name: Print app logs
+        if: always()
+        run: cat /tmp/app.log
 
       - name: Stop app
         if: always()
