@@ -1614,6 +1614,15 @@
                 font-size: 16px !important; /* Prevent iOS zoom on focus */
             }
 
+            /* Excluded ingredients row — wrap button below input on mobile */
+            #excludedIngredientRow {
+                flex-wrap: wrap;
+            }
+
+            #excludedIngredientInput {
+                font-size: 16px; /* Prevent iOS auto-zoom on focus */
+            }
+
             /* Tag filters with better touch targets */
             .tag-filter,
             .clear-all-btn {
@@ -1977,9 +1986,9 @@
                     <h3>Excluded Ingredients</h3>
                     <p style="color: var(--color-text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Ingredients that will never appear in the shopping list (e.g. water, salt).</p>
                     <div id="excludedTagsList" style="display: flex; flex-wrap: wrap; gap: 0.375rem; margin-bottom: 0.75rem;"></div>
-                    <div style="display: flex; gap: 0.5rem;">
+                    <div id="excludedIngredientRow" style="display: flex; gap: 0.5rem;">
                         <input type="text" id="excludedIngredientInput" placeholder="Add ingredient…"
-                               style="flex: 1;"
+                               style="flex: 1; min-width: 0;"
                                onkeydown="if(event.key==='Enter'){event.preventDefault();addExcludedIngredient();}">
                         <button class="btn btn-outline" onclick="addExcludedIngredient()">Add</button>
                     </div>
