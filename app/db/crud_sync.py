@@ -67,17 +67,21 @@ def upsert_recipe(db: Session, recipe: Recipe, household_id: str) -> Recipe:
         select(RecipeModel).where(RecipeModel.slug == recipe.id)
     ).scalar_one_or_none()
 
-    if existing:
-        for key, value in data.items():
-            setattr(existing, key, value)
-        orm_obj = existing
-    else:
-        orm_obj = RecipeModel(**data)
-        db.add(orm_obj)
+    try:
+        if existing:
+            for key, value in data.items():
+                setattr(existing, key, value)
+            orm_obj = existing
+        else:
+            orm_obj = RecipeModel(**data)
+            db.add(orm_obj)
 
-    db.commit()
-    db.refresh(orm_obj)
-    return Recipe.from_orm_model(orm_obj)
+        db.commit()
+        db.refresh(orm_obj)
+        return Recipe.from_orm_model(orm_obj)
+    except Exception:
+        db.rollback()
+        raise
 
 
 # ---------------------------------------------------------------------------

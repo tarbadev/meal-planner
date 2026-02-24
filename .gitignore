@@ -20,3 +20,6 @@ credentials.json
 
 # OS
 .DS_Store
+
+# Spoonacular import recovery queue (transient state, not for version control)
+scripts/pending_spoonacular/

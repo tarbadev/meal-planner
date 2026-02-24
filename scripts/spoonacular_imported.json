@@ -241,6 +241,7 @@
     638026,
     631882,
     664650,
+    756814,
     642129,
     654425,
     642138,
@@ -286,6 +287,7 @@
     652651,
     652652,
     642413,
+    644462,
     646512,
     658803,
     634229,
@@ -422,6 +424,7 @@
     661340,
     649073,
     657277,
+    655235,
     655239,
     1066893,
     632723,
@@ -449,11 +452,11 @@
     663545,
     653308
   ],
-  "last_updated": "2026-02-21T19:20:08.152605",
+  "last_updated": "2026-02-23T21:53:58.608012",
   "variety_state": {
-    "cuisine_index": 8,
-    "meal_type_index": 8,
-    "diet_index": 8
+    "cuisine_index": 10,
+    "meal_type_index": 10,
+    "diet_index": 10
   },
   "search_offsets": {
     "american|main course|": 126,
@@ -472,6 +475,10 @@
     "chinese||": 42,
     "|bread|": 51,
     "european|breakfast|primal": 2,
-    "european|breakfast|": 64
+    "european|breakfast|": 64,
+    "german|beverage|": 1,
+    "german||": 15,
+    "|beverage|": 201,
+    "||": 200
   }
 }

@@ -19,6 +19,7 @@ from sqlalchemy import (
     UniqueConstraint,
     Uuid,
 )
+from sqlalchemy.dialects.postgresql import ARRAY as PgARRAY
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -59,7 +60,12 @@ class RecipeModel(Base):
     cook_time_minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     # JSON in SQLite, JSONB in Postgres (migration handles DDL)
     nutrition: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
-    tags: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    # TEXT[] on PostgreSQL (supports GIN index), JSON on SQLite for tests
+    tags: Mapped[list] = mapped_column(
+        JSON().with_variant(PgARRAY(Text), "postgresql"),
+        nullable=False,
+        default=list,
+    )
     ingredients: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     instructions: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     source_url: Mapped[str | None] = mapped_column(Text)

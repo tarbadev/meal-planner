@@ -68,6 +68,12 @@ DIETS = [
 # File to track all persistent state
 TRACKING_FILE = Path(__file__).parent / "spoonacular_imported.json"
 
+# Raw API responses that haven't been saved to the DB yet.
+# Each file is {spoonacular_id}.json and is written before the DB insert,
+# then deleted on success.  On the next run, any leftover files are retried
+# before fetching new recipes.
+PENDING_DIR = Path(__file__).parent / "pending_spoonacular"
+
 # Spoonacular allows up to 100 results per request
 BATCH_SIZE = 100
 
@@ -93,6 +99,72 @@ def save_state(state: dict) -> None:
 
 def search_key(cuisine, meal_type, diet) -> str:
     return f"{cuisine or ''}|{meal_type or ''}|{diet or ''}"
+
+
+# ---------------------------------------------------------------------------
+# Pending queue — durably persist raw API responses before DB insert
+# ---------------------------------------------------------------------------
+
+def save_pending(spoonacular_id: int, recipe_data: dict) -> None:
+    """Write raw Spoonacular JSON to disk before attempting a DB insert."""
+    PENDING_DIR.mkdir(exist_ok=True)
+    path = PENDING_DIR / f"{spoonacular_id}.json"
+    with open(path, "w") as f:
+        json.dump(recipe_data, f)
+
+
+def remove_pending(spoonacular_id: int) -> None:
+    """Delete the pending file after a successful DB insert."""
+    path = PENDING_DIR / f"{spoonacular_id}.json"
+    if path.exists():
+        path.unlink()
+
+
+def process_pending(db, existing_ids: set, existing_names: set, tag_inferencer, imported_ids: set) -> int:
+    """Retry any recipes that were fetched but not saved in a previous run.
+
+    Returns the number of recipes successfully recovered.
+    """
+    if not PENDING_DIR.exists():
+        return 0
+
+    pending_files = sorted(PENDING_DIR.glob("*.json"))
+    if not pending_files:
+        return 0
+
+    print(f"Found {len(pending_files)} pending recipe(s) from a previous run — retrying…")
+    recovered = 0
+
+    for pending_file in pending_files:
+        spoonacular_id = int(pending_file.stem)
+        with open(pending_file) as f:
+            recipe_data = json.load(f)
+
+        name = recipe_data.get("title", pending_file.stem)
+        try:
+            parsed, _ = parse_spoonacular_recipe(recipe_data)
+            parsed.tags = tag_inferencer.enhance_tags(
+                name=parsed.name,
+                ingredients=parsed.ingredients or [],
+                instructions=parsed.instructions or [],
+                prep_time_minutes=parsed.prep_time_minutes or 0,
+                cook_time_minutes=parsed.cook_time_minutes or 0,
+                existing_tags=parsed.tags or [],
+            )
+            recipe_id = generate_recipe_id(parsed.name, existing_ids)
+            existing_ids.add(recipe_id)
+            existing_names.add(name.lower())
+            new_recipe = Recipe.from_dict(parsed.to_recipe_dict(recipe_id))
+            upsert_recipe(db, new_recipe, config.DEFAULT_HOUSEHOLD_ID)
+            imported_ids.add(spoonacular_id)
+            remove_pending(spoonacular_id)
+            recovered += 1
+            print(f"   ✅ Recovered: {name}")
+        except Exception as e:
+            logger.exception("Failed to recover pending recipe", extra={"recipe_name": name})
+            print(f"   ❌ Still failing: {name} — {e}")
+
+    return recovered
 
 
 # ---------------------------------------------------------------------------
@@ -228,6 +300,13 @@ def main():
     print(f"Previously tracked Spoonacular IDs: {len(imported_ids)}")
     print()
 
+    # ---- Retry any recipes that failed to save in a previous run ----
+    tag_inferencer = TagInferencer()
+    recovered = process_pending(db, existing_ids, existing_names, tag_inferencer, imported_ids)
+    if recovered:
+        print(f"Recovered {recovered} recipe(s) from pending queue")
+        print()
+
     # ---- Build ordered list of search strategies for this run ----
     # Primary: today's variety combination
     cuisine   = CUISINES[variety["cuisine_index"] % len(CUISINES)]
@@ -259,8 +338,6 @@ def main():
     imported_count = 0
     skipped_count  = 0
     failed_count   = 0
-
-    tag_inferencer = TagInferencer()
 
     print("=" * 70)
     print("Fetching recipes from Spoonacular...")
@@ -328,6 +405,7 @@ def main():
                     imported_ids.add(spoonacular_id)  # don't re-check next time
                     continue
 
+                save_pending(spoonacular_id, recipe_data)
                 try:
                     logger.info("Importing recipe from Spoonacular", extra={"recipe_name": name, "spoonacular_id": spoonacular_id})
                     print(f"   📥 Importing: {name}")
@@ -348,6 +426,7 @@ def main():
 
                     new_recipe = Recipe.from_dict(parsed.to_recipe_dict(recipe_id))
                     upsert_recipe(db, new_recipe, config.DEFAULT_HOUSEHOLD_ID)
+                    remove_pending(spoonacular_id)
                     existing_recipes.append(new_recipe)
                     imported_ids.add(spoonacular_id)
                     imported_count += 1
